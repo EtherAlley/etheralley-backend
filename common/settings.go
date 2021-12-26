@@ -7,12 +7,10 @@ import (
 )
 
 type Settings struct {
-	Env                string
-	Port               string
-	QueueName          string
-	RedisPort          string
-	PgConnectionString string
-	MongoDBURI         string
+	Env        string
+	Port       string
+	RedisPort  string
+	MongoDBURI string
 }
 
 func NewSettings() *Settings {
@@ -22,12 +20,10 @@ func NewSettings() *Settings {
 	}
 
 	return &Settings{
-		Env:                os.Getenv("ENV"),
-		Port:               os.Getenv("PORT"),
-		QueueName:          os.Getenv("QUEUE_NAME"),
-		RedisPort:          os.Getenv("REDIS_PORT"),
-		PgConnectionString: os.Getenv("PG_CONNECTION_STRING"),
-		MongoDBURI:         os.Getenv("MONGODB_URI"),
+		Env:        os.Getenv("ENV"),
+		Port:       os.Getenv("PORT"),
+		RedisPort:  os.Getenv("REDIS_PORT"),
+		MongoDBURI: os.Getenv("MONGODB_URI"),
 	}
 }
 
