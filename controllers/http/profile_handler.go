@@ -48,6 +48,7 @@ func (handler *ProfileHandler) SaveProfile(w http.ResponseWriter, r *http.Reques
 	err := json.NewDecoder(r.Body).Decode(&profile)
 
 	if err != nil {
+		handler.logger.Err(err, "error decoding")
 		RenderErr(w, http.StatusBadRequest, "Invalid request.")
 		return
 	}
@@ -55,6 +56,7 @@ func (handler *ProfileHandler) SaveProfile(w http.ResponseWriter, r *http.Reques
 	err = handler.profileUsecase.SaveProfile(r.Context(), address, profile)
 
 	if err != nil {
+		handler.logger.Err(err, "error saving")
 		RenderErr(w, http.StatusBadRequest, "Invalid request.")
 		return
 	}

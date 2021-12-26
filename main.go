@@ -32,6 +32,7 @@ func main() {
 	container.Provide(mongo.NewDb)
 	container.Provide(mongo.NewProfileRepository)
 	container.Provide(usecases.NewProfileUseCase)
+	container.Provide(http.NewRecovererMiddleware)
 	container.Provide(http.NewHealthHandler)
 	container.Provide(http.NewProfileHandler)
 	container.Provide(http.NewHttpController)

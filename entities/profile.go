@@ -1,11 +1,15 @@
 package entities
 
+type XYPosition struct {
+	X int `bson:"x" json:"x"`
+	Y int `bson:"y" json:"y"`
+}
+
 type Element struct {
-	Id        string                 `bson:"id" json:"id"`
-	Type      string                 `bson:"type" json:"type"`
-	PositionX uint                   `bson:"position_x" json:"position_x"`
-	PositionY uint                   `bson:"position_y" json:"position_y"`
-	Data      map[string]interface{} `bson:"data" json:"data"`
+	Id       string                 `bson:"id" json:"id"`
+	Type     string                 `bson:"type" json:"type"`
+	Position XYPosition             `bson:"position" json:"position"`
+	Data     map[string]interface{} `bson:"data" json:"data"`
 }
 
 type Profile struct {

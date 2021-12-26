@@ -6,21 +6,24 @@ import (
 
 	"github.com/eflem00/go-example-app/common"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 type HttpController struct {
-	settings       *common.Settings
-	logger         *common.Logger
-	profileHandler *ProfileHandler
-	healthHandler  *HealthHandler
+	settings            *common.Settings
+	logger              *common.Logger
+	profileHandler      *ProfileHandler
+	healthHandler       *HealthHandler
+	recovererMiddleware *RecovererMiddleware
 }
 
-func NewHttpController(settings *common.Settings, logger *common.Logger, profileHandler *ProfileHandler, healthHandler *HealthHandler) *HttpController {
+func NewHttpController(settings *common.Settings, logger *common.Logger, profileHandler *ProfileHandler, healthHandler *HealthHandler, recovererMiddleware *RecovererMiddleware) *HttpController {
 	return &HttpController{
 		settings,
 		logger,
 		profileHandler,
 		healthHandler,
+		recovererMiddleware,
 	}
 }
 
@@ -28,6 +31,16 @@ func (controller *HttpController) Start() error {
 	controller.logger.Info("Starting http controller")
 
 	r := chi.NewRouter()
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://etheralley.io", "http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
+	r.Use(controller.recovererMiddleware.Recoverer)
+
 	r.Get("/", controller.healthHandler.Health)
 	r.Get("/health", controller.healthHandler.Health)
 	r.Get("/profiles/{address}", controller.profileHandler.GetProfileByAddress)
