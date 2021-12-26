@@ -9,7 +9,7 @@ import (
 	"github.com/eflem00/go-example-app/controllers"
 	"github.com/eflem00/go-example-app/controllers/http"
 	"github.com/eflem00/go-example-app/gateways/cache"
-	"github.com/eflem00/go-example-app/gateways/db"
+	"github.com/eflem00/go-example-app/gateways/mongo"
 	"github.com/eflem00/go-example-app/usecases"
 	"go.uber.org/dig"
 )
@@ -29,8 +29,8 @@ func main() {
 	container.Provide(common.NewSettings)
 	container.Provide(common.NewLogger)
 	container.Provide(cache.NewCache)
-	container.Provide(db.NewDb)
-	container.Provide(db.NewProfileRepository)
+	container.Provide(mongo.NewDb)
+	container.Provide(mongo.NewProfileRepository)
 	container.Provide(usecases.NewProfileUseCase)
 	container.Provide(http.NewHealthHandler)
 	container.Provide(http.NewProfileHandler)

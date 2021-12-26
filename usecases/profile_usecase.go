@@ -3,22 +3,21 @@ package usecases
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"time"
 
 	"github.com/eflem00/go-example-app/common"
 	"github.com/eflem00/go-example-app/entities"
 	"github.com/eflem00/go-example-app/gateways/cache"
-	"github.com/eflem00/go-example-app/gateways/db"
+	"github.com/eflem00/go-example-app/gateways/mongo"
 )
 
 type ProfileUsecase struct {
 	logger            *common.Logger
 	cache             *cache.Cache
-	profileRepository *db.ProfileRepository
+	profileRepository *mongo.ProfileRepository
 }
 
-func NewProfileUseCase(logger *common.Logger, cache *cache.Cache, profileRepository *db.ProfileRepository) *ProfileUsecase {
+func NewProfileUseCase(logger *common.Logger, cache *cache.Cache, profileRepository *mongo.ProfileRepository) *ProfileUsecase {
 	return &ProfileUsecase{
 		logger,
 		cache,
@@ -35,10 +34,10 @@ func (uc *ProfileUsecase) GetProfileByAddress(ctx context.Context, address strin
 	if err != nil {
 		uc.logger.Debugf("Cache miss for key %v", address)
 
-		profile, err := uc.profileRepository.GetProfileByAddress(address)
+		profile, err := uc.profileRepository.GetProfileByAddress(ctx, address)
 
 		if err != nil {
-			return entities.Profile{}, errors.New("no value for provided key")
+			return entities.Profile{}, err
 		}
 
 		uc.cache.Set(ctx, address, profile, time.Hour)
@@ -63,5 +62,5 @@ func (uc *ProfileUsecase) SaveProfile(ctx context.Context, address string, profi
 		uc.cache.Set(ctx, address, string(profileBytes), time.Hour)
 	}
 
-	return uc.profileRepository.SaveProfile(address, profile)
+	return uc.profileRepository.SaveProfile(ctx, profile)
 }

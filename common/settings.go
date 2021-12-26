@@ -12,6 +12,7 @@ type Settings struct {
 	QueueName          string
 	RedisPort          string
 	PgConnectionString string
+	MongoDBURI         string
 }
 
 func NewSettings() *Settings {
@@ -26,6 +27,7 @@ func NewSettings() *Settings {
 		QueueName:          os.Getenv("QUEUE_NAME"),
 		RedisPort:          os.Getenv("REDIS_PORT"),
 		PgConnectionString: os.Getenv("PG_CONNECTION_STRING"),
+		MongoDBURI:         os.Getenv("MONGODB_URI"),
 	}
 }
 
