@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -30,7 +31,8 @@ func (cache *Cache) Get(ctx context.Context, key string) (string, error) {
 }
 
 func (cache *Cache) Set(ctx context.Context, key string, value interface{}, exp time.Duration) (string, error) {
-	return cache.redisClient.Set(ctx, key, value, exp).Result()
+	bytes, _ := json.Marshal(value)
+	return cache.redisClient.Set(ctx, key, string(bytes), exp).Result()
 }
 
 func (cache *Cache) Touch(ctx context.Context, key string) error {
