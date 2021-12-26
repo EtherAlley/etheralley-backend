@@ -16,6 +16,8 @@ func NewRecovererMiddleware(logger *common.Logger) *RecovererMiddleware {
 	}
 }
 
+// Recoverer is a middleware that recovers from panics, logs the panic,
+// and returns a HTTP 400 status to obfuscate internal errors from bad actors.
 func (m *RecovererMiddleware) Recoverer(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
@@ -23,7 +25,7 @@ func (m *RecovererMiddleware) Recoverer(next http.Handler) http.Handler {
 
 				m.logger.Errorf("Caught panic in recoverer: %+v", rvr)
 
-				w.WriteHeader(http.StatusInternalServerError)
+				w.WriteHeader(http.StatusBadRequest)
 			}
 		}()
 

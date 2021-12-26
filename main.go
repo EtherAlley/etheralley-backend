@@ -8,8 +8,8 @@ import (
 	"github.com/eflem00/go-example-app/common"
 	"github.com/eflem00/go-example-app/controllers"
 	"github.com/eflem00/go-example-app/controllers/http"
-	"github.com/eflem00/go-example-app/gateways/cache"
 	"github.com/eflem00/go-example-app/gateways/mongo"
+	"github.com/eflem00/go-example-app/gateways/redis"
 	"github.com/eflem00/go-example-app/usecases"
 	"go.uber.org/dig"
 )
@@ -28,7 +28,8 @@ func main() {
 	container := dig.New()
 	container.Provide(common.NewSettings)
 	container.Provide(common.NewLogger)
-	container.Provide(cache.NewCache)
+	container.Provide(redis.NewCache)
+	container.Provide(redis.NewProfileCache)
 	container.Provide(mongo.NewDb)
 	container.Provide(mongo.NewProfileRepository)
 	container.Provide(usecases.NewProfileUseCase)

@@ -2,25 +2,23 @@ package usecases
 
 import (
 	"context"
-	"encoding/json"
-	"time"
 
 	"github.com/eflem00/go-example-app/common"
 	"github.com/eflem00/go-example-app/entities"
-	"github.com/eflem00/go-example-app/gateways/cache"
 	"github.com/eflem00/go-example-app/gateways/mongo"
+	"github.com/eflem00/go-example-app/gateways/redis"
 )
 
 type ProfileUsecase struct {
 	logger            *common.Logger
-	cache             *cache.Cache
+	profileCache      *redis.ProfileCache
 	profileRepository *mongo.ProfileRepository
 }
 
-func NewProfileUseCase(logger *common.Logger, cache *cache.Cache, profileRepository *mongo.ProfileRepository) *ProfileUsecase {
+func NewProfileUseCase(logger *common.Logger, profileCache *redis.ProfileCache, profileRepository *mongo.ProfileRepository) *ProfileUsecase {
 	return &ProfileUsecase{
 		logger,
-		cache,
+		profileCache,
 		profileRepository,
 	}
 }
@@ -28,7 +26,7 @@ func NewProfileUseCase(logger *common.Logger, cache *cache.Cache, profileReposit
 // check cache for key and touch if we get a cache hit
 // if cache miss, go to persistant storage and set
 func (uc *ProfileUsecase) GetProfileByAddress(ctx context.Context, address string) (entities.Profile, error) {
-	profileString, err := uc.cache.Get(ctx, address)
+	profile, err := uc.profileCache.GetProfileByAddress(ctx, address)
 
 	// should check the type of error for redis.Nil here but we'll keep it simple and treat this as a cache miss
 	if err != nil {
@@ -40,27 +38,19 @@ func (uc *ProfileUsecase) GetProfileByAddress(ctx context.Context, address strin
 			return entities.Profile{}, err
 		}
 
-		uc.cache.Set(ctx, address, profile, time.Hour)
-
-		return profile, nil
-	} else { // cache hit, use the value and touch the key
-		uc.logger.Debugf("Cache hit for key %v", address)
-
-		uc.cache.Touch(ctx, address)
-
-		profile := entities.Profile{}
-		json.Unmarshal([]byte(profileString), &profile)
+		uc.profileCache.SaveProfile(ctx, profile)
 
 		return profile, nil
 	}
+
+	// cache hit, use the value and touch the key
+	uc.logger.Debugf("Cache hit for key %v", address)
+
+	return profile, nil
 }
 
 func (uc *ProfileUsecase) SaveProfile(ctx context.Context, address string, profile entities.Profile) error {
-	profileBytes, err := json.Marshal(profile)
-
-	if err == nil {
-		uc.cache.Set(ctx, address, string(profileBytes), time.Hour)
-	}
+	uc.profileCache.SaveProfile(ctx, profile)
 
 	return uc.profileRepository.SaveProfile(ctx, profile)
 }
