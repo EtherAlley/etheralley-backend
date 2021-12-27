@@ -28,14 +28,14 @@ func (m *AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler 
 			return
 		}
 
-		msg, err := m.authUseCase.GetChallengeMessage(r.Context(), address)
+		challenge, err := m.authUseCase.GetChallenge(r.Context(), address)
 
 		if err != nil {
 			RenderNoBody(w, http.StatusUnauthorized)
 			return
 		}
 
-		authentic := m.authUseCase.VerifySignature(address, token[1], []byte(msg))
+		authentic := m.authUseCase.VerifySignature(address, token[1], challenge.Bytes())
 
 		if !authentic {
 			RenderNoBody(w, http.StatusUnauthorized)

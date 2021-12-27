@@ -3,8 +3,8 @@ package usecases
 import (
 	"context"
 	"fmt"
-	"math/rand"
 
+	"github.com/eflem00/go-example-app/entities"
 	"github.com/eflem00/go-example-app/gateways/redis"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -12,25 +12,24 @@ import (
 )
 
 type AuthenticationUseCase struct {
-	authCache *redis.AuthCache
+	challengeCache *redis.ChallengeCache
 }
 
-func NewAuthenticationUseCase(authCache *redis.AuthCache) *AuthenticationUseCase {
+func NewAuthenticationUseCase(challengeCache *redis.ChallengeCache) *AuthenticationUseCase {
 	return &AuthenticationUseCase{
-		authCache,
+		challengeCache,
 	}
 }
 
-func (uc *AuthenticationUseCase) GetChallengeMessage(ctx context.Context, address string) (string, error) {
-	msg, err := uc.authCache.GetChallengeMessage(ctx, address)
+func (uc *AuthenticationUseCase) GetChallenge(ctx context.Context, address string) (*entities.Challenge, error) {
+	challenge, err := uc.challengeCache.GetChallenge(ctx, address)
 
 	if err != nil {
-		msg = randString()
-		err = uc.authCache.SetChallengeMessage(ctx, address, msg)
-		return msg, err
+		challenge = entities.NewChallenge()
+		err = uc.challengeCache.SetChallenge(ctx, address, challenge)
 	}
 
-	return msg, nil
+	return challenge, err
 }
 
 // https://gist.github.com/dcb9/385631846097e1f59e3cba3b1d42f3ed#file-eth_sign_verify-go
@@ -57,15 +56,4 @@ func (uc *AuthenticationUseCase) VerifySignature(from, sigHex string, msgBytes [
 	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
 
 	return fromAddr == recoveredAddr
-}
-
-// https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-go
-func randString() string {
-	letterBytes := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	stringLen := 10
-	bytes := make([]byte, stringLen)
-	for i := range bytes {
-		bytes[i] = letterBytes[rand.Intn(len(letterBytes))]
-	}
-	return string(bytes)
 }
