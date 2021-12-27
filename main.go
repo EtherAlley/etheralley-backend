@@ -1,9 +1,11 @@
 package main
 
 import (
+	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/eflem00/go-example-app/common"
 	"github.com/eflem00/go-example-app/controllers"
@@ -24,19 +26,29 @@ func awaitSigterm(logger *common.Logger) {
 	logger.Infof("caught sigterm %v", sig)
 }
 
+func setRandSeed() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 func main() {
 	container := dig.New()
 	container.Provide(common.NewSettings)
 	container.Provide(common.NewLogger)
 	container.Provide(redis.NewCache)
 	container.Provide(redis.NewProfileCache)
+	container.Provide(redis.NewAuthCache)
 	container.Provide(mongo.NewDb)
 	container.Provide(mongo.NewProfileRepository)
 	container.Provide(usecases.NewProfileUseCase)
-	container.Provide(http.NewRecovererMiddleware)
+	container.Provide(usecases.NewAuthenticationUseCase)
 	container.Provide(http.NewHealthHandler)
 	container.Provide(http.NewProfileHandler)
+	container.Provide(http.NewAuthHandler)
+	container.Provide(http.NewRecovererMiddleware)
+	container.Provide(http.NewAuthenticationMiddleware)
 	container.Provide(http.NewHttpController)
+
+	setRandSeed()
 
 	// start controllers in concurrent go routines
 	err := container.Invoke(func(controller *http.HttpController) {

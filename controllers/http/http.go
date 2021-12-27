@@ -15,15 +15,19 @@ type HttpController struct {
 	profileHandler      *ProfileHandler
 	healthHandler       *HealthHandler
 	recovererMiddleware *RecovererMiddleware
+	authHandler         *AuthHandler
+	authMiddleware      *AuthenticationMiddleware
 }
 
-func NewHttpController(settings *common.Settings, logger *common.Logger, profileHandler *ProfileHandler, healthHandler *HealthHandler, recovererMiddleware *RecovererMiddleware) *HttpController {
+func NewHttpController(settings *common.Settings, logger *common.Logger, profileHandler *ProfileHandler, healthHandler *HealthHandler, recovererMiddleware *RecovererMiddleware, authHandler *AuthHandler, authMiddleware *AuthenticationMiddleware) *HttpController {
 	return &HttpController{
 		settings,
 		logger,
 		profileHandler,
 		healthHandler,
 		recovererMiddleware,
+		authHandler,
+		authMiddleware,
 	}
 }
 
@@ -44,7 +48,8 @@ func (controller *HttpController) Start() error {
 	r.Get("/", controller.healthHandler.Health)
 	r.Get("/health", controller.healthHandler.Health)
 	r.Get("/profiles/{address}", controller.profileHandler.GetProfileByAddress)
-	r.Put("/profiles/{address}", controller.profileHandler.SaveProfile)
+	r.With(controller.authMiddleware.Authenticate).Put("/profiles/{address}", controller.profileHandler.SaveProfile)
+	r.Get("/auth/{address}", controller.authHandler.GetChallengeMessage)
 
 	port := controller.settings.Port
 
