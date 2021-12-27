@@ -53,7 +53,9 @@ func (handler *ProfileHandler) SaveProfile(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = handler.profileUsecase.SaveProfile(r.Context(), address, profile)
+	profile.Address = address
+
+	err = handler.profileUsecase.SaveProfile(r.Context(), profile)
 
 	if err != nil {
 		handler.logger.Err(err, "error saving")

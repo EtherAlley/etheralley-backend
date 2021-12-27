@@ -13,6 +13,6 @@ type Element struct {
 }
 
 type Profile struct {
-	Address  string    `bson:"_id" json:"address"`
+	Address  string    `bson:"_id" json:"-"`
 	Elements []Element `bson:"elements" json:"elements"`
 }

@@ -30,7 +30,7 @@ func (uc *ProfileUsecase) GetProfileByAddress(ctx context.Context, address strin
 
 	// should check the type of error for redis.Nil here but we'll keep it simple and treat this as a cache miss
 	if err != nil {
-		uc.logger.Debugf("Cache miss for key %v", address)
+		uc.logger.Debugf("Cache miss for address %v", address)
 
 		profile, err := uc.profileRepository.GetProfileByAddress(ctx, address)
 
@@ -44,13 +44,17 @@ func (uc *ProfileUsecase) GetProfileByAddress(ctx context.Context, address strin
 	}
 
 	// cache hit, use the value and touch the key
-	uc.logger.Debugf("Cache hit for key %v", address)
+	uc.logger.Debugf("Cache hit for address %v", address)
 
 	return profile, nil
 }
 
-func (uc *ProfileUsecase) SaveProfile(ctx context.Context, address string, profile entities.Profile) error {
-	uc.profileCache.SaveProfile(ctx, profile)
+func (uc *ProfileUsecase) SaveProfile(ctx context.Context, profile entities.Profile) error {
+	err := uc.profileCache.SaveProfile(ctx, profile)
+
+	if err != nil {
+		uc.logger.Debugf("Cache error for address %v: %v", profile.Address, err)
+	}
 
 	return uc.profileRepository.SaveProfile(ctx, profile)
 }
