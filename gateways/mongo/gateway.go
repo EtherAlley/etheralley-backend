@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"time"
 
 	"github.com/eflem00/go-example-app/common"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,8 +15,9 @@ type Gateway struct {
 }
 
 func NewGateway(settings *common.Settings, logger *common.Logger) *Gateway {
-	//TODO: Fix this context
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(settings.MongoDBURI))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(settings.MongoDBURI))
 
 	if err != nil {
 		panic(err)
