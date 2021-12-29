@@ -5,16 +5,16 @@ run:
 	go run main.go
 
 docker-build:
-	docker build --tag go-example-app .
+	docker build --tag core-api .
 
 docker-run:
-	docker run -d -p 8080:8080 go-example-app
+	docker run -d -p 8080:8080 -e MONGO_HOST=host.docker.internal -e REDIS_HOST=host.docker.internal --name core-api core-api
 
-docker-pg:
-	docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres
+docker-mongo:
+	docker run -d -p 27017:27017 -e MONGO_INITDB_ROOT_PASSWORD=secret -e MONGO_INITDB_ROOT_USERNAME=mongoadmin --name mongo mongo
 
 docker-redis:
-	docker run -d -p 6379:6379 redis
+	docker run -d -p 6379:6379 --name redis redis
 
 docker-up:
 	docker-compose up -d

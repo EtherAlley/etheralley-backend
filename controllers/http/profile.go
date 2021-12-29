@@ -25,6 +25,7 @@ func (hc *HttpController) getProfileByAddress(w http.ResponseWriter, r *http.Req
 	}
 
 	if err != nil {
+		hc.logger.Err(err, "err fetching profile")
 		RenderNoBody(w, http.StatusBadRequest)
 		return
 	}

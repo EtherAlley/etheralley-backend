@@ -1,18 +1,20 @@
 version: "3"
 services:
-  postgres:
-    image: "postgres:latest"
+  mongo:
+    image: "mongo:latest"
     ports:
-      - "5432:5432"
+      - "27017:27017"
     environment:
-      - POSTGRES_PASSWORD=postgres
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
   redis:
     image: "redis:latest"
     ports:
       - "6379:6379"
-  api:
+  core-api:
     build: .
     ports:
       - "8080:8080"
     environment:
-      - PG_CONNECTION_STRING=host=postgres user=postgres password=postgres dbname=postgres port=5432 sslmode=disable
+      - MONGO_HOST=host.docker.internal
+      - REDIS_HOST=host.docker.internal
