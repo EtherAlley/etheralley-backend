@@ -2,15 +2,18 @@ package common
 
 import (
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
 
 type Settings struct {
-	Env        string
-	Port       string
-	RedisPort  string
-	MongoDBURI string
+	Env           string
+	Port          string
+	RedisPort     string
+	RedisDB       int
+	RedisPassword string
+	MongoDBURI    string
 }
 
 func NewSettings() *Settings {
@@ -19,11 +22,19 @@ func NewSettings() *Settings {
 		panic("Error loading settings")
 	}
 
+	redisDB, err := strconv.Atoi(os.Getenv("REDIS_DB"))
+
+	if err != nil {
+		panic("Error parsing redis db value")
+	}
+
 	return &Settings{
-		Env:        os.Getenv("ENV"),
-		Port:       os.Getenv("PORT"),
-		RedisPort:  os.Getenv("REDIS_PORT"),
-		MongoDBURI: os.Getenv("MONGODB_URI"),
+		Env:           os.Getenv("ENV"),
+		Port:          os.Getenv("PORT"),
+		MongoDBURI:    os.Getenv("MONGODB_URI"),
+		RedisPort:     os.Getenv("REDIS_PORT"),
+		RedisPassword: os.Getenv("REDIS_PASSWORD"),
+		RedisDB:       redisDB,
 	}
 }
 

@@ -20,8 +20,7 @@ func (c *Challenge) Bytes() []byte {
 
 func randString() string {
 	letterBytes := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	stringLen := 10
-	bytes := make([]byte, stringLen)
+	bytes := make([]byte, 32)
 	for i := range bytes {
 		bytes[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}

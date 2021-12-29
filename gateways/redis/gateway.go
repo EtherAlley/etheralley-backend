@@ -15,8 +15,8 @@ type Gateway struct {
 func NewGateway(settings *common.Settings, logger *common.Logger) *Gateway {
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("localhost:%v", settings.RedisPort),
-		Password: "", // no password set
-		DB:       1,  // use default DB
+		Password: settings.RedisPassword,
+		DB:       settings.RedisDB,
 	})
 	return &Gateway{
 		client,
