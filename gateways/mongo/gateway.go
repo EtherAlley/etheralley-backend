@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/eflem00/go-example-app/common"
+	"github.com/etheralley/etheralley-core-api/common"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

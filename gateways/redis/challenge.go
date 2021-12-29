@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/eflem00/go-example-app/entities"
+	"github.com/etheralley/etheralley-core-api/entities"
 )
 
 const ChallengeNamespace = "challenge_"

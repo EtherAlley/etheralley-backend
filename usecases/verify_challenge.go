@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/eflem00/go-example-app/gateways"
-	"github.com/eflem00/go-example-app/gateways/redis"
+	"github.com/etheralley/etheralley-core-api/gateways"
+	"github.com/etheralley/etheralley-core-api/gateways/redis"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"

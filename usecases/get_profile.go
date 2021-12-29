@@ -3,11 +3,11 @@ package usecases
 import (
 	"context"
 
-	"github.com/eflem00/go-example-app/common"
-	"github.com/eflem00/go-example-app/entities"
-	"github.com/eflem00/go-example-app/gateways"
-	"github.com/eflem00/go-example-app/gateways/mongo"
-	"github.com/eflem00/go-example-app/gateways/redis"
+	"github.com/etheralley/etheralley-core-api/common"
+	"github.com/etheralley/etheralley-core-api/entities"
+	"github.com/etheralley/etheralley-core-api/gateways"
+	"github.com/etheralley/etheralley-core-api/gateways/mongo"
+	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
 type IGetProfileUsecase interface {

@@ -3,8 +3,8 @@ package mongo
 import (
 	"context"
 
-	"github.com/eflem00/go-example-app/common"
-	"github.com/eflem00/go-example-app/entities"
+	"github.com/etheralley/etheralley-core-api/common"
+	"github.com/etheralley/etheralley-core-api/entities"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

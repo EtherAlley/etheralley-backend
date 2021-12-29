@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/eflem00/go-example-app/common"
-	"github.com/eflem00/go-example-app/usecases"
+	"github.com/etheralley/etheralley-core-api/common"
+	"github.com/etheralley/etheralley-core-api/usecases"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 )

@@ -7,12 +7,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/eflem00/go-example-app/common"
-	"github.com/eflem00/go-example-app/controllers"
-	"github.com/eflem00/go-example-app/controllers/http"
-	"github.com/eflem00/go-example-app/gateways/mongo"
-	"github.com/eflem00/go-example-app/gateways/redis"
-	"github.com/eflem00/go-example-app/usecases"
+	"github.com/etheralley/etheralley-core-api/common"
+	"github.com/etheralley/etheralley-core-api/controllers"
+	"github.com/etheralley/etheralley-core-api/controllers/http"
+	"github.com/etheralley/etheralley-core-api/gateways/mongo"
+	"github.com/etheralley/etheralley-core-api/gateways/redis"
+	"github.com/etheralley/etheralley-core-api/usecases"
 	"go.uber.org/dig"
 )
 

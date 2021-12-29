@@ -3,7 +3,7 @@ package redis
 import (
 	"fmt"
 
-	"github.com/eflem00/go-example-app/common"
+	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/go-redis/redis/v8"
 )
 

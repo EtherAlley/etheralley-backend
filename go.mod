@@ -1,4 +1,4 @@
-module github.com/eflem00/go-example-app
+module github.com/etheralley/etheralley-core-api
 
 go 1.17
 
