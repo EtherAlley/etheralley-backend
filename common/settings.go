@@ -13,7 +13,8 @@ type Settings struct {
 	RedisPort     string
 	RedisDB       int
 	RedisPassword string
-	MongoDBURI    string
+	MongoURI      string
+	MongoDB       string
 }
 
 func NewSettings() *Settings {
@@ -31,7 +32,8 @@ func NewSettings() *Settings {
 	return &Settings{
 		Env:           os.Getenv("ENV"),
 		Port:          os.Getenv("PORT"),
-		MongoDBURI:    os.Getenv("MONGODB_URI"),
+		MongoURI:      os.Getenv("MONGO_URI"),
+		MongoDB:       os.Getenv("MONGO_DB"),
 		RedisPort:     os.Getenv("REDIS_PORT"),
 		RedisPassword: os.Getenv("REDIS_PASSWORD"),
 		RedisDB:       redisDB,

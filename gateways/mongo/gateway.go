@@ -17,13 +17,13 @@ type Gateway struct {
 func NewGateway(settings *common.Settings, logger *common.Logger) *Gateway {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(settings.MongoDBURI))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(settings.MongoURI))
 
 	if err != nil {
 		panic(err)
 	}
 
-	db := client.Database("etheralley")
+	db := client.Database(settings.MongoDB)
 	profiles := db.Collection("profiles")
 
 	return &Gateway{

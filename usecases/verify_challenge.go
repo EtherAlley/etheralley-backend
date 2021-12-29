@@ -12,50 +12,45 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-type IVerifyChallengeUseCase interface {
-	Go(ctx context.Context, address string, sigHex string) error
+func NewVerifyChallengeUseCase(cacheGateway *redis.Gateway) VerifyChallengeUseCase {
+	return VerifyChallenge(cacheGateway)
 }
 
-type VerifyChallengeUseCase struct {
-	cacheGateway gateways.ICacheGateway
-}
-
-func NewVerifyChallengeUseCase(cacheGateway *redis.Gateway) *VerifyChallengeUseCase {
-	return &VerifyChallengeUseCase{
-		cacheGateway,
-	}
-}
-
+// get the challenge message for the provided address
+// hash the challenge message and get the public key out of the signature
+// compare the address from the signature with the provided address
 // https://gist.github.com/dcb9/385631846097e1f59e3cba3b1d42f3ed#file-eth_sign_verify-go
-func (uc *VerifyChallengeUseCase) Go(ctx context.Context, address string, sigHex string) error {
-	challenge, err := uc.cacheGateway.GetChallengeByAddress(ctx, address)
+func VerifyChallenge(cacheGateway gateways.ICacheGateway) VerifyChallengeUseCase {
+	return func(ctx context.Context, address string, sigHex string) error {
+		challenge, err := cacheGateway.GetChallengeByAddress(ctx, address)
 
-	if err != nil {
-		return errors.New("no challenge for provided address")
+		if err != nil {
+			return errors.New("no challenge for provided address")
+		}
+
+		msgBytes := challenge.Bytes()
+		fromAddr := common.HexToAddress(address)
+		sig, err := hexutil.Decode(sigHex)
+
+		if err != nil || (sig[64] != 27 && sig[64] != 28) {
+			return errors.New("invalid signature format")
+		}
+
+		sig[64] -= 27
+		msg := fmt.Sprintf("\x19Ethereum Signed Message:\n%d%s", len(msgBytes), msgBytes)
+		hash := crypto.Keccak256([]byte(msg))
+		pubKey, err := crypto.SigToPub(hash, sig)
+
+		if err != nil {
+			return errors.New("error getting public key from signature")
+		}
+
+		recoveredAddr := crypto.PubkeyToAddress(*pubKey)
+
+		if fromAddr != recoveredAddr {
+			return errors.New("address mismatch")
+		}
+
+		return nil
 	}
-
-	msgBytes := challenge.Bytes()
-	fromAddr := common.HexToAddress(address)
-	sig, err := hexutil.Decode(sigHex)
-
-	if err != nil || (sig[64] != 27 && sig[64] != 28) {
-		return errors.New("invalid signature format")
-	}
-
-	sig[64] -= 27
-	msg := fmt.Sprintf("\x19Ethereum Signed Message:\n%d%s", len(msgBytes), msgBytes)
-	hash := crypto.Keccak256([]byte(msg))
-	pubKey, err := crypto.SigToPub(hash, sig)
-
-	if err != nil {
-		return errors.New("error getting public key from signature")
-	}
-
-	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
-
-	if fromAddr != recoveredAddr {
-		return errors.New("address mismatch")
-	}
-
-	return nil
 }

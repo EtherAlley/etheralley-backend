@@ -17,7 +17,7 @@ func (hc *HttpController) authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		err := hc.verifyChallengeUseCase.Go(r.Context(), address, token[1])
+		err := hc.verifyChallengeUseCase(r.Context(), address, token[1])
 
 		if err != nil {
 			RenderNoBody(w, http.StatusUnauthorized)

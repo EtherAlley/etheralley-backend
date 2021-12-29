@@ -10,30 +10,20 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-type ISaveProfileUseCase interface {
-	Go(ctx context.Context, profile *entities.Profile) error
+func NewSaveProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway) SaveProfileUseCase {
+	return SaveProfile(logger, cacheGateway, databaseGateway)
 }
 
-type SaveProfileUseCase struct {
-	logger          *common.Logger
-	cacheGateway    gateways.ICacheGateway
-	databaseGateway gateways.IDatabaseGateway
-}
+// try to save the profile to the cache
+// regardless of error, save the profile to the database
+func SaveProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway) SaveProfileUseCase {
+	return func(ctx context.Context, profile *entities.Profile) error {
+		err := cacheGateway.SaveProfile(ctx, profile)
 
-func NewSaveProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway) *SaveProfileUseCase {
-	return &SaveProfileUseCase{
-		logger,
-		cacheGateway,
-		databaseGateway,
+		if err != nil {
+			logger.Debugf("Cache error for address %v: %v", profile.Address, err)
+		}
+
+		return databaseGateway.SaveProfile(ctx, profile)
 	}
-}
-
-func (uc *SaveProfileUseCase) Go(ctx context.Context, profile *entities.Profile) error {
-	err := uc.cacheGateway.SaveProfile(ctx, profile)
-
-	if err != nil {
-		uc.logger.Debugf("Cache error for address %v: %v", profile.Address, err)
-	}
-
-	return uc.databaseGateway.SaveProfile(ctx, profile)
 }

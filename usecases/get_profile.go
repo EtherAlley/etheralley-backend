@@ -10,43 +10,31 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-type IGetProfileUsecase interface {
-	Go(ctx context.Context, address string) (*entities.Profile, error)
+func NewGetProfileUsecase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway) GetProfileUsecase {
+	return GetProfile(logger, cacheGateway, databaseGateway)
 }
 
-type GetProfileUsecase struct {
-	logger          *common.Logger
-	cacheGateway    gateways.ICacheGateway
-	databaseGateway gateways.IDatabaseGateway
-}
+// first try to get the profile from the cache.
+// if cache miss, go to database
+func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway) GetProfileUsecase {
+	return func(ctx context.Context, address string) (*entities.Profile, error) {
+		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 
-func NewGetProfileUsecase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway) *GetProfileUsecase {
-	return &GetProfileUsecase{
-		logger,
-		cacheGateway,
-		databaseGateway,
-	}
-}
+		if err == nil {
+			logger.Debugf("Cache hit for address %v", address)
+			return profile, nil
+		}
 
-// check cache for key
-// if cache miss, go to db and set in cache
-func (uc *GetProfileUsecase) Go(ctx context.Context, address string) (*entities.Profile, error) {
-	profile, err := uc.cacheGateway.GetProfileByAddress(ctx, address)
+		logger.Debugf("Cache miss for address %v", address)
 
-	if err == nil {
-		uc.logger.Debugf("Cache hit for address %v", address)
+		profile, err = databaseGateway.GetProfileByAddress(ctx, address)
+
+		if err != nil {
+			return profile, err
+		}
+
+		cacheGateway.SaveProfile(ctx, profile)
+
 		return profile, nil
 	}
-
-	uc.logger.Debugf("Cache miss for address %v", address)
-
-	profile, err = uc.databaseGateway.GetProfileByAddress(ctx, address)
-
-	if err != nil {
-		return profile, err
-	}
-
-	uc.cacheGateway.SaveProfile(ctx, profile)
-
-	return profile, nil
 }

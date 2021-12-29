@@ -8,22 +8,15 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-type IGetChallengeUseCase interface {
-	Go(ctx context.Context, address string) (*entities.Challenge, error)
+func NewGetChallengeUseCase(cacheGateway *redis.Gateway) GetChallengeUseCase {
+	return GetChallenge(cacheGateway)
 }
 
-type GetChallengeUseCase struct {
-	cacheGateway gateways.ICacheGateway
-}
-
-func NewGetChallengeUseCase(cacheGateway *redis.Gateway) *GetChallengeUseCase {
-	return &GetChallengeUseCase{
-		cacheGateway,
+// generate a new challenge and save it to the cache
+func GetChallenge(cacheGateway gateways.ICacheGateway) GetChallengeUseCase {
+	return func(ctx context.Context, address string) (*entities.Challenge, error) {
+		challenge := entities.NewChallenge(address)
+		err := cacheGateway.SaveChallenge(ctx, challenge)
+		return challenge, err
 	}
-}
-
-func (uc *GetChallengeUseCase) Go(ctx context.Context, address string) (*entities.Challenge, error) {
-	challenge := entities.NewChallenge(address)
-	err := uc.cacheGateway.SaveChallenge(ctx, challenge)
-	return challenge, err
 }

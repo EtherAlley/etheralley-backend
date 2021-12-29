@@ -13,13 +13,13 @@ import (
 type HttpController struct {
 	settings               *common.Settings
 	logger                 *common.Logger
-	getProfileUsecase      usecases.IGetProfileUsecase
-	saveProfileUsecase     usecases.ISaveProfileUseCase
-	getChallengeUsecase    usecases.IGetChallengeUseCase
-	verifyChallengeUseCase usecases.IVerifyChallengeUseCase
+	getProfileUsecase      usecases.GetProfileUsecase
+	saveProfileUsecase     usecases.SaveProfileUseCase
+	getChallengeUsecase    usecases.GetChallengeUseCase
+	verifyChallengeUseCase usecases.VerifyChallengeUseCase
 }
 
-func NewHttpController(settings *common.Settings, logger *common.Logger, getProfileUsecase *usecases.GetProfileUsecase, saveProfileUsecase *usecases.SaveProfileUseCase, getChallengeUsecase *usecases.GetChallengeUseCase, verifyChallengeUseCase *usecases.VerifyChallengeUseCase) *HttpController {
+func NewHttpController(settings *common.Settings, logger *common.Logger, getProfileUsecase usecases.GetProfileUsecase, saveProfileUsecase usecases.SaveProfileUseCase, getChallengeUsecase usecases.GetChallengeUseCase, verifyChallengeUseCase usecases.VerifyChallengeUseCase) *HttpController {
 	return &HttpController{
 		settings,
 		logger,
