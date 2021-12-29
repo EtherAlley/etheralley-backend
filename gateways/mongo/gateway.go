@@ -8,7 +8,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func NewDb(settings *common.Settings, lgr *common.Logger) *mongo.Database {
+type Gateway struct {
+	logger   *common.Logger
+	profiles *mongo.Collection
+}
+
+func NewGateway(settings *common.Settings, logger *common.Logger) *Gateway {
 	//TODO: Fix this context
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(settings.MongoDBURI))
 
@@ -16,5 +21,11 @@ func NewDb(settings *common.Settings, lgr *common.Logger) *mongo.Database {
 		panic(err)
 	}
 
-	return client.Database("etheralley")
+	db := client.Database("etheralley")
+	profiles := db.Collection("profiles")
+
+	return &Gateway{
+		logger,
+		profiles,
+	}
 }

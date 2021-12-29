@@ -5,34 +5,33 @@ import (
 	"net/http"
 
 	"github.com/eflem00/go-example-app/common"
+	"github.com/eflem00/go-example-app/usecases"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 )
 
 type HttpController struct {
-	settings            *common.Settings
-	logger              *common.Logger
-	profileHandler      *ProfileHandler
-	healthHandler       *HealthHandler
-	recovererMiddleware *RecovererMiddleware
-	challengeHandler    *ChallengeHandler
-	authMiddleware      *AuthenticationMiddleware
+	settings               *common.Settings
+	logger                 *common.Logger
+	getProfileUsecase      usecases.IGetProfileUsecase
+	saveProfileUsecase     usecases.ISaveProfileUseCase
+	getChallengeUsecase    usecases.IGetChallengeUseCase
+	verifyChallengeUseCase usecases.IVerifyChallengeUseCase
 }
 
-func NewHttpController(settings *common.Settings, logger *common.Logger, profileHandler *ProfileHandler, healthHandler *HealthHandler, recovererMiddleware *RecovererMiddleware, challengeHandler *ChallengeHandler, authMiddleware *AuthenticationMiddleware) *HttpController {
+func NewHttpController(settings *common.Settings, logger *common.Logger, getProfileUsecase *usecases.GetProfileUsecase, saveProfileUsecase *usecases.SaveProfileUseCase, getChallengeUsecase *usecases.GetChallengeUseCase, verifyChallengeUseCase *usecases.VerifyChallengeUseCase) *HttpController {
 	return &HttpController{
 		settings,
 		logger,
-		profileHandler,
-		healthHandler,
-		recovererMiddleware,
-		challengeHandler,
-		authMiddleware,
+		getProfileUsecase,
+		saveProfileUsecase,
+		getChallengeUsecase,
+		verifyChallengeUseCase,
 	}
 }
 
-func (controller *HttpController) Start() error {
-	controller.logger.Info("Starting http controller")
+func (hc *HttpController) Start() error {
+	hc.logger.Info("Starting http controller")
 
 	r := chi.NewRouter()
 
@@ -43,21 +42,19 @@ func (controller *HttpController) Start() error {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
-	r.Use(controller.recovererMiddleware.Recoverer)
+	r.Use(hc.recoverer)
 
-	r.Get("/", controller.healthHandler.Health)
-	r.Get("/health", controller.healthHandler.Health)
-	r.Get("/profiles/{address}", controller.profileHandler.GetProfileByAddress)
-	r.With(controller.authMiddleware.Authenticate).Put("/profiles/{address}", controller.profileHandler.SaveProfile)
-	r.Get("/challenge/{address}", controller.challengeHandler.GetChallenge)
+	r.Route("/health", hc.registerHealthRoutes)
+	r.Route("/profiles", hc.registerProfileRoutes)
+	r.Route("/challenge", hc.registerChallengeRoutes)
 
-	port := controller.settings.Port
+	port := hc.settings.Port
 
-	controller.logger.Infof("listening on %v", port)
+	hc.logger.Infof("listening on %v", port)
 
 	err := http.ListenAndServe(port, r)
 
-	controller.logger.Err(err, "error in http controller")
+	hc.logger.Err(err, "error in http controller")
 
 	return err
 }

@@ -1,8 +1,8 @@
 package entities
 
-type XYPosition struct {
-	X int `bson:"x" json:"x"`
-	Y int `bson:"y" json:"y"`
+type Profile struct {
+	Address  string    `bson:"_id" json:"-"`
+	Elements []Element `bson:"elements" json:"elements"`
 }
 
 type Element struct {
@@ -12,7 +12,7 @@ type Element struct {
 	Data     map[string]interface{} `bson:"data" json:"data"`
 }
 
-type Profile struct {
-	Address  string    `bson:"_id" json:"-"`
-	Elements []Element `bson:"elements" json:"elements"`
+type XYPosition struct {
+	X int `bson:"x" json:"x"`
+	Y int `bson:"y" json:"y"`
 }
