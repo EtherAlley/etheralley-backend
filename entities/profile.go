@@ -1,18 +1,13 @@
 package entities
 
 type Profile struct {
-	Address  string    `bson:"_id" json:"-"`
-	Elements []Element `bson:"elements" json:"elements"`
+	Address     string       `bson:"_id" json:"-"`
+	NFTElements []NFTElement `bson:"nft_elements" json:"nft_elements"`
 }
 
-type Element struct {
-	Id       string                 `bson:"id" json:"id"`
-	Type     string                 `bson:"type" json:"type"`
-	Position XYPosition             `bson:"position" json:"position"`
-	Data     map[string]interface{} `bson:"data" json:"data"`
-}
-
-type XYPosition struct {
-	X int `bson:"x" json:"x"`
-	Y int `bson:"y" json:"y"`
+type NFTElement struct {
+	Order      uint   `bson:"order" json:"order"`
+	Address    string `bson:"address" json:"address"`
+	SchemaName string `bson:"schema_name" json:"schema_name"`
+	TokenId    string `bson:"token_id" json:"token_id"`
 }

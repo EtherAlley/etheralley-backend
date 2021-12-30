@@ -14,10 +14,6 @@ func NewChallenge(address string) *Challenge {
 	}
 }
 
-func (c *Challenge) Bytes() []byte {
-	return []byte(c.Message)
-}
-
 func randString() string {
 	letterBytes := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	bytes := make([]byte, 32)

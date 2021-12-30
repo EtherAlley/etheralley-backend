@@ -28,7 +28,7 @@ func VerifyChallenge(cacheGateway gateways.ICacheGateway) VerifyChallengeUseCase
 			return errors.New("no challenge for provided address")
 		}
 
-		msgBytes := challenge.Bytes()
+		msgBytes := []byte(challenge.Message)
 		fromAddr := common.HexToAddress(address)
 		sig, err := hexutil.Decode(sigHex)
 
