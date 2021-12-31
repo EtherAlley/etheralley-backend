@@ -16,7 +16,7 @@ func (hc *HttpController) getChallenge(w http.ResponseWriter, r *http.Request) {
 	challenge, err := hc.getChallengeUsecase(r.Context(), address)
 
 	if err != nil {
-		RenderNoBody(w, http.StatusBadRequest)
+		RenderErr(w, http.StatusBadRequest, err)
 		return
 	}
 

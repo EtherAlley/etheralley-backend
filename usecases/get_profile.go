@@ -21,11 +21,11 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 
 		if err == nil {
-			logger.Debugf("Cache hit for address %v", address)
+			logger.Debugf("cache hit for address %v", address)
 			return profile, nil
 		}
 
-		logger.Debugf("Cache miss for address %v", address)
+		logger.Debugf("cache miss for address %v", address)
 
 		profile, err = databaseGateway.GetProfileByAddress(ctx, address)
 

@@ -40,6 +40,7 @@ func main() {
 	container.Provide(usecases.NewGetProfileUsecase)
 	container.Provide(usecases.NewSaveProfileUseCase)
 	container.Provide(usecases.NewVerifyChallengeUseCase)
+	container.Provide(usecases.NewGetNFTUseCase)
 	container.Provide(http.NewHttpController)
 
 	setRandSeed()

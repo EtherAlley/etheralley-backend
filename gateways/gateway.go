@@ -17,3 +17,6 @@ type ICacheGateway interface {
 	GetChallengeByAddress(ctx context.Context, address string) (*entities.Challenge, error)
 	SaveChallenge(ctx context.Context, challenge *entities.Challenge) error
 }
+
+type IBlockchainGateway interface {
+}

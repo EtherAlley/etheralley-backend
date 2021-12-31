@@ -20,13 +20,12 @@ func (hc *HttpController) getProfileByAddress(w http.ResponseWriter, r *http.Req
 	profile, err := hc.getProfileUsecase(r.Context(), address)
 
 	if err == common.ErrNil {
-		RenderNoBody(w, http.StatusNotFound)
+		RenderError(w, http.StatusNotFound, "not found")
 		return
 	}
 
 	if err != nil {
-		hc.logger.Err(err, "err fetching profile")
-		RenderNoBody(w, http.StatusBadRequest)
+		RenderErr(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -40,7 +39,7 @@ func (hc *HttpController) saveProfile(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(profile)
 
 	if err != nil {
-		RenderNoBody(w, http.StatusBadRequest)
+		RenderErr(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -49,7 +48,7 @@ func (hc *HttpController) saveProfile(w http.ResponseWriter, r *http.Request) {
 	err = hc.saveProfileUsecase(r.Context(), profile)
 
 	if err != nil {
-		RenderNoBody(w, http.StatusBadRequest)
+		RenderErr(w, http.StatusBadRequest, err)
 		return
 	}
 

@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -17,9 +18,10 @@ type HttpController struct {
 	saveProfileUsecase     usecases.SaveProfileUseCase
 	getChallengeUsecase    usecases.GetChallengeUseCase
 	verifyChallengeUseCase usecases.VerifyChallengeUseCase
+	getNFTUseCase          usecases.GetNFTUseCase
 }
 
-func NewHttpController(settings *common.Settings, logger *common.Logger, getProfileUsecase usecases.GetProfileUsecase, saveProfileUsecase usecases.SaveProfileUseCase, getChallengeUsecase usecases.GetChallengeUseCase, verifyChallengeUseCase usecases.VerifyChallengeUseCase) *HttpController {
+func NewHttpController(settings *common.Settings, logger *common.Logger, getProfileUsecase usecases.GetProfileUsecase, saveProfileUsecase usecases.SaveProfileUseCase, getChallengeUsecase usecases.GetChallengeUseCase, verifyChallengeUseCase usecases.VerifyChallengeUseCase, getNFTUseCase usecases.GetNFTUseCase) *HttpController {
 	return &HttpController{
 		settings,
 		logger,
@@ -27,11 +29,12 @@ func NewHttpController(settings *common.Settings, logger *common.Logger, getProf
 		saveProfileUsecase,
 		getChallengeUsecase,
 		verifyChallengeUseCase,
+		getNFTUseCase,
 	}
 }
 
 func (hc *HttpController) Start() error {
-	hc.logger.Info("Starting http controller")
+	hc.logger.Info("starting http controller")
 
 	r := chi.NewRouter()
 
@@ -47,12 +50,13 @@ func (hc *HttpController) Start() error {
 	r.Route("/health", hc.registerHealthRoutes)
 	r.Route("/profiles", hc.registerProfileRoutes)
 	r.Route("/challenge", hc.registerChallengeRoutes)
+	r.Route("/nft", hc.registerNFTRoutes)
 
 	port := hc.settings.Port
 
-	hc.logger.Infof("listening on %v", port)
+	hc.logger.Infof("listening on port %v", port)
 
-	err := http.ListenAndServe(port, r)
+	err := http.ListenAndServe(fmt.Sprintf(":%v", port), r)
 
 	hc.logger.Err(err, "error in http controller")
 
@@ -67,7 +71,11 @@ type ErrBody struct {
 	Message string `json:"message"`
 }
 
-func RenderErr(w http.ResponseWriter, statusCode int, msg string) {
+func RenderErr(w http.ResponseWriter, statusCode int, err error) {
+	Render(w, statusCode, ErrBody{Message: err.Error()})
+}
+
+func RenderError(w http.ResponseWriter, statusCode int, msg string) {
 	Render(w, statusCode, ErrBody{Message: msg})
 }
 

@@ -13,14 +13,14 @@ func (hc *HttpController) authenticate(next http.Handler) http.Handler {
 		token := strings.Split(r.Header.Get("Authorization"), " ")
 
 		if len(token) != 2 || token[0] != "Bearer" {
-			RenderNoBody(w, http.StatusUnauthorized)
+			RenderError(w, http.StatusBadRequest, "unauthorized")
 			return
 		}
 
 		err := hc.verifyChallengeUseCase(r.Context(), address, token[1])
 
 		if err != nil {
-			RenderNoBody(w, http.StatusUnauthorized)
+			RenderError(w, http.StatusBadRequest, "unauthorized")
 			return
 		}
 
