@@ -2,8 +2,6 @@ package usecases
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -15,48 +13,35 @@ func NewGetNFTUseCase(logger *common.Logger, gateway *ethereum.Gateway) GetNFTUs
 	return GetNFT(logger, gateway)
 }
 
+// TODO: validate inputs
+// TODO: cache metadata
+// TODO: concurrent calls to get metadata/validate owner?
 func GetNFT(logger *common.Logger, gateway gateways.IBlockchainGateway) GetNFTUseCase {
 	return func(ctx context.Context, address string, blockchain string, contractAddress string, schemaName string, tokenId string) (*entities.NFT, error) {
-		logger.Infof("GetNFT %v %v %v %v %v", address, blockchain, contractAddress, schemaName, tokenId)
+		logger.Debugf("get nft usecase: address: %v blockchain: %v contractAddress: %v schemaName: %v tokenId: %v", address, blockchain, contractAddress, schemaName, tokenId)
 
-		// TODO: do a bunch of input validation
-
-		// TODO: call gateway based on blockchain and call method of gateway based on schemaname?
-
-		// TODO: gateway returns nft metadata
-
-		// TODO: need to also verify owner in seperate gateway call (concurrent)?
-
-		var metadata *gateways.NFTMetadata
-		var err error
-		switch schemaName {
-		case "erc721":
-			metadata, err = gateway.GetERC721NFTMetadata(contractAddress, tokenId)
-		case "erc1155":
-			metadata, err = gateway.GetERC1155NFTMetadata(contractAddress, tokenId)
-		default:
-			metadata = nil
-			err = errors.New("invalida schema name")
-		}
+		metadata, err := gateway.GetNFTMetadata(contractAddress, tokenId, schemaName)
 
 		if err != nil {
-			logger.Err(err, "err on erc 1155")
+			logger.Err(err, "get nft usecase: ")
 			return nil, err
 		}
 
-		metaJson, _ := json.MarshalIndent(metadata, "", "  ")
-		logger.Infof("result:\n%s\n", metaJson)
+		owner, err := gateway.VerifyOwner(contractAddress, address, tokenId, schemaName)
+
+		if err != nil {
+			logger.Err(err, "get nft usecase: ")
+			return nil, err
+		}
 
 		nft := &entities.NFT{
 			TokenId:         tokenId,
 			Blockchain:      blockchain,
 			ContractAddress: contractAddress,
 			SchemaName:      schemaName,
-			Owned:           false,
+			Owned:           owner,
+			Metadata:        *metadata,
 		}
-
-		// gateway.VerifyERC1155Owner(contractAddress, address, tokenId)
-		// gateway.VerifyERC721Owner(contractAddress, address, tokenId)
 
 		return nft, nil
 	}

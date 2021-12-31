@@ -16,23 +16,30 @@ func NewGetProfileUsecase(logger *common.Logger, cacheGateway *redis.Gateway, da
 
 // first try to get the profile from the cache.
 // if cache miss, go to database
+// if database miss, build default from open sea
 func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway) GetProfileUsecase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 
 		if err == nil {
-			logger.Debugf("cache hit for address %v", address)
+			logger.Debugf("cache hit for address %v, returning", address)
 			return profile, nil
 		}
 
-		logger.Debugf("cache miss for address %v", address)
+		logger.Debugf("cache miss for address %v, going to db", address)
 
 		profile, err = databaseGateway.GetProfileByAddress(ctx, address)
 
-		if err != nil {
-			return profile, err
+		// TODO: build a default profile
+		if err == common.ErrNil {
+			logger.Debugf("db miss for address %v, building default", address)
+			profile = &entities.Profile{}
+			cacheGateway.SaveProfile(ctx, profile)
+			return profile, nil
 		}
 
+		// TODO: validate the nfts in the profile are still owned
+		logger.Debugf("db hit for address %v, validating nft ownership", address)
 		cacheGateway.SaveProfile(ctx, profile)
 
 		return profile, nil

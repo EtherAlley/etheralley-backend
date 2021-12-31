@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/go-chi/chi/v5"
 )
@@ -18,11 +17,6 @@ func (hc *HttpController) getProfileByAddress(w http.ResponseWriter, r *http.Req
 	address := chi.URLParam(r, "address")
 
 	profile, err := hc.getProfileUsecase(r.Context(), address)
-
-	if err == common.ErrNil {
-		RenderError(w, http.StatusNotFound, "not found")
-		return
-	}
 
 	if err != nil {
 		RenderErr(w, http.StatusBadRequest, err)
