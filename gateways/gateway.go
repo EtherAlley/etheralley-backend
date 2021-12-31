@@ -22,3 +22,7 @@ type IBlockchainGateway interface {
 	GetNFTMetadata(contractAddress string, tokenId string, schemaName string) (*entities.NFTMetadata, error)
 	VerifyOwner(contractAddress string, address string, tokenId string, schemaName string) (bool, error)
 }
+
+type INFTMarketGateway interface {
+	GetNFTs(address string) ([]entities.NFT, error)
+}

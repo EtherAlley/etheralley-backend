@@ -10,9 +10,9 @@ type NFT struct {
 }
 
 type NFTMetadata struct {
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Image       string                 `json:"image"`
-	Attributes  []map[string]string    `bson:"attributes" json:"attributes"`
-	Properties  map[string]interface{} `bson:"properties" json:"properties"`
+	Name        string                   `json:"name"`
+	Description string                   `json:"description"`
+	Image       string                   `json:"image"`
+	Attributes  []map[string]interface{} `bson:"attributes" json:"attributes"`
+	Properties  map[string]interface{}   `bson:"properties" json:"properties"`
 }
