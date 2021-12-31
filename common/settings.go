@@ -8,18 +8,20 @@ import (
 )
 
 type Settings struct {
-	Env           string
-	Port          string
-	RedisHost     string
-	RedisPort     string
-	RedisDB       int
-	RedisPassword string
-	MongoUsername string
-	MongoPassword string
-	MongoHost     string
-	MongoPort     string
-	MongoAdminDB  string
-	MongoDB       string
+	Env             string
+	Port            string
+	RedisHost       string
+	RedisPort       string
+	RedisDB         int
+	RedisPassword   string
+	MongoUsername   string
+	MongoPassword   string
+	MongoHost       string
+	MongoPort       string
+	MongoAdminDB    string
+	MongoDB         string
+	InfuraChain     string
+	InfuraProjectId string
 }
 
 func NewSettings() *Settings {
@@ -35,18 +37,20 @@ func NewSettings() *Settings {
 	}
 
 	return &Settings{
-		Env:           os.Getenv("ENV"),
-		Port:          os.Getenv("PORT"),
-		RedisHost:     os.Getenv("REDIS_HOST"),
-		RedisPort:     os.Getenv("REDIS_PORT"),
-		RedisPassword: os.Getenv("REDIS_PASSWORD"),
-		RedisDB:       redisDB,
-		MongoUsername: os.Getenv("MONGO_USERNAME"),
-		MongoPassword: os.Getenv("MONGO_PASSWORD"),
-		MongoHost:     os.Getenv("MONGO_HOST"),
-		MongoPort:     os.Getenv("MONGO_PORT"),
-		MongoAdminDB:  os.Getenv("MONGO_ADMIN_DB"),
-		MongoDB:       os.Getenv("MONGO_DB"),
+		Env:             os.Getenv("ENV"),
+		Port:            os.Getenv("PORT"),
+		RedisHost:       os.Getenv("REDIS_HOST"),
+		RedisPort:       os.Getenv("REDIS_PORT"),
+		RedisPassword:   os.Getenv("REDIS_PASSWORD"),
+		RedisDB:         redisDB,
+		MongoUsername:   os.Getenv("MONGO_USERNAME"),
+		MongoPassword:   os.Getenv("MONGO_PASSWORD"),
+		MongoHost:       os.Getenv("MONGO_HOST"),
+		MongoPort:       os.Getenv("MONGO_PORT"),
+		MongoAdminDB:    os.Getenv("MONGO_ADMIN_DB"),
+		MongoDB:         os.Getenv("MONGO_DB"),
+		InfuraChain:     os.Getenv("INFURA_CHAIN"),
+		InfuraProjectId: os.Getenv("INFURA_PROJECT_ID"),
 	}
 }
 
