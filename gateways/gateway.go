@@ -23,6 +23,6 @@ type IBlockchainGateway interface {
 	VerifyOwner(contractAddress string, address string, tokenId string, schemaName string) (bool, error)
 }
 
-type INFTMarketGateway interface {
+type INFTAPIGateway interface {
 	GetNFTs(address string) ([]entities.NFT, error)
 }

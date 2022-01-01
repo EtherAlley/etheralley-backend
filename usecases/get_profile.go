@@ -11,14 +11,15 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewGetProfileUsecase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, nftMarketGateway *opensea.Gateway) GetProfileUsecase {
-	return GetProfile(logger, cacheGateway, databaseGateway, nftMarketGateway)
+func NewGetProfileUsecase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, nftApiGateway *opensea.Gateway, hydrateNFTs HydrateNFTsUseCase) GetProfileUsecase {
+	return GetProfile(logger, cacheGateway, databaseGateway, nftApiGateway, hydrateNFTs)
 }
 
 // first try to get the profile from the cache.
 // if cache miss, go to database
-// if database miss, build default from open sea
-func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, nftMarketGateway gateways.INFTMarketGateway) GetProfileUsecase {
+// if database miss, build default
+// if database hit, recheck ownership
+func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, nftApiGateway gateways.INFTAPIGateway, hydrateNFTs HydrateNFTsUseCase) GetProfileUsecase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 
@@ -33,7 +34,7 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 
 		if err == common.ErrNil {
 			logger.Debugf("db miss for address %v, building default", address)
-			nfts, err := nftMarketGateway.GetNFTs(address)
+			nfts, err := nftApiGateway.GetNFTs(address)
 
 			if err != nil {
 				logger.Err(err, "err calling nft market gateway")
@@ -49,8 +50,16 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 			return profile, nil
 		}
 
+		if err != nil {
+			logger.Err(err, "err getting profile from db")
+			return nil, err
+		}
+
 		// TODO: validate the nfts in the profile are still owned
 		logger.Debugf("db hit for address %v, validating nft ownership", address)
+
+		profile.NFTs = hydrateNFTs(ctx, profile.Address, profile.NFTs)
+
 		cacheGateway.SaveProfile(ctx, profile)
 
 		return profile, nil

@@ -10,26 +10,16 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewSaveProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, getNFTUseCase GetNFTUseCase) SaveProfileUseCase {
-	return SaveProfile(logger, cacheGateway, databaseGateway, getNFTUseCase)
+func NewSaveProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, hydrateNFTs HydrateNFTsUseCase) SaveProfileUseCase {
+	return SaveProfile(logger, cacheGateway, databaseGateway, hydrateNFTs)
 }
 
 // TODO: fetch metadata and ownership of nfts being submitted (concurrently)
 // try to save the profile to the cache
 // regardless of error, save the profile to the database
-func SaveProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, getNFTUseCase GetNFTUseCase) SaveProfileUseCase {
+func SaveProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, hydrateNFTs HydrateNFTsUseCase) SaveProfileUseCase {
 	return func(ctx context.Context, profile *entities.Profile) error {
-		nfts := []entities.NFT{}
-		for _, partialNft := range profile.NFTs {
-			nft, err := getNFTUseCase(ctx, profile.Address, partialNft.Blockchain, partialNft.ContractAddress, partialNft.SchemaName, partialNft.TokenId)
-			if err == nil && nft.Owned {
-				nfts = append(nfts, *nft)
-			} else {
-				logger.Debugf("invalid nft provided: %v", err)
-			}
-		}
-
-		profile.NFTs = nfts
+		profile.NFTs = hydrateNFTs(ctx, profile.Address, profile.NFTs)
 
 		cacheGateway.SaveProfile(ctx, profile)
 

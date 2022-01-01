@@ -66,7 +66,7 @@ func (gw *Gateway) GetNFTs(address string) ([]entities.NFT, error) {
 	for _, asset := range body.Assets {
 		nfts = append(nfts, entities.NFT{
 			TokenId:         asset.TokenId,
-			Blockchain:      "ethereum", //???
+			Blockchain:      "ethereum", // TODO: ???
 			ContractAddress: asset.AssetContract.ContractAddress,
 			SchemaName:      asset.AssetContract.SchemaName,
 			Owned:           true,
