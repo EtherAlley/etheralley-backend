@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 
+	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -14,12 +15,14 @@ func (hc *HttpController) getNFT(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
 	address := query.Get("address")
-	blockchain := query.Get("blockchain")
-	contractAddress := query.Get("contract_address")
-	schemaName := query.Get("schema_name")
-	tokenId := query.Get("token_id")
+	location := &entities.NFTLocation{
+		ContractAddress: query.Get("contract_address"),
+		SchemaName:      query.Get("schema_name"),
+		TokenId:         query.Get("token_id"),
+		Blockchain:      query.Get("blockchain"),
+	}
 
-	nft, err := hc.getNFTUseCase(r.Context(), address, blockchain, contractAddress, schemaName, tokenId)
+	nft, err := hc.getNFTUseCase(r.Context(), address, location)
 
 	if err != nil {
 		RenderErr(w, http.StatusBadRequest, err)

@@ -14,20 +14,20 @@ import (
 type HttpController struct {
 	settings               *common.Settings
 	logger                 *common.Logger
-	getProfileUsecase      usecases.GetProfileUsecase
-	saveProfileUsecase     usecases.SaveProfileUseCase
-	getChallengeUsecase    usecases.GetChallengeUseCase
+	getProfileUseCase      usecases.GetProfileUseCase
+	saveProfileUseCase     usecases.SaveProfileUseCase
+	getChallengeUseCase    usecases.GetChallengeUseCase
 	verifyChallengeUseCase usecases.VerifyChallengeUseCase
 	getNFTUseCase          usecases.GetNFTUseCase
 }
 
-func NewHttpController(settings *common.Settings, logger *common.Logger, getProfileUsecase usecases.GetProfileUsecase, saveProfileUsecase usecases.SaveProfileUseCase, getChallengeUsecase usecases.GetChallengeUseCase, verifyChallengeUseCase usecases.VerifyChallengeUseCase, getNFTUseCase usecases.GetNFTUseCase) *HttpController {
+func NewHttpController(settings *common.Settings, logger *common.Logger, getProfileUseCase usecases.GetProfileUseCase, saveProfileUseCase usecases.SaveProfileUseCase, getChallengeUseCase usecases.GetChallengeUseCase, verifyChallengeUseCase usecases.VerifyChallengeUseCase, getNFTUseCase usecases.GetNFTUseCase) *HttpController {
 	return &HttpController{
 		settings,
 		logger,
-		getProfileUsecase,
-		saveProfileUsecase,
-		getChallengeUsecase,
+		getProfileUseCase,
+		saveProfileUseCase,
+		getChallengeUseCase,
 		verifyChallengeUseCase,
 		getNFTUseCase,
 	}

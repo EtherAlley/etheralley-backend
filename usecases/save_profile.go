@@ -10,16 +10,21 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewSaveProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, hydrateNFTs HydrateNFTsUseCase) SaveProfileUseCase {
-	return SaveProfile(logger, cacheGateway, databaseGateway, hydrateNFTs)
+func NewSaveProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, getAllNFTs GetAllNFTsUseCase) SaveProfileUseCase {
+	return SaveProfile(logger, cacheGateway, databaseGateway, getAllNFTs)
 }
 
-// TODO: fetch metadata and ownership of nfts being submitted (concurrently)
+// fetch metadata and ownership of nfts being submitted
 // try to save the profile to the cache
 // regardless of error, save the profile to the database
-func SaveProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, hydrateNFTs HydrateNFTsUseCase) SaveProfileUseCase {
+func SaveProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, getAllNFTs GetAllNFTsUseCase) SaveProfileUseCase {
 	return func(ctx context.Context, profile *entities.Profile) error {
-		profile.NFTs = hydrateNFTs(ctx, profile.Address, profile.NFTs)
+		nftLocations := &[]entities.NFTLocation{}
+		for _, nft := range *profile.NFTs {
+			*nftLocations = append(*nftLocations, *nft.Location)
+		}
+
+		profile.NFTs = getAllNFTs(ctx, profile.Address, nftLocations)
 
 		cacheGateway.SaveProfile(ctx, profile)
 

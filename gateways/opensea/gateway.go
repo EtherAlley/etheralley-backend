@@ -35,8 +35,8 @@ type GetAssetsByOwnerRespBody struct {
 
 const OpenSeaBaseUrl = "https://api.opensea.io/api/v1"
 
-func (gw *Gateway) GetNFTs(address string) ([]entities.NFT, error) {
-	nfts := []entities.NFT{}
+func (gw *Gateway) GetNFTs(address string) (*[]entities.NFT, error) {
+	nfts := &[]entities.NFT{}
 
 	url := fmt.Sprintf("%v/assets?owner=%v&offset=0&limit=50", OpenSeaBaseUrl, address)
 
@@ -64,17 +64,19 @@ func (gw *Gateway) GetNFTs(address string) ([]entities.NFT, error) {
 	}
 
 	for _, asset := range body.Assets {
-		nfts = append(nfts, entities.NFT{
-			TokenId:         asset.TokenId,
-			Blockchain:      "ethereum", // TODO: ???
-			ContractAddress: asset.AssetContract.ContractAddress,
-			SchemaName:      asset.AssetContract.SchemaName,
-			Owned:           true,
-			Metadata: entities.NFTMetadata{
+		*nfts = append(*nfts, entities.NFT{
+			Location: &entities.NFTLocation{
+				TokenId:         asset.TokenId,
+				Blockchain:      "ethereum", // TODO: ???
+				ContractAddress: asset.AssetContract.ContractAddress,
+				SchemaName:      asset.AssetContract.SchemaName,
+			},
+			Owned: true,
+			Metadata: &entities.NFTMetadata{
 				Name:        asset.Name,
 				Description: asset.Description,
 				Image:       asset.Image,
-				Attributes:  asset.Attributes,
+				Attributes:  &asset.Attributes,
 			},
 		})
 	}

@@ -2,45 +2,64 @@ package usecases
 
 import (
 	"context"
+	"errors"
+	"sync"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/gateways"
 	"github.com/etheralley/etheralley-core-api/gateways/ethereum"
+	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewGetNFTUseCase(logger *common.Logger, gateway *ethereum.Gateway) GetNFTUseCase {
-	return GetNFT(logger, gateway)
+func NewGetNFTUseCase(logger *common.Logger, blockchainGateway *ethereum.Gateway, cacheGateway *redis.Gateway) GetNFTUseCase {
+	return GetNFT(logger, blockchainGateway, cacheGateway)
 }
 
 // TODO: validate inputs
-// TODO: cache metadata
-// TODO: concurrent calls to get metadata/validate owner?
-func GetNFT(logger *common.Logger, gateway gateways.IBlockchainGateway) GetNFTUseCase {
-	return func(ctx context.Context, address string, blockchain string, contractAddress string, schemaName string, tokenId string) (*entities.NFT, error) {
-		logger.Debugf("get nft usecase: address: %v blockchain: %v contractAddress: %v schemaName: %v tokenId: %v", address, blockchain, contractAddress, schemaName, tokenId)
+// concurrent calls to get metadata & validate owner
+// metadata doesnt change so we cache it
+func GetNFT(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) GetNFTUseCase {
+	return func(ctx context.Context, address string, nftLocation *entities.NFTLocation) (*entities.NFT, error) {
+		logger.Debugf("get nft usecase: %v %+v", address, nftLocation)
 
-		metadata, err := gateway.GetNFTMetadata(contractAddress, tokenId, schemaName)
+		var wg sync.WaitGroup
+		var metadata *entities.NFTMetadata
+		var metadataErr error
+		var owned bool
+		var ownedErr error
 
-		if err != nil {
-			logger.Err(err, "get nft usecase: ")
-			return nil, err
-		}
+		wg.Add(2)
 
-		owner, err := gateway.VerifyOwner(contractAddress, address, tokenId, schemaName)
+		go func() {
+			defer wg.Done()
+			metadata, metadataErr = cacheGateway.GetNFTMetadata(ctx, nftLocation)
 
-		if err != nil {
-			logger.Err(err, "get nft usecase: ")
-			return nil, err
+			if metadataErr == nil {
+				return
+			}
+
+			metadata, metadataErr = blockchainGateway.GetNFTMetadata(nftLocation)
+
+			cacheGateway.SaveNFTMetadata(ctx, nftLocation, metadata)
+		}()
+
+		go func() {
+			defer wg.Done()
+			owned, ownedErr = blockchainGateway.VerifyOwner(address, nftLocation)
+		}()
+
+		wg.Wait()
+
+		if metadataErr != nil || ownedErr != nil {
+			logger.Errorf("get nft usecase: %v %v", metadataErr, ownedErr)
+			return nil, errors.New("")
 		}
 
 		nft := &entities.NFT{
-			TokenId:         tokenId,
-			Blockchain:      blockchain,
-			ContractAddress: contractAddress,
-			SchemaName:      schemaName,
-			Owned:           owner,
-			Metadata:        *metadata,
+			Location: nftLocation,
+			Owned:    owned,
+			Metadata: metadata,
 		}
 
 		return nft, nil

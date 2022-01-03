@@ -41,11 +41,11 @@ func main() {
 	container.Provide(ethereum.NewGateway)
 	container.Provide(opensea.NewGateway)
 	container.Provide(usecases.NewGetChallengeUseCase)
-	container.Provide(usecases.NewGetProfileUsecase)
+	container.Provide(usecases.NewGetProfileUseCase)
 	container.Provide(usecases.NewSaveProfileUseCase)
 	container.Provide(usecases.NewVerifyChallengeUseCase)
 	container.Provide(usecases.NewGetNFTUseCase)
-	container.Provide(usecases.NewHydrateNFTsUseCase)
+	container.Provide(usecases.NewHGetAllNFTsUseCase)
 	container.Provide(http.NewHttpController)
 
 	setRandSeed()

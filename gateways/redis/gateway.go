@@ -2,6 +2,7 @@ package redis
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/go-redis/redis/v8"
@@ -24,6 +25,6 @@ func NewGateway(settings *common.Settings, logger *common.Logger) *Gateway {
 	}
 }
 
-func GetFullKey(namespace string, key string) string {
-	return fmt.Sprintf("%v%v", namespace, key)
+func GetFullKey(keys ...string) string {
+	return strings.Join(keys, "_")
 }

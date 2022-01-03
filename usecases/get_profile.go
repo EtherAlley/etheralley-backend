@@ -11,15 +11,15 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewGetProfileUsecase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, nftApiGateway *opensea.Gateway, hydrateNFTs HydrateNFTsUseCase) GetProfileUsecase {
-	return GetProfile(logger, cacheGateway, databaseGateway, nftApiGateway, hydrateNFTs)
+func NewGetProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, nftApiGateway *opensea.Gateway, getAllNFTs GetAllNFTsUseCase) GetProfileUseCase {
+	return GetProfile(logger, cacheGateway, databaseGateway, nftApiGateway, getAllNFTs)
 }
 
 // first try to get the profile from the cache.
 // if cache miss, go to database
 // if database miss, build default
-// if database hit, recheck ownership
-func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, nftApiGateway gateways.INFTAPIGateway, hydrateNFTs HydrateNFTsUseCase) GetProfileUsecase {
+// if database hit, re-check ownership
+func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, nftApiGateway gateways.INFTAPIGateway, getAllNFTs GetAllNFTsUseCase) GetProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 
@@ -55,10 +55,14 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 			return nil, err
 		}
 
-		// TODO: validate the nfts in the profile are still owned
 		logger.Debugf("db hit for address %v, validating nft ownership", address)
 
-		profile.NFTs = hydrateNFTs(ctx, profile.Address, profile.NFTs)
+		nftLocations := &[]entities.NFTLocation{}
+		for _, nft := range *profile.NFTs {
+			*nftLocations = append(*nftLocations, *nft.Location)
+		}
+
+		profile.NFTs = getAllNFTs(ctx, profile.Address, nftLocations)
 
 		cacheGateway.SaveProfile(ctx, profile)
 

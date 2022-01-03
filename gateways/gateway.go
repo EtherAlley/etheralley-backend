@@ -16,13 +16,15 @@ type ICacheGateway interface {
 	SaveProfile(ctx context.Context, profile *entities.Profile) error
 	GetChallengeByAddress(ctx context.Context, address string) (*entities.Challenge, error)
 	SaveChallenge(ctx context.Context, challenge *entities.Challenge) error
+	GetNFTMetadata(ctx context.Context, location *entities.NFTLocation) (*entities.NFTMetadata, error)
+	SaveNFTMetadata(ctx context.Context, location *entities.NFTLocation, metadata *entities.NFTMetadata) error
 }
 
 type IBlockchainGateway interface {
-	GetNFTMetadata(contractAddress string, tokenId string, schemaName string) (*entities.NFTMetadata, error)
-	VerifyOwner(contractAddress string, address string, tokenId string, schemaName string) (bool, error)
+	GetNFTMetadata(location *entities.NFTLocation) (*entities.NFTMetadata, error)
+	VerifyOwner(address string, location *entities.NFTLocation) (bool, error)
 }
 
 type INFTAPIGateway interface {
-	GetNFTs(address string) ([]entities.NFT, error)
+	GetNFTs(address string) (*[]entities.NFT, error)
 }

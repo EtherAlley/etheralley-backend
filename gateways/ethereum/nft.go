@@ -14,10 +14,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-func (gw *Gateway) GetNFTMetadata(contractAddress string, tokenId string, schemaName string) (*entities.NFTMetadata, error) {
-	address := common.HexToAddress(contractAddress)
+func (gw *Gateway) GetNFTMetadata(location *entities.NFTLocation) (*entities.NFTMetadata, error) {
+	address := common.HexToAddress(location.ContractAddress)
 	id := new(big.Int)
-	id, ok := id.SetString(tokenId, 10)
+	id, ok := id.SetString(location.TokenId, 10)
 
 	if !ok {
 		return nil, errors.New("invalid token id")
@@ -25,10 +25,10 @@ func (gw *Gateway) GetNFTMetadata(contractAddress string, tokenId string, schema
 
 	var uri string
 	var err error
-	switch schemaName {
-	case "erc721":
+	switch location.SchemaName {
+	case "ERC721":
 		uri, err = gw.getErc721URI(address, id)
-	case "erc1155":
+	case "ERC1155":
 		uri, err = gw.getErc1155URI(address, id)
 	default:
 		uri = ""
@@ -42,21 +42,21 @@ func (gw *Gateway) GetNFTMetadata(contractAddress string, tokenId string, schema
 	return gw.getNFTMetadataFromURI(uri)
 }
 
-func (gw *Gateway) VerifyOwner(contractAddress string, address string, tokenId string, schemaName string) (bool, error) {
-	contractAdr := common.HexToAddress(contractAddress)
+func (gw *Gateway) VerifyOwner(address string, location *entities.NFTLocation) (bool, error) {
+	contractAddress := common.HexToAddress(location.ContractAddress)
 	adr := common.HexToAddress(address)
 	id := new(big.Int)
-	id, ok := id.SetString(tokenId, 10)
+	id, ok := id.SetString(location.TokenId, 10)
 
 	if !ok {
 		return false, errors.New("invalid token id")
 	}
 
-	switch schemaName {
-	case "erc1155":
-		return gw.verifyErc1155Owner(contractAdr, adr, id)
-	case "erc721":
-		return gw.verifyErc721Owner(contractAdr, adr, id)
+	switch location.SchemaName {
+	case "ERC1155":
+		return gw.verifyErc1155Owner(contractAddress, adr, id)
+	case "ERC721":
+		return gw.verifyErc721Owner(contractAddress, adr, id)
 	default:
 		return false, errors.New("invalida schema name")
 	}

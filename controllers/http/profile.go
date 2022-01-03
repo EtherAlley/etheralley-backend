@@ -16,7 +16,7 @@ func (hc *HttpController) registerProfileRoutes(r chi.Router) {
 func (hc *HttpController) getProfileByAddress(w http.ResponseWriter, r *http.Request) {
 	address := chi.URLParam(r, "address")
 
-	profile, err := hc.getProfileUsecase(r.Context(), address)
+	profile, err := hc.getProfileUseCase(r.Context(), address)
 
 	if err != nil {
 		RenderErr(w, http.StatusBadRequest, err)
@@ -39,7 +39,7 @@ func (hc *HttpController) saveProfile(w http.ResponseWriter, r *http.Request) {
 
 	profile.Address = address
 
-	err = hc.saveProfileUsecase(r.Context(), profile)
+	err = hc.saveProfileUseCase(r.Context(), profile)
 
 	if err != nil {
 		RenderErr(w, http.StatusBadRequest, err)

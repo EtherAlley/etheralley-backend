@@ -7,7 +7,7 @@ import (
 )
 
 // get the profile for the provided address
-type GetProfileUsecase func(ctx context.Context, address string) (*entities.Profile, error)
+type GetProfileUseCase func(ctx context.Context, address string) (*entities.Profile, error)
 
 // save the provided profile
 type SaveProfileUseCase func(ctx context.Context, profile *entities.Profile) error
@@ -19,7 +19,7 @@ type GetChallengeUseCase func(ctx context.Context, address string) (*entities.Ch
 type VerifyChallengeUseCase func(ctx context.Context, address string, sigHex string) error
 
 // get the metadata and ownership of an nft
-type GetNFTUseCase func(ctx context.Context, address string, blockchain string, contractAddress string, schema_name string, token_id string) (*entities.NFT, error)
+type GetNFTUseCase func(ctx context.Context, address string, nftLocation *entities.NFTLocation) (*entities.NFT, error)
 
-//
-type HydrateNFTsUseCase func(ctx context.Context, address string, partialNFTs []entities.NFT) []entities.NFT
+//get the metadata and ownership of a slice of nfts
+type GetAllNFTsUseCase func(ctx context.Context, address string, nftLocations *[]entities.NFTLocation) *[]entities.NFT
