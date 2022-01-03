@@ -7,7 +7,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-const ChallengeNamespace = "challenge_"
+const ChallengeNamespace = "challenge"
 
 func (g *Gateway) GetChallengeByAddress(ctx context.Context, address string) (*entities.Challenge, error) {
 	msg, err := g.client.Get(ctx, GetFullKey(ChallengeNamespace, address)).Result()

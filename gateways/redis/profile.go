@@ -8,7 +8,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-const ProfileNamespace = "profile_"
+const ProfileNamespace = "profile"
 
 func (g *Gateway) GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error) {
 	profile := &entities.Profile{}

@@ -7,7 +7,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-const NFTNamespace = "nft_"
+const NFTNamespace = "nft"
 
 func (g *Gateway) GetNFTMetadata(ctx context.Context, location *entities.NFTLocation) (*entities.NFTMetadata, error) {
 
