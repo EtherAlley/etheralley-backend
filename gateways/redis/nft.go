@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/etheralley/etheralley-core-api/entities"
 )
@@ -34,7 +35,7 @@ func (g *Gateway) SaveNFTMetadata(ctx context.Context, location *entities.NFTLoc
 		return err
 	}
 
-	_, err = g.client.Set(ctx, GetFullKey(NFTNamespace, location.ContractAddress, location.TokenId), string(metadataBytes), 0).Result()
+	_, err = g.client.Set(ctx, GetFullKey(NFTNamespace, location.ContractAddress, location.TokenId), string(metadataBytes), time.Hour*24).Result()
 
 	return err
 }

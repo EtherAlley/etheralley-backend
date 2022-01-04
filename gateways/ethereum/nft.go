@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	coreCommon "github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/gateways/ethereum/contracts"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -26,9 +27,9 @@ func (gw *Gateway) GetNFTMetadata(location *entities.NFTLocation) (*entities.NFT
 	var uri string
 	var err error
 	switch location.SchemaName {
-	case "ERC721":
+	case coreCommon.ERC721:
 		uri, err = gw.getErc721URI(address, id)
-	case "ERC1155":
+	case coreCommon.ERC1155:
 		uri, err = gw.getErc1155URI(address, id)
 	default:
 		uri = ""
@@ -53,9 +54,9 @@ func (gw *Gateway) VerifyOwner(address string, location *entities.NFTLocation) (
 	}
 
 	switch location.SchemaName {
-	case "ERC1155":
+	case coreCommon.ERC1155:
 		return gw.verifyErc1155Owner(contractAddress, adr, id)
-	case "ERC721":
+	case coreCommon.ERC721:
 		return gw.verifyErc721Owner(contractAddress, adr, id)
 	default:
 		return false, errors.New("invalida schema name")

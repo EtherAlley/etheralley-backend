@@ -64,10 +64,11 @@ func (gw *Gateway) GetNFTs(address string) (*[]entities.NFT, error) {
 	}
 
 	for _, asset := range body.Assets {
+		attributes := asset.Attributes
 		*nfts = append(*nfts, entities.NFT{
 			Location: &entities.NFTLocation{
 				TokenId:         asset.TokenId,
-				Blockchain:      "ethereum", // TODO: ???
+				Blockchain:      common.ETHEREUM, // it appears that this API is only for layer 1
 				ContractAddress: asset.AssetContract.ContractAddress,
 				SchemaName:      asset.AssetContract.SchemaName,
 			},
@@ -76,7 +77,7 @@ func (gw *Gateway) GetNFTs(address string) (*[]entities.NFT, error) {
 				Name:        asset.Name,
 				Description: asset.Description,
 				Image:       asset.Image,
-				Attributes:  &asset.Attributes,
+				Attributes:  &attributes,
 			},
 		})
 	}
