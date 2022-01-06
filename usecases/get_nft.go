@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"context"
-	"errors"
 	"sync"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -36,10 +35,20 @@ func GetNFT(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway
 			metadata, metadataErr = cacheGateway.GetNFTMetadata(ctx, nftLocation)
 
 			if metadataErr == nil {
+				logger.Debugf("cache hit for nft: contract address %v token id %v", nftLocation.ContractAddress, nftLocation.TokenId)
 				return
 			}
 
+			logger.Debugf("cache miss for nft: contract address %v token id %v", nftLocation.ContractAddress, nftLocation.TokenId)
+
 			metadata, metadataErr = blockchainGateway.GetNFTMetadata(nftLocation)
+
+			if metadataErr != nil {
+				logger.Errf(metadataErr, "err getting metadata from on-chain for nft: contract address %v token id %v", nftLocation.ContractAddress, nftLocation.TokenId)
+				return
+			}
+
+			logger.Debugf("chain hit for nft: contract address %v token id %v", nftLocation.ContractAddress, nftLocation.TokenId)
 
 			cacheGateway.SaveNFTMetadata(ctx, nftLocation, metadata)
 		}()
@@ -47,13 +56,20 @@ func GetNFT(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway
 		go func() {
 			defer wg.Done()
 			owned, ownedErr = blockchainGateway.VerifyOwner(address, nftLocation)
+
+			if metadataErr != nil {
+				logger.Errf(ownedErr, "err verifying owner on-chain for nft: contract address %v token id %v", nftLocation.ContractAddress, nftLocation.TokenId)
+			}
 		}()
 
 		wg.Wait()
 
-		if metadataErr != nil || ownedErr != nil {
-			logger.Errorf("get nft usecase: %v %v", metadataErr, ownedErr)
-			return nil, errors.New("")
+		if metadataErr != nil {
+			return nil, metadataErr
+		}
+
+		if ownedErr != nil {
+			return nil, ownedErr
 		}
 
 		nft := &entities.NFT{

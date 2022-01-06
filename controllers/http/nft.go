@@ -14,7 +14,7 @@ func (hc *HttpController) registerNFTRoutes(r chi.Router) {
 func (hc *HttpController) getNFT(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
-	address := query.Get("address")
+	address := r.Context().Value(contextKeyAddress).(string)
 	location := &entities.NFTLocation{
 		ContractAddress: query.Get("contract_address"),
 		SchemaName:      query.Get("schema_name"),

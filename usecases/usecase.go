@@ -23,3 +23,6 @@ type GetNFTUseCase func(ctx context.Context, address string, nftLocation *entiti
 
 //get the metadata and ownership of a slice of nfts
 type GetAllNFTsUseCase func(ctx context.Context, address string, nftLocations *[]entities.NFTLocation) *[]entities.NFT
+
+// validate an address and resolve from ens name if provided
+type GetValidAddressUseCase func(ctx context.Context, address string) (string, error)

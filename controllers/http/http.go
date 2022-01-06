@@ -19,9 +19,10 @@ type HttpController struct {
 	getChallengeUseCase    usecases.GetChallengeUseCase
 	verifyChallengeUseCase usecases.VerifyChallengeUseCase
 	getNFTUseCase          usecases.GetNFTUseCase
+	getValidAddress        usecases.GetValidAddressUseCase
 }
 
-func NewHttpController(settings *common.Settings, logger *common.Logger, getProfileUseCase usecases.GetProfileUseCase, saveProfileUseCase usecases.SaveProfileUseCase, getChallengeUseCase usecases.GetChallengeUseCase, verifyChallengeUseCase usecases.VerifyChallengeUseCase, getNFTUseCase usecases.GetNFTUseCase) *HttpController {
+func NewHttpController(settings *common.Settings, logger *common.Logger, getProfileUseCase usecases.GetProfileUseCase, saveProfileUseCase usecases.SaveProfileUseCase, getChallengeUseCase usecases.GetChallengeUseCase, verifyChallengeUseCase usecases.VerifyChallengeUseCase, getNFTUseCase usecases.GetNFTUseCase, getValidAddress usecases.GetValidAddressUseCase) *HttpController {
 	return &HttpController{
 		settings,
 		logger,
@@ -30,6 +31,7 @@ func NewHttpController(settings *common.Settings, logger *common.Logger, getProf
 		getChallengeUseCase,
 		verifyChallengeUseCase,
 		getNFTUseCase,
+		getValidAddress,
 	}
 }
 
@@ -48,9 +50,13 @@ func (hc *HttpController) Start() error {
 	r.Use(hc.recoverer)
 
 	r.Route("/health", hc.registerHealthRoutes)
-	r.Route("/profiles", hc.registerProfileRoutes)
-	r.Route("/challenge", hc.registerChallengeRoutes)
-	r.Route("/nft", hc.registerNFTRoutes)
+
+	r.Route("/address/{address}", func(r chi.Router) {
+		r.Use(hc.resolveENSName)
+		r.Route("/profile", hc.registerProfileRoutes)
+		r.Route("/challenge", hc.registerChallengeRoutes)
+		r.Route("/nft", hc.registerNFTRoutes)
+	})
 
 	port := hc.settings.Port
 
@@ -67,6 +73,18 @@ func (controller *HttpController) Exit() {
 	controller.logger.Error("detected exit in http controller")
 }
 
+// context keys
+type contextKey string
+
+func (c contextKey) String() string {
+	return "etheralley context key " + string(c)
+}
+
+var (
+	contextKeyAddress = contextKey("address")
+)
+
+// response rendering
 type ErrBody struct {
 	Message string `json:"message"`
 }

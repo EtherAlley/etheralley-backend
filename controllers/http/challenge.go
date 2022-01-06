@@ -7,11 +7,11 @@ import (
 )
 
 func (hc *HttpController) registerChallengeRoutes(r chi.Router) {
-	r.Get("/{address}", hc.getChallenge)
+	r.Get("/", hc.getChallenge)
 }
 
 func (hc *HttpController) getChallenge(w http.ResponseWriter, r *http.Request) {
-	address := chi.URLParam(r, "address")
+	address := r.Context().Value(contextKeyAddress).(string)
 
 	challenge, err := hc.getChallengeUseCase(r.Context(), address)
 

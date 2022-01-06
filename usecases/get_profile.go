@@ -24,16 +24,16 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 
 		if err == nil {
-			logger.Debugf("cache hit for address %v, returning", address)
+			logger.Debugf("cache hit for profile %v", address)
 			return profile, nil
 		}
 
-		logger.Debugf("cache miss for address %v, going to db", address)
+		logger.Debugf("cache miss for profile %v", address)
 
 		profile, err = databaseGateway.GetProfileByAddress(ctx, address)
 
 		if err == common.ErrNil {
-			logger.Debugf("db miss for address %v, building default", address)
+			logger.Debugf("db miss for profile %v", address)
 			nfts, err := nftApiGateway.GetNFTs(address)
 
 			if err != nil {
@@ -55,7 +55,7 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 			return nil, err
 		}
 
-		logger.Debugf("db hit for address %v, validating nft ownership", address)
+		logger.Debugf("db hit for profile %v", address)
 
 		nftLocations := &[]entities.NFTLocation{}
 		for _, nft := range *profile.NFTs {

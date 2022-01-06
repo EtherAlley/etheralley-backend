@@ -45,7 +45,8 @@ func main() {
 	container.Provide(usecases.NewSaveProfileUseCase)
 	container.Provide(usecases.NewVerifyChallengeUseCase)
 	container.Provide(usecases.NewGetNFTUseCase)
-	container.Provide(usecases.NewHGetAllNFTsUseCase)
+	container.Provide(usecases.NewGetAllNFTsUseCase)
+	container.Provide(usecases.NewGetValidAddressUseCase)
 	container.Provide(http.NewHttpController)
 
 	setRandSeed()

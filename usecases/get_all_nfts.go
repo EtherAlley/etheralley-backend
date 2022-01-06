@@ -8,7 +8,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-func NewHGetAllNFTsUseCase(logger *common.Logger, getNFTUseCase GetNFTUseCase) GetAllNFTsUseCase {
+func NewGetAllNFTsUseCase(logger *common.Logger, getNFTUseCase GetNFTUseCase) GetAllNFTsUseCase {
 	return GetAllNFTs(logger, getNFTUseCase)
 }
 

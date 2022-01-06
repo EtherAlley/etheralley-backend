@@ -20,8 +20,8 @@ type Settings struct {
 	MongoPort       string
 	MongoAdminDB    string
 	MongoDB         string
-	InfuraChain     string
-	InfuraProjectId string
+	EthereumNetwork string
+	EthereumAPIKey  string
 }
 
 func NewSettings() *Settings {
@@ -49,8 +49,8 @@ func NewSettings() *Settings {
 		MongoPort:       os.Getenv("MONGO_PORT"),
 		MongoAdminDB:    os.Getenv("MONGO_ADMIN_DB"),
 		MongoDB:         os.Getenv("MONGO_DB"),
-		InfuraChain:     os.Getenv("INFURA_CHAIN"),
-		InfuraProjectId: os.Getenv("INFURA_PROJECT_ID"),
+		EthereumNetwork: os.Getenv("ETHEREUM_NETWORK"),
+		EthereumAPIKey:  os.Getenv("ETHEREUM_API_KEY"),
 	}
 }
 

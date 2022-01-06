@@ -18,11 +18,14 @@ type ICacheGateway interface {
 	SaveChallenge(ctx context.Context, challenge *entities.Challenge) error
 	GetNFTMetadata(ctx context.Context, location *entities.NFTLocation) (*entities.NFTMetadata, error)
 	SaveNFTMetadata(ctx context.Context, location *entities.NFTLocation, metadata *entities.NFTMetadata) error
+	GetENSAddressFromName(ctx context.Context, ensName string) (string, error)
+	SaveENSAddress(ctx context.Context, ensName string, address string) error
 }
 
 type IBlockchainGateway interface {
 	GetNFTMetadata(location *entities.NFTLocation) (*entities.NFTMetadata, error)
 	VerifyOwner(address string, location *entities.NFTLocation) (bool, error)
+	GetENSAddressFromName(ensName string) (string, error)
 }
 
 type INFTAPIGateway interface {

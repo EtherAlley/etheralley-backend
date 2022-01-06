@@ -40,17 +40,17 @@ func (gw *Gateway) GetNFTs(address string) (*[]entities.NFT, error) {
 
 	url := fmt.Sprintf("%v/assets?owner=%v&offset=0&limit=50", OpenSeaBaseUrl, address)
 
-	gw.logger.Info(url)
+	gw.logger.Debugf("opensea assets http call: %v", url)
 
 	resp, err := http.Get(url)
 
 	if err != nil {
-		gw.logger.Errf(err, "open sea gateway get nfts http call: ")
+		gw.logger.Errf(err, "opensea assets http err: ")
 		return nfts, nil
 	}
 
 	if resp.StatusCode != 200 {
-		gw.logger.Errorf("open sea gateway get nfts http call: %v", resp.StatusCode)
+		gw.logger.Errorf("opensea assets http error code: %v", resp.StatusCode)
 		return nfts, nil
 	}
 
@@ -59,7 +59,7 @@ func (gw *Gateway) GetNFTs(address string) (*[]entities.NFT, error) {
 	err = json.NewDecoder(resp.Body).Decode(&body)
 
 	if err != nil {
-		gw.logger.Errf(err, "open sea gateway get nfts decode response body: ")
+		gw.logger.Errf(err, "opensea assets decode err: ")
 		return nfts, nil
 	}
 

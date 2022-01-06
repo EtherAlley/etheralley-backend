@@ -72,6 +72,10 @@ func (gw *Gateway) verifyErc1155Owner(contractAddress common.Address, address co
 
 	balance, err := instance.BalanceOf(&bind.CallOpts{}, address, tokenId)
 
+	if err != nil {
+		return false, err
+	}
+
 	return balance.Cmp(big.NewInt(0)) == 1, err
 }
 
@@ -121,12 +125,18 @@ func (gw *Gateway) getNFTMetadataFromURI(uri string) (*entities.NFTMetadata, err
 
 	uri = strings.Replace(uri, "ipfs://", "https://ipfs.io/ipfs/", 1)
 
-	gw.logger.Debugf("ethereum gateway: http get: %v", uri)
+	gw.logger.Debugf("nft metadata url follow http call: %v", uri)
 
 	resp, err := http.Get(uri)
 
-	if err != nil || resp.StatusCode != 200 {
-		return nil, errors.New("could not fetch uri")
+	if err != nil {
+		gw.logger.Errf(err, "nft metadata url follow http err: ")
+		return nil, errors.New("could not fetch metadata url")
+	}
+
+	if resp.StatusCode != 200 {
+		gw.logger.Errorf("nft metadata url follow http status code: %v", resp.StatusCode)
+		return nil, errors.New("could not fetch metadata url")
 	}
 
 	defer resp.Body.Close()
