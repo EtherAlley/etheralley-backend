@@ -13,7 +13,7 @@ const ProfileNamespace = "profile"
 func (g *Gateway) GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error) {
 	profile := &entities.Profile{}
 
-	profileString, err := g.client.Get(ctx, GetFullKey(ProfileNamespace, address)).Result()
+	profileString, err := g.client.Get(ctx, getFullKey(ProfileNamespace, address)).Result()
 
 	if err != nil {
 		return profile, err
@@ -31,7 +31,7 @@ func (g *Gateway) SaveProfile(ctx context.Context, profile *entities.Profile) er
 		return err
 	}
 
-	_, err = g.client.Set(ctx, GetFullKey(ProfileNamespace, profile.Address), string(profileBytes), time.Hour*24).Result()
+	_, err = g.client.Set(ctx, getFullKey(ProfileNamespace, profile.Address), string(profileBytes), time.Hour*24).Result()
 
 	return err
 }

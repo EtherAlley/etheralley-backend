@@ -1,7 +1,7 @@
 package ethereum
 
 import (
-	"fmt"
+	"errors"
 
 	cmn "github.com/etheralley/etheralley-core-api/common"
 	"github.com/ethereum/go-ethereum/common"
@@ -11,28 +11,27 @@ import (
 type Gateway struct {
 	settings *cmn.Settings
 	logger   *cmn.Logger
-	client   *ethclient.Client
 }
 
 func NewGateway(logger *cmn.Logger, settings *cmn.Settings) *Gateway {
-	var blockchain string
-	switch settings.EthereumNetwork {
-	case "testnet":
-		blockchain = "goerli"
-	case "mainnet":
-		blockchain = "mainnet"
-	}
-	client, err := ethclient.Dial(fmt.Sprintf("https://eth-%v.alchemyapi.io/v2/%v", blockchain, settings.EthereumAPIKey))
-
-	if err != nil {
-		panic(err)
-	}
-
 	return &Gateway{
 		settings,
 		logger,
-		client,
 	}
+}
+
+func (gw *Gateway) getClient(blockchain string) (*ethclient.Client, error) {
+	switch blockchain {
+	case cmn.ETHEREUM:
+		return ethclient.Dial(gw.settings.EthereumURI)
+	case cmn.POLYGON:
+		return ethclient.Dial(gw.settings.PolygonURI)
+	case cmn.OPTIMISM:
+		return ethclient.Dial(gw.settings.OptimismURI)
+	case cmn.ARBITRUM:
+		return ethclient.Dial(gw.settings.ArbitrumURI)
+	}
+	return nil, errors.New("invalid blockchain provided")
 }
 
 var zeroAddress = common.HexToAddress("0")

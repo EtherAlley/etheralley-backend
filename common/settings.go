@@ -8,20 +8,22 @@ import (
 )
 
 type Settings struct {
-	Env             string
-	Port            string
-	RedisHost       string
-	RedisPort       string
-	RedisDB         int
-	RedisPassword   string
-	MongoUsername   string
-	MongoPassword   string
-	MongoHost       string
-	MongoPort       string
-	MongoAdminDB    string
-	MongoDB         string
-	EthereumNetwork string
-	EthereumAPIKey  string
+	Env           string
+	Port          string
+	RedisHost     string
+	RedisPort     string
+	RedisDB       int
+	RedisPassword string
+	MongoUsername string
+	MongoPassword string
+	MongoHost     string
+	MongoPort     string
+	MongoAdminDB  string
+	MongoDB       string
+	EthereumURI   string
+	PolygonURI    string
+	ArbitrumURI   string
+	OptimismURI   string
 }
 
 func NewSettings() *Settings {
@@ -37,20 +39,22 @@ func NewSettings() *Settings {
 	}
 
 	return &Settings{
-		Env:             os.Getenv("ENV"),
-		Port:            os.Getenv("PORT"),
-		RedisHost:       os.Getenv("REDIS_HOST"),
-		RedisPort:       os.Getenv("REDIS_PORT"),
-		RedisPassword:   os.Getenv("REDIS_PASSWORD"),
-		RedisDB:         redisDB,
-		MongoUsername:   os.Getenv("MONGO_USERNAME"),
-		MongoPassword:   os.Getenv("MONGO_PASSWORD"),
-		MongoHost:       os.Getenv("MONGO_HOST"),
-		MongoPort:       os.Getenv("MONGO_PORT"),
-		MongoAdminDB:    os.Getenv("MONGO_ADMIN_DB"),
-		MongoDB:         os.Getenv("MONGO_DB"),
-		EthereumNetwork: os.Getenv("ETHEREUM_NETWORK"),
-		EthereumAPIKey:  os.Getenv("ETHEREUM_API_KEY"),
+		Env:           os.Getenv("ENV"),
+		Port:          os.Getenv("PORT"),
+		RedisHost:     os.Getenv("REDIS_HOST"),
+		RedisPort:     os.Getenv("REDIS_PORT"),
+		RedisPassword: os.Getenv("REDIS_PASSWORD"),
+		RedisDB:       redisDB,
+		MongoUsername: os.Getenv("MONGO_USERNAME"),
+		MongoPassword: os.Getenv("MONGO_PASSWORD"),
+		MongoHost:     os.Getenv("MONGO_HOST"),
+		MongoPort:     os.Getenv("MONGO_PORT"),
+		MongoAdminDB:  os.Getenv("MONGO_ADMIN_DB"),
+		MongoDB:       os.Getenv("MONGO_DB"),
+		EthereumURI:   os.Getenv("ETHERUM_URI"),
+		PolygonURI:    os.Getenv("POLYGON_URI"),
+		ArbitrumURI:   os.Getenv("ARBITRUM_URI"),
+		OptimismURI:   os.Getenv("OPTIMISM_URI"),
 	}
 }
 

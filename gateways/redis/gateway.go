@@ -25,6 +25,6 @@ func NewGateway(settings *common.Settings, logger *common.Logger) *Gateway {
 	}
 }
 
-func GetFullKey(keys ...string) string {
+func getFullKey(keys ...string) string {
 	return strings.Join(keys, "_")
 }

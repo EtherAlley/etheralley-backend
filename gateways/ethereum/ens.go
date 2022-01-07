@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 
+	cmn "github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/gateways/ethereum/contracts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -14,8 +15,15 @@ import (
 // same for all chains
 var ENSContractAddress = common.HexToAddress("00000000000C2E074eC69A0dFb2997BA6C7d2e1e")
 
+// https://eips.ethereum.org/EIPS/eip-137
 // https://docs.ens.domains/dapp-developer-guide/resolving-names
 func (gw *Gateway) GetENSAddressFromName(name string) (address string, err error) {
+	client, err := gw.getClient(cmn.ETHEREUM) // awlays use layer 1 for ens resolution
+
+	if err != nil {
+		return
+	}
+
 	normalizedName, err := normalize(name)
 
 	if err != nil {
@@ -24,7 +32,7 @@ func (gw *Gateway) GetENSAddressFromName(name string) (address string, err error
 
 	hash := nameHash(normalizedName)
 
-	registry, err := contracts.NewEnsRegistry(ENSContractAddress, gw.client)
+	registry, err := contracts.NewEnsRegistry(ENSContractAddress, client)
 
 	if err != nil {
 		return
@@ -36,7 +44,7 @@ func (gw *Gateway) GetENSAddressFromName(name string) (address string, err error
 		return
 	}
 
-	resolver, err := contracts.NewEnsResolver(resolverAddress, gw.client)
+	resolver, err := contracts.NewEnsResolver(resolverAddress, client)
 
 	if err != nil {
 		return
@@ -78,14 +86,17 @@ func normalize(name string) (string, error) {
 // https://docs.ens.domains/contract-api-reference/name-processing#hashing-names
 func nameHash(name string) (hash [32]byte) {
 	parts := strings.Split(name, ".")
+
 	for i := len(parts) - 1; i >= 0; i-- {
 		hash = nameHashPart(hash, parts[i])
 	}
+
 	return
 }
 
 func nameHashPart(currentHash [32]byte, name string) (hash [32]byte) {
 	nameHash := crypto.Keccak256([]byte(name))
+
 	newHash := crypto.Keccak256(append(currentHash[:], nameHash...))
 
 	copy(hash[:], newHash[:32])

@@ -12,7 +12,7 @@ const NFTNamespace = "nft"
 
 func (g *Gateway) GetNFTMetadata(ctx context.Context, location *entities.NFTLocation) (*entities.NFTMetadata, error) {
 
-	metadataString, err := g.client.Get(ctx, GetFullKey(NFTNamespace, location.ContractAddress, location.TokenId)).Result()
+	metadataString, err := g.client.Get(ctx, getFullKey(NFTNamespace, location.ContractAddress, location.TokenId, location.Blockchain)).Result()
 
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (g *Gateway) SaveNFTMetadata(ctx context.Context, location *entities.NFTLoc
 		return err
 	}
 
-	_, err = g.client.Set(ctx, GetFullKey(NFTNamespace, location.ContractAddress, location.TokenId), string(metadataBytes), time.Hour*24).Result()
+	_, err = g.client.Set(ctx, getFullKey(NFTNamespace, location.ContractAddress, location.TokenId, location.Blockchain), string(metadataBytes), time.Hour*24).Result()
 
 	return err
 }
