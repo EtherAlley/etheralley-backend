@@ -16,7 +16,6 @@ func NewGetAllNFTsUseCase(logger *common.Logger, getNFTUseCase GetNFTUseCase) Ge
 // we can use a simple slice here since each result in the go routine writes to its own index location
 func GetAllNFTs(logger *common.Logger, getNFTUseCase GetNFTUseCase) GetAllNFTsUseCase {
 	return func(ctx context.Context, address string, nftLocations *[]entities.NFTLocation) *[]entities.NFT {
-
 		var wg sync.WaitGroup
 
 		nfts := make([]*entities.NFT, len(*nftLocations))

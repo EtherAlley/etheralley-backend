@@ -15,11 +15,16 @@ func NewGetNFTUseCase(logger *common.Logger, blockchainGateway *ethereum.Gateway
 	return GetNFT(logger, blockchainGateway, cacheGateway)
 }
 
-// TODO: validate inputs
 // concurrent calls to get metadata & validate owner
 // metadata doesnt change so we cache it
+// metadata is an optional implementation in ERC721 and ERC1155 so we should return nil if we err trying to fetch it
 func GetNFT(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) GetNFTUseCase {
 	return func(ctx context.Context, address string, nftLocation *entities.NFTLocation) (*entities.NFT, error) {
+		err := common.ValidateStruct(nftLocation)
+		if err != nil {
+			return nil, err
+		}
+
 		var wg sync.WaitGroup
 		var metadata *entities.NFTMetadata
 		var metadataErr error
@@ -33,20 +38,20 @@ func GetNFT(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway
 			metadata, metadataErr = cacheGateway.GetNFTMetadata(ctx, nftLocation)
 
 			if metadataErr == nil {
-				logger.Debugf("cache hit for nft: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
+				logger.Debugf("cache hit for nft metadata: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
 				return
 			}
 
-			logger.Debugf("cache miss for nft: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
+			logger.Debugf("cache miss for nft metadata: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
 
 			metadata, metadataErr = blockchainGateway.GetNFTMetadata(nftLocation)
 
 			if metadataErr != nil {
-				logger.Errf(metadataErr, "chain miss for nft: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
+				logger.Debugf("err finding nft metadata: contract address %v token id %v chain %v err %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain, metadataErr)
 				return
 			}
 
-			logger.Debugf("chain hit for nft: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
+			logger.Debugf("found nft metadata: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
 
 			cacheGateway.SaveNFTMetadata(ctx, nftLocation, metadata)
 		}()
@@ -56,15 +61,11 @@ func GetNFT(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway
 			owned, ownedErr = blockchainGateway.VerifyOwner(address, nftLocation)
 
 			if ownedErr != nil {
-				logger.Errf(ownedErr, "err verifying owner on-chain for nft: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
+				logger.Errf(ownedErr, "err verifying nft ownership: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
 			}
 		}()
 
 		wg.Wait()
-
-		if metadataErr != nil {
-			return nil, metadataErr
-		}
 
 		if ownedErr != nil {
 			return nil, ownedErr

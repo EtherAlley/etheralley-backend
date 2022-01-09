@@ -22,6 +22,10 @@ func NewVerifyChallengeUseCase(cacheGateway *redis.Gateway) VerifyChallengeUseCa
 // https://gist.github.com/dcb9/385631846097e1f59e3cba3b1d42f3ed#file-eth_sign_verify-go
 func VerifyChallenge(cacheGateway gateways.ICacheGateway) VerifyChallengeUseCase {
 	return func(ctx context.Context, address string, sigHex string) error {
+		if ok := common.IsHexAddress(address); !ok {
+			return errors.New("invalid address format")
+		}
+
 		challenge, err := cacheGateway.GetChallengeByAddress(ctx, address)
 
 		if err != nil {

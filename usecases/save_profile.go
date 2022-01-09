@@ -19,6 +19,11 @@ func NewSaveProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, d
 // regardless of error, save the profile to the database
 func SaveProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, getAllNFTs GetAllNFTsUseCase) SaveProfileUseCase {
 	return func(ctx context.Context, profile *entities.Profile) error {
+		err := common.ValidateStruct(profile)
+		if err != nil {
+			return err
+		}
+
 		nftLocations := &[]entities.NFTLocation{}
 		for _, nft := range *profile.NFTs {
 			*nftLocations = append(*nftLocations, *nft.Location)

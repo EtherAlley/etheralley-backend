@@ -32,12 +32,12 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 
 		profile, err = databaseGateway.GetProfileByAddress(ctx, address)
 
-		if err == common.ErrNil {
+		if err == common.ErrNotFound {
 			logger.Debugf("db miss for profile %v", address)
 			nfts, err := nftApiGateway.GetNFTs(address)
 
 			if err != nil {
-				logger.Err(err, "err calling nft market gateway")
+				logger.Err(err, "err calling nft api gateway")
 				return nil, err
 			}
 
