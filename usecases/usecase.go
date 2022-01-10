@@ -18,11 +18,11 @@ type GetChallengeUseCase func(ctx context.Context, address string) (*entities.Ch
 // verify if the provided signature was signed with the correct address and signed the correct challenge message
 type VerifyChallengeUseCase func(ctx context.Context, address string, sigHex string) error
 
-// get the metadata and ownership of an nft
-type GetNFTUseCase func(ctx context.Context, address string, nftLocation *entities.NFTLocation) (*entities.NFT, error)
+// get the metadata and balance of an nft
+type GetNonFungibleTokenUseCase func(ctx context.Context, address string, contract *entities.Contract, tokenId string) (*entities.NonFungibleToken, error)
 
-//get the metadata and ownership of a slice of nfts
-type GetAllNFTsUseCase func(ctx context.Context, address string, nftLocations *[]entities.NFTLocation) *[]entities.NFT
+//get the metadata and balance of a slice of nfts
+type GetAllNonFungibleTokensUseCase func(ctx context.Context, address string, partials *[]entities.NonFungibleToken) *[]entities.NonFungibleToken
 
 // validate an address and resolve from ens name if provided
 type GetValidAddressUseCase func(ctx context.Context, address string) (string, error)

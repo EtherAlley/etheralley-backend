@@ -16,18 +16,18 @@ type ICacheGateway interface {
 	SaveProfile(ctx context.Context, profile *entities.Profile) error
 	GetChallengeByAddress(ctx context.Context, address string) (*entities.Challenge, error)
 	SaveChallenge(ctx context.Context, challenge *entities.Challenge) error
-	GetNFTMetadata(ctx context.Context, location *entities.NFTLocation) (*entities.NFTMetadata, error)
-	SaveNFTMetadata(ctx context.Context, location *entities.NFTLocation, metadata *entities.NFTMetadata) error
+	GetNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error)
+	SaveNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string, metadata *entities.NonFungibleMetadata) error
 	GetENSAddressFromName(ctx context.Context, ensName string) (string, error)
 	SaveENSAddress(ctx context.Context, ensName string, address string) error
 }
 
 type IBlockchainGateway interface {
-	GetNFTMetadata(location *entities.NFTLocation) (*entities.NFTMetadata, error)
-	VerifyOwner(address string, location *entities.NFTLocation) (bool, error)
+	GetNonFungibleMetadata(contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error)
+	GetNonFungibleBalance(address string, contract *entities.Contract, tokenId string) (string, error)
 	GetENSAddressFromName(ensName string) (string, error)
 }
 
-type INFTAPIGateway interface {
-	GetNFTs(address string) (*[]entities.NFT, error)
+type INonFungibleAPIGateway interface {
+	GetNonFungibleTokens(address string) (*[]entities.NonFungibleToken, error)
 }

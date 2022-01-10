@@ -35,8 +35,8 @@ type GetAssetsByOwnerRespBody struct {
 
 const OpenSeaBaseUrl = "https://api.opensea.io/api/v1"
 
-func (gw *Gateway) GetNFTs(address string) (*[]entities.NFT, error) {
-	nfts := &[]entities.NFT{}
+func (gw *Gateway) GetNonFungibleTokens(address string) (*[]entities.NonFungibleToken, error) {
+	nfts := &[]entities.NonFungibleToken{}
 
 	url := fmt.Sprintf("%v/assets?owner=%v&offset=0&limit=50", OpenSeaBaseUrl, address)
 
@@ -65,15 +65,15 @@ func (gw *Gateway) GetNFTs(address string) (*[]entities.NFT, error) {
 
 	for _, asset := range body.Assets {
 		attributes := asset.Attributes
-		*nfts = append(*nfts, entities.NFT{
-			Location: &entities.NFTLocation{
-				TokenId:         asset.TokenId,
-				Blockchain:      common.ETHEREUM, // it appears that this API is only for layer 1
-				ContractAddress: asset.AssetContract.ContractAddress,
-				SchemaName:      asset.AssetContract.SchemaName,
+		*nfts = append(*nfts, entities.NonFungibleToken{
+			TokenId: asset.TokenId,
+			Contract: &entities.Contract{
+				Blockchain: common.ETHEREUM, // it appears that this API is only for layer 1
+				Address:    asset.AssetContract.ContractAddress,
+				Interface:  asset.AssetContract.SchemaName,
 			},
-			Owned: true,
-			Metadata: &entities.NFTMetadata{
+			Balance: "1", //TODO: it doesnt appear opensea indicates the balance owned by the address, even if its semi-fungible?
+			Metadata: &entities.NonFungibleMetadata{
 				Name:        asset.Name,
 				Description: asset.Description,
 				Image:       asset.Image,

@@ -7,9 +7,9 @@ import (
 )
 
 func (hc *HttpController) registerHealthRoutes(r chi.Router) {
-	r.Get("/", hc.health)
+	r.Get("/", hc.healthRoute)
 }
 
-func (hc *HttpController) health(w http.ResponseWriter, r *http.Request) {
+func (hc *HttpController) healthRoute(w http.ResponseWriter, r *http.Request) {
 	RenderNoBody(w, http.StatusOK)
 }

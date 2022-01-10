@@ -12,25 +12,34 @@ import (
 )
 
 type HttpController struct {
-	settings               *common.Settings
-	logger                 *common.Logger
-	getProfileUseCase      usecases.GetProfileUseCase
-	saveProfileUseCase     usecases.SaveProfileUseCase
-	getChallengeUseCase    usecases.GetChallengeUseCase
-	verifyChallengeUseCase usecases.VerifyChallengeUseCase
-	getNFTUseCase          usecases.GetNFTUseCase
-	getValidAddress        usecases.GetValidAddressUseCase
+	settings            *common.Settings
+	logger              *common.Logger
+	getProfile          usecases.GetProfileUseCase
+	saveProfile         usecases.SaveProfileUseCase
+	getChallenge        usecases.GetChallengeUseCase
+	verifyChallenge     usecases.VerifyChallengeUseCase
+	getNonFungibleToken usecases.GetNonFungibleTokenUseCase
+	getValidAddress     usecases.GetValidAddressUseCase
 }
 
-func NewHttpController(settings *common.Settings, logger *common.Logger, getProfileUseCase usecases.GetProfileUseCase, saveProfileUseCase usecases.SaveProfileUseCase, getChallengeUseCase usecases.GetChallengeUseCase, verifyChallengeUseCase usecases.VerifyChallengeUseCase, getNFTUseCase usecases.GetNFTUseCase, getValidAddress usecases.GetValidAddressUseCase) *HttpController {
+func NewHttpController(
+	settings *common.Settings,
+	logger *common.Logger,
+	getProfile usecases.GetProfileUseCase,
+	saveProfile usecases.SaveProfileUseCase,
+	getChallenge usecases.GetChallengeUseCase,
+	verifyChallenge usecases.VerifyChallengeUseCase,
+	getNonFungibleToken usecases.GetNonFungibleTokenUseCase,
+	getValidAddress usecases.GetValidAddressUseCase,
+) *HttpController {
 	return &HttpController{
 		settings,
 		logger,
-		getProfileUseCase,
-		saveProfileUseCase,
-		getChallengeUseCase,
-		verifyChallengeUseCase,
-		getNFTUseCase,
+		getProfile,
+		saveProfile,
+		getChallenge,
+		verifyChallenge,
+		getNonFungibleToken,
 		getValidAddress,
 	}
 }
@@ -55,7 +64,7 @@ func (hc *HttpController) Start() error {
 		r.Use(hc.resolveENSName)
 		r.Route("/profile", hc.registerProfileRoutes)
 		r.Route("/challenge", hc.registerChallengeRoutes)
-		r.Route("/nft", hc.registerNFTRoutes)
+		r.Route("/token", hc.registerTokenRoutes)
 	})
 
 	port := hc.settings.Port

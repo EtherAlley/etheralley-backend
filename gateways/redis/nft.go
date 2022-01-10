@@ -8,17 +8,17 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-const NFTNamespace = "nft"
+const NFTNamespace = "non_fungible_token"
 
-func (g *Gateway) GetNFTMetadata(ctx context.Context, location *entities.NFTLocation) (*entities.NFTMetadata, error) {
+func (g *Gateway) GetNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error) {
 
-	metadataString, err := g.client.Get(ctx, getFullKey(NFTNamespace, location.ContractAddress, location.TokenId, location.Blockchain)).Result()
+	metadataString, err := g.client.Get(ctx, getFullKey(NFTNamespace, contract.Address, tokenId, contract.Blockchain)).Result()
 
 	if err != nil {
 		return nil, err
 	}
 
-	metadata := &entities.NFTMetadata{}
+	metadata := &entities.NonFungibleMetadata{}
 	err = json.Unmarshal([]byte(metadataString), &metadata)
 
 	if err != nil {
@@ -28,14 +28,14 @@ func (g *Gateway) GetNFTMetadata(ctx context.Context, location *entities.NFTLoca
 	return metadata, err
 }
 
-func (g *Gateway) SaveNFTMetadata(ctx context.Context, location *entities.NFTLocation, metadata *entities.NFTMetadata) error {
+func (g *Gateway) SaveNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string, metadata *entities.NonFungibleMetadata) error {
 	metadataBytes, err := json.Marshal(metadata)
 
 	if err != nil {
 		return err
 	}
 
-	_, err = g.client.Set(ctx, getFullKey(NFTNamespace, location.ContractAddress, location.TokenId, location.Blockchain), string(metadataBytes), time.Hour*24).Result()
+	_, err = g.client.Set(ctx, getFullKey(NFTNamespace, contract.Address, tokenId, contract.Blockchain), string(metadataBytes), time.Hour*24).Result()
 
 	return err
 }

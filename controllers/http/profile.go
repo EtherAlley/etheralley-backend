@@ -9,14 +9,14 @@ import (
 )
 
 func (hc *HttpController) registerProfileRoutes(r chi.Router) {
-	r.Get("/", hc.getProfileByAddress)
-	r.With(hc.authenticate).Put("/", hc.saveProfile)
+	r.Get("/", hc.getProfileByAddressRoute)
+	r.With(hc.authenticate).Put("/", hc.saveProfileRoute)
 }
 
-func (hc *HttpController) getProfileByAddress(w http.ResponseWriter, r *http.Request) {
+func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *http.Request) {
 	address := r.Context().Value(contextKeyAddress).(string)
 
-	profile, err := hc.getProfileUseCase(r.Context(), address)
+	profile, err := hc.getProfile(r.Context(), address)
 
 	if err != nil {
 		RenderErr(w, http.StatusBadRequest, err)
@@ -26,7 +26,7 @@ func (hc *HttpController) getProfileByAddress(w http.ResponseWriter, r *http.Req
 	Render(w, http.StatusOK, profile)
 }
 
-func (hc *HttpController) saveProfile(w http.ResponseWriter, r *http.Request) {
+func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Request) {
 	address := r.Context().Value(contextKeyAddress).(string)
 
 	profile := &entities.Profile{}
@@ -39,7 +39,7 @@ func (hc *HttpController) saveProfile(w http.ResponseWriter, r *http.Request) {
 
 	profile.Address = address
 
-	err = hc.saveProfileUseCase(r.Context(), profile)
+	err = hc.saveProfile(r.Context(), profile)
 
 	if err != nil {
 		RenderErr(w, http.StatusBadRequest, err)

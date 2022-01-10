@@ -11,15 +11,15 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewGetProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, nftApiGateway *opensea.Gateway, getAllNFTs GetAllNFTsUseCase) GetProfileUseCase {
-	return GetProfile(logger, cacheGateway, databaseGateway, nftApiGateway, getAllNFTs)
+func NewGetProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, nftApiGateway *opensea.Gateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase) GetProfileUseCase {
+	return GetProfile(logger, cacheGateway, databaseGateway, nftApiGateway, getAllNonFungibleTokens)
 }
 
 // first try to get the profile from the cache.
 // if cache miss, go to database
-// if database miss, build default
-// if database hit, re-check ownership
-func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, nftApiGateway gateways.INFTAPIGateway, getAllNFTs GetAllNFTsUseCase) GetProfileUseCase {
+// if database miss, build default from api gateways
+// if database hit, re-fetch transient info
+func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, nftApiGateway gateways.INonFungibleAPIGateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase) GetProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 
@@ -34,7 +34,7 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 
 		if err == common.ErrNotFound {
 			logger.Debugf("db miss for profile %v", address)
-			nfts, err := nftApiGateway.GetNFTs(address)
+			nfts, err := nftApiGateway.GetNonFungibleTokens(address)
 
 			if err != nil {
 				logger.Err(err, "err calling nft api gateway")
@@ -42,8 +42,8 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 			}
 
 			profile = &entities.Profile{
-				Address: address,
-				NFTs:    nfts,
+				Address:           address,
+				NonFungibleTokens: nfts,
 			}
 
 			cacheGateway.SaveProfile(ctx, profile)
@@ -57,12 +57,7 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 
 		logger.Debugf("db hit for profile %v", address)
 
-		nftLocations := &[]entities.NFTLocation{}
-		for _, nft := range *profile.NFTs {
-			*nftLocations = append(*nftLocations, *nft.Location)
-		}
-
-		profile.NFTs = getAllNFTs(ctx, profile.Address, nftLocations)
+		profile.NonFungibleTokens = getAllNonFungibleTokens(ctx, profile.Address, profile.NonFungibleTokens)
 
 		cacheGateway.SaveProfile(ctx, profile)
 

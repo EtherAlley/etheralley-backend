@@ -11,69 +11,73 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewGetNFTUseCase(logger *common.Logger, blockchainGateway *ethereum.Gateway, cacheGateway *redis.Gateway) GetNFTUseCase {
-	return GetNFT(logger, blockchainGateway, cacheGateway)
+func NewGetNonFungibleTokenUseCase(logger *common.Logger, blockchainGateway *ethereum.Gateway, cacheGateway *redis.Gateway) GetNonFungibleTokenUseCase {
+	return GetNonFungibleToken(logger, blockchainGateway, cacheGateway)
 }
 
 // concurrent calls to get metadata & validate owner
 // metadata doesnt change so we cache it
 // metadata is an optional implementation in ERC721 and ERC1155 so we should return nil if we err trying to fetch it
-func GetNFT(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) GetNFTUseCase {
-	return func(ctx context.Context, address string, nftLocation *entities.NFTLocation) (*entities.NFT, error) {
-		err := common.ValidateStruct(nftLocation)
-		if err != nil {
+func GetNonFungibleToken(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) GetNonFungibleTokenUseCase {
+	return func(ctx context.Context, address string, contract *entities.Contract, tokenId string) (*entities.NonFungibleToken, error) {
+		if err := common.ValidateStruct(contract); err != nil {
+			return nil, err
+		}
+
+		if err := common.ValidateField(tokenId, `required,numeric`); err != nil {
 			return nil, err
 		}
 
 		var wg sync.WaitGroup
-		var metadata *entities.NFTMetadata
+		var metadata *entities.NonFungibleMetadata
 		var metadataErr error
-		var owned bool
-		var ownedErr error
+		var balance string
+		var balanceErr error
 
 		wg.Add(2)
 
 		go func() {
 			defer wg.Done()
-			metadata, metadataErr = cacheGateway.GetNFTMetadata(ctx, nftLocation)
+			metadata, metadataErr = cacheGateway.GetNonFungibleMetadata(ctx, contract, tokenId)
 
 			if metadataErr == nil {
-				logger.Debugf("cache hit for nft metadata: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
+				logger.Debugf("cache hit for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 				return
 			}
 
-			logger.Debugf("cache miss for nft metadata: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
+			logger.Debugf("cache miss for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 
-			metadata, metadataErr = blockchainGateway.GetNFTMetadata(nftLocation)
+			metadata, metadataErr = blockchainGateway.GetNonFungibleMetadata(contract, tokenId)
 
 			if metadataErr != nil {
-				logger.Debugf("err finding nft metadata: contract address %v token id %v chain %v err %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain, metadataErr)
+				logger.Debugf("err finding nft metadata: contract address %v token id %v chain %v err %v", contract.Address, tokenId, contract.Blockchain, metadataErr)
 				return
 			}
 
-			logger.Debugf("found nft metadata: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
+			logger.Debugf("found nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 
-			cacheGateway.SaveNFTMetadata(ctx, nftLocation, metadata)
+			cacheGateway.SaveNonFungibleMetadata(ctx, contract, tokenId, metadata)
 		}()
 
 		go func() {
 			defer wg.Done()
-			owned, ownedErr = blockchainGateway.VerifyOwner(address, nftLocation)
+			balance, balanceErr = blockchainGateway.GetNonFungibleBalance(address, contract, tokenId)
 
-			if ownedErr != nil {
-				logger.Errf(ownedErr, "err verifying nft ownership: contract address %v token id %v chain %v", nftLocation.ContractAddress, nftLocation.TokenId, nftLocation.Blockchain)
+			if balanceErr != nil {
+				logger.Errf(balanceErr, "err verifying nft ownership: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 			}
 		}()
 
 		wg.Wait()
 
-		if ownedErr != nil {
-			return nil, ownedErr
+		if balanceErr != nil {
+			return nil, balanceErr
 		}
 
-		nft := &entities.NFT{
-			Location: nftLocation,
-			Owned:    owned,
+		nft := &entities.NonFungibleToken{
+			Contract: contract,
+			TokenId:  tokenId,
+			Balance:  balance,
 			Metadata: metadata,
 		}
 

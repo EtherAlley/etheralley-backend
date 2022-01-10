@@ -44,8 +44,8 @@ func main() {
 	container.Provide(usecases.NewGetProfileUseCase)
 	container.Provide(usecases.NewSaveProfileUseCase)
 	container.Provide(usecases.NewVerifyChallengeUseCase)
-	container.Provide(usecases.NewGetNFTUseCase)
-	container.Provide(usecases.NewGetAllNFTsUseCase)
+	container.Provide(usecases.NewGetNonFungibleTokenUseCase)
+	container.Provide(usecases.NewGetAllNonFungibleTokensUseCase)
 	container.Provide(usecases.NewGetValidAddressUseCase)
 	container.Provide(http.NewHttpController)
 

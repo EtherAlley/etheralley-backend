@@ -2,44 +2,51 @@ package usecases
 
 import (
 	"context"
+	"math/big"
 	"sync"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-func NewGetAllNFTsUseCase(logger *common.Logger, getNFTUseCase GetNFTUseCase) GetAllNFTsUseCase {
-	return GetAllNFTs(logger, getNFTUseCase)
+func NewGetAllNonFungibleTokensUseCase(logger *common.Logger, getNonFungibleToken GetNonFungibleTokenUseCase) GetAllNonFungibleTokensUseCase {
+	return GetAllNonFungibleTokens(logger, getNonFungibleToken)
 }
 
-// fetch each hydrated nft concurrently
+// for each partial nft provided, fetch the hydrated nft concurrently
 // we can use a simple slice here since each result in the go routine writes to its own index location
-func GetAllNFTs(logger *common.Logger, getNFTUseCase GetNFTUseCase) GetAllNFTsUseCase {
-	return func(ctx context.Context, address string, nftLocations *[]entities.NFTLocation) *[]entities.NFT {
+// balances that are zero for the given address are dropped
+func GetAllNonFungibleTokens(logger *common.Logger, getNonFungibleToken GetNonFungibleTokenUseCase) GetAllNonFungibleTokensUseCase {
+	return func(ctx context.Context, address string, partials *[]entities.NonFungibleToken) *[]entities.NonFungibleToken {
 		var wg sync.WaitGroup
 
-		nfts := make([]*entities.NFT, len(*nftLocations))
+		nfts := make([]*entities.NonFungibleToken, len(*partials))
 
-		for i, nftLocation := range *nftLocations {
+		for i, partial := range *partials {
 			wg.Add(1)
 
-			go func(i int, loc entities.NFTLocation) {
+			go func(i int, p entities.NonFungibleToken) {
 				defer wg.Done()
 
-				nft, err := getNFTUseCase(ctx, address, &loc)
+				nft, err := getNonFungibleToken(ctx, address, p.Contract, p.TokenId)
 
-				if err == nil && nft.Owned {
-					nfts[i] = nft
-				} else {
-					logger.Debugf("invalid nft provided: %v", err)
+				if err != nil {
+					logger.Errf(err, "invalid nft: contract address %v token id %v chain %v", p.Contract.Address, p.TokenId, p.Contract.Blockchain)
+					return
 				}
 
-			}(i, nftLocation)
+				balance := new(big.Int)
+				balance.SetString(nft.Balance, 10)
+				if balance.Cmp(big.NewInt(0)) == 1 {
+					nfts[i] = nft
+				}
+
+			}(i, partial)
 		}
 
 		wg.Wait()
 
-		trimmedNfts := []entities.NFT{}
+		trimmedNfts := []entities.NonFungibleToken{}
 		for _, nft := range nfts {
 			if nft != nil {
 				trimmedNfts = append(trimmedNfts, *nft)

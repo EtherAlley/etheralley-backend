@@ -16,23 +16,23 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func (gw *Gateway) GetNFTMetadata(location *entities.NFTLocation) (*entities.NFTMetadata, error) {
-	client, err := gw.getClient(location.Blockchain)
+func (gw *Gateway) GetNonFungibleMetadata(contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error) {
+	client, err := gw.getClient(contract.Blockchain)
 
 	if err != nil {
 		return nil, err
 	}
 
-	address := common.HexToAddress(location.ContractAddress)
+	address := common.HexToAddress(contract.Address)
 	id := new(big.Int)
-	id, ok := id.SetString(location.TokenId, 10)
+	id, ok := id.SetString(tokenId, 10)
 
 	if !ok {
 		return nil, errors.New("invalid token id")
 	}
 
 	var uri string
-	switch location.SchemaName {
+	switch contract.Interface {
 	case cmn.ERC721:
 		uri, err = gw.getErc721URI(client, address, id)
 	case cmn.ERC1155:
@@ -49,58 +49,66 @@ func (gw *Gateway) GetNFTMetadata(location *entities.NFTLocation) (*entities.NFT
 	return gw.getNFTMetadataFromURI(uri)
 }
 
-func (gw *Gateway) VerifyOwner(address string, location *entities.NFTLocation) (bool, error) {
-	client, err := gw.getClient(location.Blockchain)
+func (gw *Gateway) GetNonFungibleBalance(address string, contract *entities.Contract, tokenId string) (string, error) {
+	client, err := gw.getClient(contract.Blockchain)
 
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
-	contractAddress := common.HexToAddress(location.ContractAddress)
+	contractAddress := common.HexToAddress(contract.Address)
 	adr := common.HexToAddress(address)
 	id := new(big.Int)
-	id, ok := id.SetString(location.TokenId, 10)
+	id, ok := id.SetString(tokenId, 10)
 
 	if !ok {
-		return false, errors.New("invalid token id")
+		return "", errors.New("invalid token id")
 	}
 
-	switch location.SchemaName {
+	switch contract.Interface {
 	case cmn.ERC1155:
-		return gw.verifyErc1155Owner(client, contractAddress, adr, id)
+		return gw.getErc1155Balance(client, contractAddress, adr, id)
 	case cmn.ERC721:
-		return gw.verifyErc721Owner(client, contractAddress, adr, id)
+		return gw.getErc721Balance(client, contractAddress, adr, id)
 	default:
-		return false, errors.New("invalida schema name")
+		return "", errors.New("invalida schema name")
 	}
 }
 
-func (gw *Gateway) verifyErc1155Owner(client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (bool, error) {
+func (gw *Gateway) getErc1155Balance(client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (string, error) {
 	instance, err := contracts.NewErc1155(contractAddress, client)
 
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
 	balance, err := instance.BalanceOf(&bind.CallOpts{}, address, tokenId)
 
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
-	return balance.Cmp(big.NewInt(0)) == 1, err
+	return balance.String(), err
 }
 
-func (gw *Gateway) verifyErc721Owner(client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (bool, error) {
+func (gw *Gateway) getErc721Balance(client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (string, error) {
 	instance, err := contracts.NewErc721(contractAddress, client)
 
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
 	owner, err := instance.OwnerOf(&bind.CallOpts{}, tokenId)
 
-	return address.Hex() == owner.Hex(), err
+	if err != nil {
+		return "", err
+	}
+
+	if address.Hex() == owner.Hex() {
+		return "1", nil
+	} else {
+		return "0", nil
+	}
 }
 
 func (gw *Gateway) getErc1155URI(client *ethclient.Client, address common.Address, id *big.Int) (string, error) {
@@ -132,8 +140,8 @@ func (gw *Gateway) getErc721URI(client *ethclient.Client, address common.Address
 	return instance.TokenURI(&bind.CallOpts{}, id)
 }
 
-func (gw *Gateway) getNFTMetadataFromURI(uri string) (*entities.NFTMetadata, error) {
-	metadata := &entities.NFTMetadata{}
+func (gw *Gateway) getNFTMetadataFromURI(uri string) (*entities.NonFungibleMetadata, error) {
+	metadata := &entities.NonFungibleMetadata{}
 
 	uri = replaceIPFSScheme(uri)
 
