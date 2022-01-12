@@ -3,14 +3,14 @@ package entities
 type NonFungibleToken struct {
 	Contract *Contract            `bson:"contract" json:"contract" validate:"required"`
 	TokenId  string               `bson:"token_id" json:"token_id" validate:"required,numeric"`
-	Balance  string               `bson:"balance" json:"balance"`
-	Metadata *NonFungibleMetadata `bson:"metadata" json:"metadata"`
+	Balance  string               `json:"balance"`
+	Metadata *NonFungibleMetadata `json:"metadata"`
 }
 
 type FungibleToken struct {
 	Contract *Contract         `bson:"contract" json:"contract" validate:"required"`
-	Balance  string            `bson:"balance" json:"balance"`
-	Metadata *FungibleMetadata `bson:"metadata" json:"metadata"`
+	Balance  string            `json:"balance"`
+	Metadata *FungibleMetadata `json:"metadata"`
 }
 
 type Contract struct {
@@ -30,6 +30,5 @@ type NonFungibleMetadata struct {
 type FungibleMetadata struct {
 	Name     string `bson:"name" json:"name"`
 	Symbol   string `bson:"symbol" json:"symbol"`
-	Decimals uint64 `bson:"decimals" json:"decimals"`
-	Logo     string `bson:"logo" json:"logo"`
+	Decimals uint8  `bson:"decimals" json:"decimals"`
 }

@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"sync"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -11,15 +12,15 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewGetProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, nftApiGateway *opensea.Gateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase) GetProfileUseCase {
-	return GetProfile(logger, cacheGateway, databaseGateway, nftApiGateway, getAllNonFungibleTokens)
+func NewGetProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, nftApiGateway *opensea.Gateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase, getAllFungibleTokens GetAllFungibleTokensUseCase) GetProfileUseCase {
+	return GetProfile(logger, cacheGateway, databaseGateway, nftApiGateway, getAllNonFungibleTokens, getAllFungibleTokens)
 }
 
 // first try to get the profile from the cache.
 // if cache miss, go to database
-// if database miss, build default from api gateways
-// if database hit, re-fetch transient info
-func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, nftApiGateway gateways.INonFungibleAPIGateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase) GetProfileUseCase {
+// if database miss, fetch default tokens
+// if database hit, re-fetch transient token info
+func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, nftApiGateway gateways.INonFungibleAPIGateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase, getAllFungibleTokens GetAllFungibleTokensUseCase) GetProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 
@@ -34,6 +35,7 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 
 		if err == common.ErrNotFound {
 			logger.Debugf("db miss for profile %v", address)
+
 			nfts, err := nftApiGateway.GetNonFungibleTokens(address)
 
 			if err != nil {
@@ -47,6 +49,7 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 			}
 
 			cacheGateway.SaveProfile(ctx, profile)
+
 			return profile, nil
 		}
 
@@ -57,7 +60,24 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 
 		logger.Debugf("db hit for profile %v", address)
 
-		profile.NonFungibleTokens = getAllNonFungibleTokens(ctx, profile.Address, profile.NonFungibleTokens)
+		var wg sync.WaitGroup
+		wg.Add(2)
+
+		go func() {
+			defer wg.Done()
+			profile.NonFungibleTokens = getAllNonFungibleTokens(ctx, profile.Address, profile.NonFungibleTokens)
+		}()
+
+		go func() {
+			defer wg.Done()
+			contracts := []entities.Contract{}
+			for _, token := range *profile.FungibleTokens {
+				contracts = append(contracts, *token.Contract)
+			}
+			profile.FungibleTokens = getAllFungibleTokens(ctx, profile.Address, &contracts)
+		}()
+
+		wg.Wait()
 
 		cacheGateway.SaveProfile(ctx, profile)
 

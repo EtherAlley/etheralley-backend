@@ -26,3 +26,9 @@ type GetAllNonFungibleTokensUseCase func(ctx context.Context, address string, pa
 
 // validate an address and resolve from ens name if provided
 type GetValidAddressUseCase func(ctx context.Context, address string) (string, error)
+
+// get the metadata and balance of an nft
+type GetFungibleTokenUseCase func(ctx context.Context, address string, contract *entities.Contract) (*entities.FungibleToken, error)
+
+// get a slice of fungible tokens for the given address and contracts
+type GetAllFungibleTokensUseCase func(ctx context.Context, address string, contract *[]entities.Contract) *[]entities.FungibleToken

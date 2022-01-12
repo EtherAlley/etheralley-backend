@@ -47,6 +47,8 @@ func main() {
 	container.Provide(usecases.NewGetNonFungibleTokenUseCase)
 	container.Provide(usecases.NewGetAllNonFungibleTokensUseCase)
 	container.Provide(usecases.NewGetValidAddressUseCase)
+	container.Provide(usecases.NewGetFungibleTokenUseCase)
+	container.Provide(usecases.NewGetAllFungibleTokensUseCase)
 	container.Provide(http.NewHttpController)
 
 	setRandSeed()

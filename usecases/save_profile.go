@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"sync"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -10,20 +11,37 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewSaveProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase) SaveProfileUseCase {
-	return SaveProfile(logger, cacheGateway, databaseGateway, getAllNonFungibleTokens)
+func NewSaveProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase, getAllFungibleTokens GetAllFungibleTokensUseCase) SaveProfileUseCase {
+	return SaveProfile(logger, cacheGateway, databaseGateway, getAllNonFungibleTokens, getAllFungibleTokens)
 }
 
 // fetch metadata and ownership of nfts being submitted
 // try to save the profile to the cache
 // regardless of error, save the profile to the database
-func SaveProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase) SaveProfileUseCase {
+func SaveProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase, getAllFungibleTokens GetAllFungibleTokensUseCase) SaveProfileUseCase {
 	return func(ctx context.Context, profile *entities.Profile) error {
 		if err := common.ValidateStruct(profile); err != nil {
 			return err
 		}
 
-		profile.NonFungibleTokens = getAllNonFungibleTokens(ctx, profile.Address, profile.NonFungibleTokens)
+		var wg sync.WaitGroup
+		wg.Add(2)
+
+		go func() {
+			defer wg.Done()
+			profile.NonFungibleTokens = getAllNonFungibleTokens(ctx, profile.Address, profile.NonFungibleTokens)
+		}()
+
+		go func() {
+			defer wg.Done()
+			contracts := []entities.Contract{}
+			for _, token := range *profile.FungibleTokens {
+				contracts = append(contracts, *token.Contract)
+			}
+			profile.FungibleTokens = getAllFungibleTokens(ctx, profile.Address, &contracts)
+		}()
+
+		wg.Wait()
 
 		cacheGateway.SaveProfile(ctx, profile)
 

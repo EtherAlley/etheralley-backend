@@ -20,6 +20,7 @@ type HttpController struct {
 	verifyChallenge     usecases.VerifyChallengeUseCase
 	getNonFungibleToken usecases.GetNonFungibleTokenUseCase
 	getValidAddress     usecases.GetValidAddressUseCase
+	getFungibleToken    usecases.GetFungibleTokenUseCase
 }
 
 func NewHttpController(
@@ -31,6 +32,7 @@ func NewHttpController(
 	verifyChallenge usecases.VerifyChallengeUseCase,
 	getNonFungibleToken usecases.GetNonFungibleTokenUseCase,
 	getValidAddress usecases.GetValidAddressUseCase,
+	getFungibleToken usecases.GetFungibleTokenUseCase,
 ) *HttpController {
 	return &HttpController{
 		settings,
@@ -41,6 +43,7 @@ func NewHttpController(
 		verifyChallenge,
 		getNonFungibleToken,
 		getValidAddress,
+		getFungibleToken,
 	}
 }
 

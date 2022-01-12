@@ -20,11 +20,17 @@ type ICacheGateway interface {
 	SaveNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string, metadata *entities.NonFungibleMetadata) error
 	GetENSAddressFromName(ctx context.Context, ensName string) (string, error)
 	SaveENSAddress(ctx context.Context, ensName string, address string) error
+	GetFungibleMetadata(ctx context.Context, contract *entities.Contract) (*entities.FungibleMetadata, error)
+	SaveFungibleMetadata(ctx context.Context, contract *entities.Contract, metadata *entities.FungibleMetadata) error
 }
 
 type IBlockchainGateway interface {
 	GetNonFungibleMetadata(contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error)
 	GetNonFungibleBalance(address string, contract *entities.Contract, tokenId string) (string, error)
+	GetFungibleBalance(address string, contract *entities.Contract) (string, error)
+	GetFungibleName(contract *entities.Contract) (string, error)
+	GetFungibleSymbol(contract *entities.Contract) (string, error)
+	GetFungibleDecimals(contract *entities.Contract) (uint8, error)
 	GetENSAddressFromName(ensName string) (string, error)
 }
 
