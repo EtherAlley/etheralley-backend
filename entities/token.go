@@ -16,7 +16,7 @@ type FungibleToken struct {
 type Contract struct {
 	Blockchain string `bson:"blockchain" json:"blockchain" validate:"required,oneof=ethereum polygon arbitrum optimism"`
 	Address    string `bson:"address" json:"address" validate:"required,eth_addr"`
-	Interface  string `bson:"interface" json:"interface" validate:"required,oneof=ERC721 ERC1155 ERC20"`
+	Interface  string `bson:"interface" json:"interface" validate:"required,oneof=ERC721 ERC1155 ERC20 ENS_REGISTRAR"`
 }
 
 type NonFungibleMetadata struct {
@@ -24,7 +24,6 @@ type NonFungibleMetadata struct {
 	Description string                    `bson:"description" json:"description"`
 	Image       string                    `bson:"image" json:"image"`
 	Attributes  *[]map[string]interface{} `bson:"attributes" json:"attributes"`
-	Properties  *map[string]interface{}   `bson:"properties" json:"properties"`
 }
 
 type FungibleMetadata struct {

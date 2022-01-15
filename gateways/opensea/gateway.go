@@ -10,12 +10,14 @@ import (
 )
 
 type Gateway struct {
-	logger *common.Logger
+	logger   *common.Logger
+	settings *common.Settings
 }
 
-func NewGateway(logger *common.Logger) *Gateway {
+func NewGateway(logger *common.Logger, settings *common.Settings) *Gateway {
 	return &Gateway{
 		logger,
+		settings,
 	}
 }
 
@@ -33,12 +35,10 @@ type GetAssetsByOwnerRespBody struct {
 	} `json:"assets"`
 }
 
-const OpenSeaBaseUrl = "https://api.opensea.io/api/v1"
-
 func (gw *Gateway) GetNonFungibleTokens(address string) (*[]entities.NonFungibleToken, error) {
 	nfts := &[]entities.NonFungibleToken{}
 
-	url := fmt.Sprintf("%v/assets?owner=%v&offset=0&limit=50", OpenSeaBaseUrl, address)
+	url := fmt.Sprintf("%v/assets?owner=%v&offset=0&limit=50", gw.settings.OpenSeaURI, address)
 
 	gw.logger.Debugf("opensea assets http call: %v", url)
 

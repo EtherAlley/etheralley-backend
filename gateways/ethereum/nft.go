@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math/big"
 	"net/http"
 	"strings"
@@ -37,6 +38,9 @@ func (gw *Gateway) GetNonFungibleMetadata(contract *entities.Contract, tokenId s
 		uri, err = gw.getErc721URI(client, address, id)
 	case cmn.ERC1155:
 		uri, err = gw.getErc1155URI(client, address, id)
+	case cmn.ENS_REGISTRAR:
+		uri = gw.getENSURI(client, contract.Address, tokenId)
+		err = nil
 	default:
 		uri = ""
 		err = errors.New("invalida schema name")
@@ -68,7 +72,7 @@ func (gw *Gateway) GetNonFungibleBalance(address string, contract *entities.Cont
 	switch contract.Interface {
 	case cmn.ERC1155:
 		return gw.getErc1155Balance(client, contractAddress, adr, id)
-	case cmn.ERC721:
+	case cmn.ERC721, cmn.ENS_REGISTRAR:
 		return gw.getErc721Balance(client, contractAddress, adr, id)
 	default:
 		return "", errors.New("invalida schema name")
@@ -140,10 +144,21 @@ func (gw *Gateway) getErc721URI(client *ethclient.Client, address common.Address
 	return instance.TokenURI(&bind.CallOpts{}, id)
 }
 
-func (gw *Gateway) getNFTMetadataFromURI(uri string) (*entities.NonFungibleMetadata, error) {
-	metadata := &entities.NonFungibleMetadata{}
+func (gw *Gateway) getENSURI(client *ethclient.Client, address string, id string) string {
+	return fmt.Sprintf("%v/%v/%v", gw.settings.ENSMetadataURI, address, id)
+}
 
-	uri = replaceIPFSScheme(uri)
+type NFTMetadataRespBody struct {
+	Name        string                    `bson:"name" json:"name"`
+	Description string                    `bson:"description" json:"description"`
+	Image       string                    `bson:"image" json:"image"`
+	ImageURL    string                    `bson:"image_url" json:"image_url"`
+	Attributes  *[]map[string]interface{} `bson:"attributes" json:"attributes"`
+	Properties  *map[string]interface{}   `bson:"properties" json:"properties"`
+}
+
+func (gw *Gateway) getNFTMetadataFromURI(uri string) (*entities.NonFungibleMetadata, error) {
+	uri = gw.replaceIPFSScheme(uri)
 
 	gw.logger.Debugf("nft metadata url follow http call: %v", uri)
 
@@ -165,6 +180,7 @@ func (gw *Gateway) getNFTMetadataFromURI(uri string) (*entities.NonFungibleMetad
 		return nil, errors.New("could not fetch metadata url")
 	}
 
+	metadata := &NFTMetadataRespBody{}
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&metadata)
 
@@ -172,11 +188,22 @@ func (gw *Gateway) getNFTMetadataFromURI(uri string) (*entities.NonFungibleMetad
 		return nil, err
 	}
 
-	metadata.Image = replaceIPFSScheme(metadata.Image)
+	image := ""
+	if metadata.Image != "" {
+		image = metadata.Image
+	} else if metadata.ImageURL != "" {
+		image = metadata.ImageURL
+	}
+	image = gw.replaceIPFSScheme(image)
 
-	return metadata, nil
+	return &entities.NonFungibleMetadata{
+		Name:        metadata.Name,
+		Description: metadata.Description,
+		Image:       image,
+		Attributes:  metadata.Attributes,
+	}, nil
 }
 
-func replaceIPFSScheme(url string) string {
-	return strings.Replace(url, "ipfs://", "https://ipfs.io/ipfs/", 1)
+func (gw *Gateway) replaceIPFSScheme(url string) string {
+	return strings.Replace(url, "ipfs://", gw.settings.IPFSURI, 1)
 }

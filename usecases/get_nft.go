@@ -17,7 +17,7 @@ func NewGetNonFungibleTokenUseCase(logger *common.Logger, blockchainGateway *eth
 
 // concurrent calls to get metadata & validate owner
 // metadata doesnt change so we cache it
-// metadata is an optional implementation in ERC721 and ERC1155 so we should return nil if we err trying to fetch it
+// metadata is an optional implementation in ERC721 and ERC1155 but we don't support presenting an nft with no metadata in the ui
 func GetNonFungibleToken(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) GetNonFungibleTokenUseCase {
 	return func(ctx context.Context, address string, contract *entities.Contract, tokenId string) (*entities.NonFungibleToken, error) {
 		if err := common.ValidateStruct(contract); err != nil {
@@ -72,6 +72,10 @@ func GetNonFungibleToken(logger *common.Logger, blockchainGateway gateways.IBloc
 
 		if balanceErr != nil {
 			return nil, balanceErr
+		}
+
+		if metadataErr != nil {
+			return nil, metadataErr
 		}
 
 		nft := &entities.NonFungibleToken{
