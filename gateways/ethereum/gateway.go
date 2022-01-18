@@ -11,12 +11,14 @@ import (
 type Gateway struct {
 	settings *cmn.Settings
 	logger   *cmn.Logger
+	http     *cmn.HttpClient
 }
 
-func NewGateway(logger *cmn.Logger, settings *cmn.Settings) *Gateway {
+func NewGateway(logger *cmn.Logger, settings *cmn.Settings, http *cmn.HttpClient) *Gateway {
 	return &Gateway{
 		settings,
 		logger,
+		http,
 	}
 }
 

@@ -3,7 +3,6 @@ package opensea
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -12,12 +11,14 @@ import (
 type Gateway struct {
 	logger   *common.Logger
 	settings *common.Settings
+	http     *common.HttpClient
 }
 
-func NewGateway(logger *common.Logger, settings *common.Settings) *Gateway {
+func NewGateway(logger *common.Logger, settings *common.Settings, http *common.HttpClient) *Gateway {
 	return &Gateway{
 		logger,
 		settings,
+		http,
 	}
 }
 
@@ -35,23 +36,19 @@ type GetAssetsByOwnerRespBody struct {
 	} `json:"assets"`
 }
 
-func (gw *Gateway) GetNonFungibleTokens(address string) (*[]entities.NonFungibleToken, error) {
+func (gw *Gateway) GetNonFungibleTokens(address string) *[]entities.NonFungibleToken {
 	nfts := &[]entities.NonFungibleToken{}
 
-	url := fmt.Sprintf("%v/assets?owner=%v&offset=0&limit=50", gw.settings.OpenSeaURI, address)
-
-	gw.logger.Debugf("opensea assets http call: %v", url)
-
-	resp, err := http.Get(url)
+	url := fmt.Sprintf("%v/assets?owner=%v&offset=0&limit=12", gw.settings.OpenSeaURI, address)
+	resp, err := gw.http.Do("GET", url, &common.HttpOptions{
+		Headers: []common.Header{
+			{Key: "user-agent", Value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36"},
+		},
+	})
 
 	if err != nil {
-		gw.logger.Errf(err, "opensea assets http err: ")
-		return nfts, nil
-	}
-
-	if resp.StatusCode != 200 {
-		gw.logger.Errorf("opensea assets http error code: %v", resp.StatusCode)
-		return nfts, nil
+		gw.logger.Errf(err, "opensea assets get err: ")
+		return nfts
 	}
 
 	defer resp.Body.Close()
@@ -60,7 +57,7 @@ func (gw *Gateway) GetNonFungibleTokens(address string) (*[]entities.NonFungible
 
 	if err != nil {
 		gw.logger.Errf(err, "opensea assets decode err: ")
-		return nfts, nil
+		return nfts
 	}
 
 	for _, asset := range body.Assets {
@@ -82,5 +79,5 @@ func (gw *Gateway) GetNonFungibleTokens(address string) (*[]entities.NonFungible
 		})
 	}
 
-	return nfts, nil
+	return nfts
 }

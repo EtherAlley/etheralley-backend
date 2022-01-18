@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
-	"net/http"
 	"strings"
 
 	cmn "github.com/etheralley/etheralley-core-api/common"
@@ -160,23 +159,10 @@ type NFTMetadataRespBody struct {
 func (gw *Gateway) getNFTMetadataFromURI(uri string) (*entities.NonFungibleMetadata, error) {
 	uri = gw.replaceIPFSScheme(uri)
 
-	gw.logger.Debugf("nft metadata url follow http call: %v", uri)
-
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-
-	resp, err := client.Get(uri)
+	resp, err := gw.http.Do("GET", uri, nil)
 
 	if err != nil {
 		gw.logger.Errf(err, "nft metadata url follow http err: ")
-		return nil, errors.New("could not fetch metadata url")
-	}
-
-	if resp.StatusCode != 200 {
-		gw.logger.Errorf("nft metadata url follow http status code: %v", resp.StatusCode)
 		return nil, errors.New("could not fetch metadata url")
 	}
 

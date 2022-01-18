@@ -35,5 +35,5 @@ type IBlockchainGateway interface {
 }
 
 type INonFungibleAPIGateway interface {
-	GetNonFungibleTokens(address string) (*[]entities.NonFungibleToken, error)
+	GetNonFungibleTokens(address string) *[]entities.NonFungibleToken
 }

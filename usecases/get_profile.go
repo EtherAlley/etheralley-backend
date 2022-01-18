@@ -8,19 +8,31 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/gateways"
 	"github.com/etheralley/etheralley-core-api/gateways/mongo"
-	"github.com/etheralley/etheralley-core-api/gateways/opensea"
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewGetProfileUseCase(logger *common.Logger, cacheGateway *redis.Gateway, databaseGateway *mongo.Gateway, nftApiGateway *opensea.Gateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase, getAllFungibleTokens GetAllFungibleTokensUseCase) GetProfileUseCase {
-	return GetProfile(logger, cacheGateway, databaseGateway, nftApiGateway, getAllNonFungibleTokens, getAllFungibleTokens)
+func NewGetProfileUseCase(
+	logger *common.Logger,
+	cacheGateway *redis.Gateway,
+	databaseGateway *mongo.Gateway,
+	getDefaultProfile GetDefaultProfileUseCase,
+	getAllNonFungibleTokens GetAllNonFungibleTokensUseCase,
+	getAllFungibleTokens GetAllFungibleTokensUseCase,
+) GetProfileUseCase {
+	return GetProfile(logger, cacheGateway, databaseGateway, getDefaultProfile, getAllNonFungibleTokens, getAllFungibleTokens)
 }
 
 // first try to get the profile from the cache.
 // if cache miss, go to database
 // if database miss, fetch default tokens
 // if database hit, re-fetch transient token info
-func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, nftApiGateway gateways.INonFungibleAPIGateway, getAllNonFungibleTokens GetAllNonFungibleTokensUseCase, getAllFungibleTokens GetAllFungibleTokensUseCase) GetProfileUseCase {
+func GetProfile(logger *common.Logger,
+	cacheGateway gateways.ICacheGateway,
+	databaseGateway gateways.IDatabaseGateway,
+	getDefaultProfile GetDefaultProfileUseCase,
+	getAllNonFungibleTokens GetAllNonFungibleTokensUseCase,
+	getAllFungibleTokens GetAllFungibleTokensUseCase,
+) GetProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 
@@ -36,16 +48,11 @@ func GetProfile(logger *common.Logger, cacheGateway gateways.ICacheGateway, data
 		if err == common.ErrNotFound {
 			logger.Debugf("db miss for profile %v", address)
 
-			nfts, err := nftApiGateway.GetNonFungibleTokens(address)
+			profile, err := getDefaultProfile(ctx, address)
 
 			if err != nil {
-				logger.Err(err, "err calling nft api gateway")
+				logger.Err(err, "err getting default profile")
 				return nil, err
-			}
-
-			profile = &entities.Profile{
-				Address:           address,
-				NonFungibleTokens: nfts,
 			}
 
 			cacheGateway.SaveProfile(ctx, profile)

@@ -9,6 +9,9 @@ import (
 // get the profile for the provided address
 type GetProfileUseCase func(ctx context.Context, address string) (*entities.Profile, error)
 
+// get a default profile for the provided address
+type GetDefaultProfileUseCase func(ctx context.Context, address string) (*entities.Profile, error)
+
 // save the provided profile
 type SaveProfileUseCase func(ctx context.Context, profile *entities.Profile) error
 
