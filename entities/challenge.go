@@ -1,6 +1,9 @@
 package entities
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+)
 
 type Challenge struct {
 	Address string `json:"-"`
@@ -20,5 +23,5 @@ func randString() string {
 	for i := range bytes {
 		bytes[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
-	return string(bytes)
+	return fmt.Sprintf("Hey there,\n\nThis is a challenge message presented to you by etheralley.io.\n\nPlease sign this message to prove you are the owner of this address\n\nIncluded is a random string unique to this request: %v", string(bytes))
 }
