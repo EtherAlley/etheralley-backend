@@ -18,8 +18,9 @@ func NewGetProfileUseCase(
 	getDefaultProfile GetDefaultProfileUseCase,
 	getAllNonFungibleTokens GetAllNonFungibleTokensUseCase,
 	getAllFungibleTokens GetAllFungibleTokensUseCase,
+	getAllStatistics GetAllStatisticsUseCase,
 ) GetProfileUseCase {
-	return GetProfile(logger, cacheGateway, databaseGateway, getDefaultProfile, getAllNonFungibleTokens, getAllFungibleTokens)
+	return GetProfile(logger, cacheGateway, databaseGateway, getDefaultProfile, getAllNonFungibleTokens, getAllFungibleTokens, getAllStatistics)
 }
 
 // first try to get the profile from the cache.
@@ -32,6 +33,7 @@ func GetProfile(logger *common.Logger,
 	getDefaultProfile GetDefaultProfileUseCase,
 	getAllNonFungibleTokens GetAllNonFungibleTokensUseCase,
 	getAllFungibleTokens GetAllFungibleTokensUseCase,
+	getAllStatistics GetAllStatisticsUseCase,
 ) GetProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
@@ -68,7 +70,7 @@ func GetProfile(logger *common.Logger,
 		logger.Debugf("db hit for profile %v", address)
 
 		var wg sync.WaitGroup
-		wg.Add(2)
+		wg.Add(3)
 
 		go func() {
 			defer wg.Done()
@@ -82,6 +84,15 @@ func GetProfile(logger *common.Logger,
 				contracts = append(contracts, *token.Contract)
 			}
 			profile.FungibleTokens = getAllFungibleTokens(ctx, profile.Address, &contracts)
+		}()
+
+		go func() {
+			defer wg.Done()
+			contracts := []entities.Contract{}
+			for _, stats := range *profile.Statistics {
+				contracts = append(contracts, *stats.Contract)
+			}
+			profile.Statistics = getAllStatistics(ctx, profile.Address, &contracts)
 		}()
 
 		wg.Wait()

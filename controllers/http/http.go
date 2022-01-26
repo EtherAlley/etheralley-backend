@@ -21,6 +21,7 @@ type HttpController struct {
 	getNonFungibleToken usecases.GetNonFungibleTokenUseCase
 	getValidAddress     usecases.GetValidAddressUseCase
 	getFungibleToken    usecases.GetFungibleTokenUseCase
+	getStatistic        usecases.GetStatisticUseCase
 }
 
 func NewHttpController(
@@ -33,6 +34,7 @@ func NewHttpController(
 	getNonFungibleToken usecases.GetNonFungibleTokenUseCase,
 	getValidAddress usecases.GetValidAddressUseCase,
 	getFungibleToken usecases.GetFungibleTokenUseCase,
+	getStatistic usecases.GetStatisticUseCase,
 ) *HttpController {
 	return &HttpController{
 		settings,
@@ -44,6 +46,7 @@ func NewHttpController(
 		getNonFungibleToken,
 		getValidAddress,
 		getFungibleToken,
+		getStatistic,
 	}
 }
 
@@ -63,11 +66,22 @@ func (hc *HttpController) Start() error {
 
 	r.Route("/health", hc.registerHealthRoutes)
 
-	r.Route("/address/{address}", func(r chi.Router) {
+	r.Route("/profiles/{address}", func(r chi.Router) {
 		r.Use(hc.resolveENSName)
-		r.Route("/profile", hc.registerProfileRoutes)
-		r.Route("/challenge", hc.registerChallengeRoutes)
-		r.Route("/token", hc.registerTokenRoutes)
+		r.Get("/", hc.getProfileByAddressRoute)
+		r.With(hc.authenticate).Put("/", hc.saveProfileRoute)
+	})
+
+	r.Route("/challenges/{address}", func(r chi.Router) {
+		r.Use(hc.resolveENSName)
+		r.Get("/", hc.getChallengeRoute)
+	})
+
+	r.Route("/", func(r chi.Router) {
+		r.Use(hc.parseContract)
+		r.Get("/token", hc.getTokenRoute)
+		r.Get("/nft", hc.getNFTRoute)
+		r.Get("/statistic", hc.getStatisticRoute)
 	})
 
 	port := hc.settings.Port
@@ -93,7 +107,8 @@ func (c contextKey) String() string {
 }
 
 var (
-	contextKeyAddress = contextKey("address")
+	contextKeyAddress  = contextKey("address")
+	contextKeyContract = contextKey("contract")
 )
 
 // response rendering

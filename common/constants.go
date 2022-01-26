@@ -1,22 +1,27 @@
 package common
 
-// blockchains
+type Blockchain = string
+
 const (
-	ETHEREUM string = "ethereum"
-	POLYGON  string = "polygon"
-	ARBITRUM string = "arbitrum"
-	OPTIMISM string = "optimism"
+	ETHEREUM Blockchain = "ethereum"
+	POLYGON  Blockchain = "polygon"
+	ARBITRUM Blockchain = "arbitrum"
+	OPTIMISM Blockchain = "optimism"
 )
 
-// interfaces
+type Interface = string
+
 const (
-	ERC721        string = "ERC721"
-	ERC1155       string = "ERC1155"
-	ERC20         string = "ERC20"
-	ENS_REGISTRAR string = "ENS_REGISTRAR"
+	ERC721              Interface = "ERC721"
+	ERC1155             Interface = "ERC1155"
+	ERC20               Interface = "ERC20"
+	ENS_REGISTRAR       Interface = "ENS_REGISTRAR"
+	SUSHISWAP_EXCHANGE  Interface = "SUSHISWAP_EXCHANGE"
+	UNISWAP_V2_EXCHANGE Interface = "UNISWAP_V2_EXCHANGE"
+	UNISWAP_V3_EXCHANGE Interface = "UNISWAP_V3_EXCHANGE"
 )
 
-// testnet contract addresses
+// testnet erc20 addresses
 const (
 	UNI_GOERLI  string = "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"
 	LINK_GOERLI string = "0x14b7ba66139c234b1be9a157d4f8b985b8a7f762"
@@ -28,7 +33,7 @@ const (
 	WETH_GOERLI string = "0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6"
 )
 
-// mainnet contract addresses
+// mainnet erc20 addresses
 const (
 	USDT_MAINNET   string = "0xdac17f958d2ee523a2206206994597c13d831ec7"
 	BNB_MAINNET    string = "0xB8c77482e45F1F44dE1745F52C74426C631bDD52"

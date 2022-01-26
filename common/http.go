@@ -8,11 +8,19 @@ import (
 
 type HttpClient struct {
 	logger *Logger
+	client *http.Client
 }
 
 func NewHttpClient(logger *Logger) *HttpClient {
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+		Timeout: time.Second * 5,
+	}
 	return &HttpClient{
 		logger,
+		client,
 	}
 }
 
@@ -25,12 +33,6 @@ type HttpOptions struct {
 }
 
 func (c *HttpClient) Do(method string, url string, options *HttpOptions) (*http.Response, error) {
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-		Timeout: time.Second * 5,
-	}
 	req, err := http.NewRequest(method, url, nil)
 
 	if err != nil {
@@ -47,7 +49,7 @@ func (c *HttpClient) Do(method string, url string, options *HttpOptions) (*http.
 
 	c.logger.Debugf("http request %v %v", method, url)
 
-	resp, err := client.Do(req)
+	resp, err := c.client.Do(req)
 
 	if err != nil {
 		c.logger.Errf(err, "http response err: ")

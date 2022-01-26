@@ -22,7 +22,7 @@ func NewGateway(logger *cmn.Logger, settings *cmn.Settings, http *cmn.HttpClient
 	}
 }
 
-func (gw *Gateway) getClient(blockchain string) (*ethclient.Client, error) {
+func (gw *Gateway) getClient(blockchain cmn.Blockchain) (*ethclient.Client, error) {
 	switch blockchain {
 	case cmn.ETHEREUM:
 		return ethclient.Dial(gw.settings.EthereumURI)

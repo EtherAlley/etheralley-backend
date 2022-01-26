@@ -15,8 +15,9 @@ func NewGetDefaultProfileUseCase(
 	settings *common.Settings,
 	nftApiGateway *opensea.Gateway,
 	getAllFungibleTokens GetAllFungibleTokensUseCase,
+	getAllStatistics GetAllStatisticsUseCase,
 ) GetDefaultProfileUseCase {
-	return GetDefaultProfile(logger, settings, nftApiGateway, getAllFungibleTokens)
+	return GetDefaultProfile(logger, settings, nftApiGateway, getAllFungibleTokens, getAllStatistics)
 }
 
 // attempt to provide a pleasent default profile when none has been configured.
@@ -26,13 +27,14 @@ func GetDefaultProfile(
 	settings *common.Settings,
 	nftApiGateway gateways.INonFungibleAPIGateway,
 	getAllFungibleTokens GetAllFungibleTokensUseCase,
+	getAllStatistics GetAllStatisticsUseCase,
 ) GetDefaultProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		var nfts *[]entities.NonFungibleToken
 		var tokens *[]entities.FungibleToken
-
+		var stats *[]entities.Statistic
 		var wg sync.WaitGroup
-		wg.Add(2)
+		wg.Add(3)
 
 		go func() {
 			defer wg.Done()
@@ -61,12 +63,28 @@ func GetDefaultProfile(
 			tokens = getAllFungibleTokens(ctx, address, &contracts)
 		}()
 
+		go func() {
+			defer wg.Done()
+			contracts := []entities.Contract{
+				{
+					Interface:  common.UNISWAP_V2_EXCHANGE,
+					Blockchain: common.ETHEREUM,
+				},
+				{
+					Interface:  common.SUSHISWAP_EXCHANGE,
+					Blockchain: common.ETHEREUM,
+				},
+			}
+			stats = getAllStatistics(ctx, address, &contracts)
+		}()
+
 		wg.Wait()
 
 		profile := &entities.Profile{
 			Address:           address,
 			NonFungibleTokens: nfts,
 			FungibleTokens:    tokens,
+			Statistics:        stats,
 		}
 
 		return profile, nil

@@ -14,6 +14,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/mongo"
 	"github.com/etheralley/etheralley-core-api/gateways/opensea"
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
+	"github.com/etheralley/etheralley-core-api/gateways/thegraph"
 	"github.com/etheralley/etheralley-core-api/usecases"
 	"go.uber.org/dig"
 )
@@ -37,10 +38,12 @@ func main() {
 	container.Provide(common.NewSettings)
 	container.Provide(common.NewLogger)
 	container.Provide(common.NewHttpClient)
+	container.Provide(common.NewGraphQLClient)
 	container.Provide(redis.NewGateway)
 	container.Provide(mongo.NewGateway)
 	container.Provide(ethereum.NewGateway)
 	container.Provide(opensea.NewGateway)
+	container.Provide(thegraph.NewGateway)
 	container.Provide(usecases.NewGetChallengeUseCase)
 	container.Provide(usecases.NewGetProfileUseCase)
 	container.Provide(usecases.NewGetDefaultProfileUseCase)
@@ -51,6 +54,8 @@ func main() {
 	container.Provide(usecases.NewGetValidAddressUseCase)
 	container.Provide(usecases.NewGetFungibleTokenUseCase)
 	container.Provide(usecases.NewGetAllFungibleTokensUseCase)
+	container.Provide(usecases.NewGetStatisticUseCase)
+	container.Provide(usecases.NewGetAllStatisticsUseCase)
 	container.Provide(http.NewHttpController)
 
 	setRandSeed()

@@ -5,13 +5,7 @@ import (
 	"net/http"
 
 	"github.com/etheralley/etheralley-core-api/entities"
-	"github.com/go-chi/chi/v5"
 )
-
-func (hc *HttpController) registerProfileRoutes(r chi.Router) {
-	r.Get("/", hc.getProfileByAddressRoute)
-	r.With(hc.authenticate).Put("/", hc.saveProfileRoute)
-}
 
 func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *http.Request) {
 	address := r.Context().Value(contextKeyAddress).(string)
