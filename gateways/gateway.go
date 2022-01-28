@@ -34,10 +34,7 @@ type IBlockchainGateway interface {
 	GetENSAddressFromName(ensName string) (string, error)
 }
 
-type INonFungibleAPIGateway interface {
-	GetNonFungibleTokens(address string) *[]entities.NonFungibleToken
-}
-
 type IBlockchainIndexGateway interface {
 	GetSwaps(ctx context.Context, address string, contract *entities.Contract) (entities.StatisticalData, error)
+	GetNonFungibleTokens(ctx context.Context, address string) *[]entities.NonFungibleToken
 }

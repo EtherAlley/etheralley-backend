@@ -7,25 +7,25 @@ import (
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/gateways"
-	"github.com/etheralley/etheralley-core-api/gateways/opensea"
+	"github.com/etheralley/etheralley-core-api/gateways/thegraph"
 )
 
 func NewGetDefaultProfileUseCase(
 	logger *common.Logger,
 	settings *common.Settings,
-	nftApiGateway *opensea.Gateway,
+	blochchainIndexGateway *thegraph.Gateway,
 	getAllFungibleTokens GetAllFungibleTokensUseCase,
 	getAllStatistics GetAllStatisticsUseCase,
 ) GetDefaultProfileUseCase {
-	return GetDefaultProfile(logger, settings, nftApiGateway, getAllFungibleTokens, getAllStatistics)
+	return GetDefaultProfile(logger, settings, blochchainIndexGateway, getAllFungibleTokens, getAllStatistics)
 }
 
 // attempt to provide a pleasent default profile when none has been configured.
-// fetch nfts from opensea and fetch tokens from a fixed list.
+// fetch nfts and stats from the graph and fetch tokens from a fixed list.
 func GetDefaultProfile(
 	logger *common.Logger,
 	settings *common.Settings,
-	nftApiGateway gateways.INonFungibleAPIGateway,
+	blochchainIndexGateway gateways.IBlockchainIndexGateway,
 	getAllFungibleTokens GetAllFungibleTokensUseCase,
 	getAllStatistics GetAllStatisticsUseCase,
 ) GetDefaultProfileUseCase {
@@ -38,7 +38,7 @@ func GetDefaultProfile(
 
 		go func() {
 			defer wg.Done()
-			nfts = nftApiGateway.GetNonFungibleTokens(address)
+			nfts = blochchainIndexGateway.GetNonFungibleTokens(ctx, address)
 		}()
 
 		go func() {
@@ -67,10 +67,12 @@ func GetDefaultProfile(
 			defer wg.Done()
 			contracts := []entities.Contract{
 				{
+					Address:    common.ZERO_ADDRESS,
 					Interface:  common.UNISWAP_V2_EXCHANGE,
 					Blockchain: common.ETHEREUM,
 				},
 				{
+					Address:    common.ZERO_ADDRESS,
 					Interface:  common.SUSHISWAP_EXCHANGE,
 					Blockchain: common.ETHEREUM,
 				},

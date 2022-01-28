@@ -8,16 +8,18 @@ import (
 )
 
 type Gateway struct {
-	settings *common.Settings
-	logger   *common.Logger
-	client   *common.GraphQLClient
+	settings    *common.Settings
+	logger      *common.Logger
+	graphClient *common.GraphQLClient
+	httpClient  *common.HttpClient
 }
 
-func NewGateway(logger *common.Logger, settings *common.Settings, client *common.GraphQLClient) *Gateway {
+func NewGateway(logger *common.Logger, settings *common.Settings, graphClient *common.GraphQLClient, httpClient *common.HttpClient) *Gateway {
 	return &Gateway{
 		settings,
 		logger,
-		client,
+		graphClient,
+		httpClient,
 	}
 }
 
@@ -31,6 +33,8 @@ func (gw Gateway) GetSubgraphUrl(b common.Blockchain, i common.Interface) (strin
 			return fmt.Sprintf("%v/uniswap/uniswap-v2", gw.settings.TheGraphHostedURI), nil
 		case common.UNISWAP_V3_EXCHANGE:
 			return fmt.Sprintf("%v/uniswap/uniswap-v3", gw.settings.TheGraphHostedURI), nil
+		case common.ERC721:
+			return fmt.Sprintf("%v/0x7859821024e633c5dc8a4fcf86fc52e7720ce525-0", gw.settings.TheGraphURI), nil
 		}
 	case common.POLYGON:
 		switch i {

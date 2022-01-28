@@ -40,7 +40,7 @@ func (gw *Gateway) GetSwaps(ctx context.Context, address string, contract *entit
 	variables := map[string]interface{}{
 		"sender": address,
 	}
-	err = gw.client.Query(ctx, url, query, variables)
+	err = gw.graphClient.Query(ctx, url, query, variables)
 
 	if err != nil {
 		gw.logger.Err(err, "error calling subgraph")

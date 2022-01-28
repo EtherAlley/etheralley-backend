@@ -23,5 +23,6 @@ func NewGraphQLClient() *GraphQLClient {
 
 func (g *GraphQLClient) Query(ctx context.Context, url string, q interface{}, v map[string]interface{}) error {
 	client := graphql.NewClient(url, g.httpClient)
+
 	return client.Query(ctx, q, v)
 }

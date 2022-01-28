@@ -26,7 +26,6 @@ type Settings struct {
 	OptimismURI       string
 	ENSMetadataURI    string
 	IPFSURI           string
-	OpenSeaURI        string
 	TheGraphURI       string
 	TheGraphHostedURI string
 }
@@ -62,7 +61,6 @@ func NewSettings() *Settings {
 		OptimismURI:       os.Getenv("OPTIMISM_URI"),
 		ENSMetadataURI:    os.Getenv("ENS_METADATA_URI"),
 		IPFSURI:           os.Getenv("IPFS_URI"),
-		OpenSeaURI:        os.Getenv("OPENSEA_URI"),
 		TheGraphURI:       os.Getenv("THE_GRAPH_URI"),
 		TheGraphHostedURI: os.Getenv("THE_GRAPH_HOSTED_URI"),
 	}
