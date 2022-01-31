@@ -30,6 +30,10 @@ func GetDefaultProfile(
 	getAllStatistics IGetAllStatisticsUseCase,
 ) IGetDefaultProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
+		if err := common.ValidateField(address, `required,eth_addr`); err != nil {
+			return nil, err
+		}
+
 		var nfts *[]entities.NonFungibleToken
 		var tokens *[]entities.FungibleToken
 		var stats *[]entities.Statistic

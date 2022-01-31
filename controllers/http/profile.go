@@ -13,7 +13,7 @@ func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *htt
 	profile, err := hc.getProfile(r.Context(), address)
 
 	if err != nil {
-		RenderErr(w, http.StatusBadRequest, err)
+		RenderError(w, http.StatusBadRequest, "bad request")
 		return
 	}
 
@@ -27,7 +27,7 @@ func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Reques
 	err := json.NewDecoder(r.Body).Decode(profile)
 
 	if err != nil {
-		RenderErr(w, http.StatusBadRequest, err)
+		RenderError(w, http.StatusBadRequest, "bad request")
 		return
 	}
 
@@ -36,7 +36,7 @@ func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Reques
 	err = hc.saveProfile(r.Context(), profile)
 
 	if err != nil {
-		RenderErr(w, http.StatusBadRequest, err)
+		RenderError(w, http.StatusBadRequest, "bad request")
 		return
 	}
 

@@ -10,7 +10,7 @@ func (hc *HttpController) getChallengeRoute(w http.ResponseWriter, r *http.Reque
 	challenge, err := hc.getChallenge(r.Context(), address)
 
 	if err != nil {
-		RenderErr(w, http.StatusBadRequest, err)
+		RenderError(w, http.StatusBadRequest, "bad request")
 		return
 	}
 

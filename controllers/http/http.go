@@ -116,10 +116,6 @@ type ErrBody struct {
 	Message string `json:"message"`
 }
 
-func RenderErr(w http.ResponseWriter, statusCode int, err error) {
-	Render(w, statusCode, ErrBody{Message: err.Error()})
-}
-
 func RenderError(w http.ResponseWriter, statusCode int, msg string) {
 	Render(w, statusCode, ErrBody{Message: msg})
 }

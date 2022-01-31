@@ -32,7 +32,7 @@ func (hc *HttpController) getTokenRoute(w http.ResponseWriter, r *http.Request) 
 	token, err := hc.getFungibleToken(r.Context(), address, contract)
 
 	if err != nil {
-		RenderErr(w, http.StatusBadRequest, err)
+		RenderError(w, http.StatusBadRequest, "bad request")
 		return
 	}
 
@@ -49,7 +49,7 @@ func (hc *HttpController) getNFTRoute(w http.ResponseWriter, r *http.Request) {
 	nft, err := hc.getNonFungibleToken(r.Context(), address, contract, tokenId)
 
 	if err != nil {
-		RenderErr(w, http.StatusBadRequest, err)
+		RenderError(w, http.StatusBadRequest, "bad request")
 		return
 	}
 
@@ -65,7 +65,7 @@ func (hc *HttpController) getStatisticRoute(w http.ResponseWriter, r *http.Reque
 	statistic, err := hc.getStatistic(r.Context(), address, contract)
 
 	if err != nil {
-		RenderErr(w, http.StatusBadRequest, err)
+		RenderError(w, http.StatusBadRequest, "bad request")
 		return
 	}
 

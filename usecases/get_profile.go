@@ -27,7 +27,8 @@ func NewGetProfileUseCase(
 // if cache miss, go to database
 // if database miss, fetch default tokens
 // if database hit, re-fetch transient token info
-func GetProfile(logger *common.Logger,
+func GetProfile(
+	logger *common.Logger,
 	cacheGateway gateways.ICacheGateway,
 	databaseGateway gateways.IDatabaseGateway,
 	getDefaultProfile IGetDefaultProfileUseCase,
@@ -36,6 +37,10 @@ func GetProfile(logger *common.Logger,
 	getAllStatistics IGetAllStatisticsUseCase,
 ) IGetProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
+		if err := common.ValidateField(address, `required,eth_addr`); err != nil {
+			return nil, err
+		}
+
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 
 		if err == nil {

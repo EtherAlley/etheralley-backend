@@ -21,7 +21,6 @@ func GetAllNonFungibleTokens(logger *common.Logger, getNonFungibleToken IGetNonF
 		var wg sync.WaitGroup
 
 		nfts := make([]*entities.NonFungibleToken, len(*partials))
-
 		for i, partial := range *partials {
 			wg.Add(1)
 
