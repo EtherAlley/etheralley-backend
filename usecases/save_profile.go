@@ -15,10 +15,10 @@ func NewSaveProfileUseCase(
 	logger *common.Logger,
 	cacheGateway *redis.Gateway,
 	databaseGateway *mongo.Gateway,
-	getAllNonFungibleTokens GetAllNonFungibleTokensUseCase,
-	getAllFungibleTokens GetAllFungibleTokensUseCase,
-	getAllStatistics GetAllStatisticsUseCase,
-) SaveProfileUseCase {
+	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
+	getAllFungibleTokens IGetAllFungibleTokensUseCase,
+	getAllStatistics IGetAllStatisticsUseCase,
+) ISaveProfileUseCase {
 	return SaveProfile(
 		logger,
 		cacheGateway,
@@ -36,10 +36,10 @@ func SaveProfile(
 	logger *common.Logger,
 	cacheGateway gateways.ICacheGateway,
 	databaseGateway gateways.IDatabaseGateway,
-	getAllNonFungibleTokens GetAllNonFungibleTokensUseCase,
-	getAllFungibleTokens GetAllFungibleTokensUseCase,
-	getAllStatistics GetAllStatisticsUseCase,
-) SaveProfileUseCase {
+	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
+	getAllFungibleTokens IGetAllFungibleTokensUseCase,
+	getAllStatistics IGetAllStatisticsUseCase,
+) ISaveProfileUseCase {
 	return func(ctx context.Context, profile *entities.Profile) error {
 		if err := common.ValidateStruct(profile); err != nil {
 			return err

@@ -2,8 +2,8 @@ package entities
 
 type FungibleToken struct {
 	Contract *Contract         `bson:"contract" json:"contract" validate:"required"`
-	Balance  string            `json:"balance"`
-	Metadata *FungibleMetadata `json:"metadata"`
+	Balance  string            `bson:"-" json:"balance"`
+	Metadata *FungibleMetadata `bson:"metadata" json:"metadata"`
 }
 
 type FungibleMetadata struct {

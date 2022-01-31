@@ -10,14 +10,14 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewGetValidAddressUseCase(logger *common.Logger, blockchainGateway *ethereum.Gateway, cacheGateway *redis.Gateway) GetValidAddressUseCase {
-	return GetValidAddress(logger, blockchainGateway, cacheGateway)
+func NewResolveAddressUseCase(logger *common.Logger, blockchainGateway *ethereum.Gateway, cacheGateway *redis.Gateway) IResolveAddressUseCase {
+	return ResolveAddress(logger, blockchainGateway, cacheGateway)
 }
 
 // if the address contains a ".", we assume its an attempted ens address and try to resolve
 // attempt to cache resolved addresses
 // if no "." we check for valid hex address and return if valid
-func GetValidAddress(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) GetValidAddressUseCase {
+func ResolveAddress(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) IResolveAddressUseCase {
 	return func(ctx context.Context, input string) (address string, err error) {
 		if strings.Contains(input, ".") {
 			normalized := strings.ToLower(input)
@@ -45,8 +45,8 @@ func GetValidAddress(logger *common.Logger, blockchainGateway gateways.IBlockcha
 			return
 		}
 
-		if err := common.ValidateField(input, `required,eth_addr`); err != nil {
-			return address, err
+		if err = common.ValidateField(input, `required,eth_addr`); err != nil {
+			return
 		}
 
 		return input, nil

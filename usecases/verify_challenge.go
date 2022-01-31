@@ -12,7 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-func NewVerifyChallengeUseCase(cacheGateway *redis.Gateway) VerifyChallengeUseCase {
+func NewVerifyChallengeUseCase(cacheGateway *redis.Gateway) IVerifyChallengeUseCase {
 	return VerifyChallenge(cacheGateway)
 }
 
@@ -20,7 +20,7 @@ func NewVerifyChallengeUseCase(cacheGateway *redis.Gateway) VerifyChallengeUseCa
 // hash the challenge message and use that to get the public key out of the signature
 // compare the address from the signature with the provided address
 // https://gist.github.com/dcb9/385631846097e1f59e3cba3b1d42f3ed#file-eth_sign_verify-go
-func VerifyChallenge(cacheGateway gateways.ICacheGateway) VerifyChallengeUseCase {
+func VerifyChallenge(cacheGateway gateways.ICacheGateway) IVerifyChallengeUseCase {
 	return func(ctx context.Context, address string, sigHex string) error {
 		if ok := common.IsHexAddress(address); !ok {
 			return errors.New("invalid address format")

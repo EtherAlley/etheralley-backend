@@ -14,27 +14,27 @@ import (
 type HttpController struct {
 	settings            *common.Settings
 	logger              *common.Logger
-	getProfile          usecases.GetProfileUseCase
-	saveProfile         usecases.SaveProfileUseCase
-	getChallenge        usecases.GetChallengeUseCase
-	verifyChallenge     usecases.VerifyChallengeUseCase
-	getNonFungibleToken usecases.GetNonFungibleTokenUseCase
-	getValidAddress     usecases.GetValidAddressUseCase
-	getFungibleToken    usecases.GetFungibleTokenUseCase
-	getStatistic        usecases.GetStatisticUseCase
+	getProfile          usecases.IGetProfileUseCase
+	saveProfile         usecases.ISaveProfileUseCase
+	getChallenge        usecases.IGetChallengeUseCase
+	verifyChallenge     usecases.IVerifyChallengeUseCase
+	getNonFungibleToken usecases.IGetNonFungibleTokenUseCase
+	resolveAddress      usecases.IResolveAddressUseCase
+	getFungibleToken    usecases.IGetFungibleTokenUseCase
+	getStatistic        usecases.IGetStatisticUseCase
 }
 
 func NewHttpController(
 	settings *common.Settings,
 	logger *common.Logger,
-	getProfile usecases.GetProfileUseCase,
-	saveProfile usecases.SaveProfileUseCase,
-	getChallenge usecases.GetChallengeUseCase,
-	verifyChallenge usecases.VerifyChallengeUseCase,
-	getNonFungibleToken usecases.GetNonFungibleTokenUseCase,
-	getValidAddress usecases.GetValidAddressUseCase,
-	getFungibleToken usecases.GetFungibleTokenUseCase,
-	getStatistic usecases.GetStatisticUseCase,
+	getProfile usecases.IGetProfileUseCase,
+	saveProfile usecases.ISaveProfileUseCase,
+	getChallenge usecases.IGetChallengeUseCase,
+	verifyChallenge usecases.IVerifyChallengeUseCase,
+	getNonFungibleToken usecases.IGetNonFungibleTokenUseCase,
+	resolveAddress usecases.IResolveAddressUseCase,
+	getFungibleToken usecases.IGetFungibleTokenUseCase,
+	getStatistic usecases.IGetStatisticUseCase,
 ) *HttpController {
 	return &HttpController{
 		settings,
@@ -44,7 +44,7 @@ func NewHttpController(
 		getChallenge,
 		verifyChallenge,
 		getNonFungibleToken,
-		getValidAddress,
+		resolveAddress,
 		getFungibleToken,
 		getStatistic,
 	}

@@ -49,7 +49,7 @@ func main() {
 	container.Provide(usecases.NewVerifyChallengeUseCase)
 	container.Provide(usecases.NewGetNonFungibleTokenUseCase)
 	container.Provide(usecases.NewGetAllNonFungibleTokensUseCase)
-	container.Provide(usecases.NewGetValidAddressUseCase)
+	container.Provide(usecases.NewResolveAddressUseCase)
 	container.Provide(usecases.NewGetFungibleTokenUseCase)
 	container.Provide(usecases.NewGetAllFungibleTokensUseCase)
 	container.Provide(usecases.NewGetStatisticUseCase)

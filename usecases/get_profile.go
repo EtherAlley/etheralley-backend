@@ -15,11 +15,11 @@ func NewGetProfileUseCase(
 	logger *common.Logger,
 	cacheGateway *redis.Gateway,
 	databaseGateway *mongo.Gateway,
-	getDefaultProfile GetDefaultProfileUseCase,
-	getAllNonFungibleTokens GetAllNonFungibleTokensUseCase,
-	getAllFungibleTokens GetAllFungibleTokensUseCase,
-	getAllStatistics GetAllStatisticsUseCase,
-) GetProfileUseCase {
+	getDefaultProfile IGetDefaultProfileUseCase,
+	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
+	getAllFungibleTokens IGetAllFungibleTokensUseCase,
+	getAllStatistics IGetAllStatisticsUseCase,
+) IGetProfileUseCase {
 	return GetProfile(logger, cacheGateway, databaseGateway, getDefaultProfile, getAllNonFungibleTokens, getAllFungibleTokens, getAllStatistics)
 }
 
@@ -30,11 +30,11 @@ func NewGetProfileUseCase(
 func GetProfile(logger *common.Logger,
 	cacheGateway gateways.ICacheGateway,
 	databaseGateway gateways.IDatabaseGateway,
-	getDefaultProfile GetDefaultProfileUseCase,
-	getAllNonFungibleTokens GetAllNonFungibleTokensUseCase,
-	getAllFungibleTokens GetAllFungibleTokensUseCase,
-	getAllStatistics GetAllStatisticsUseCase,
-) GetProfileUseCase {
+	getDefaultProfile IGetDefaultProfileUseCase,
+	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
+	getAllFungibleTokens IGetAllFungibleTokensUseCase,
+	getAllStatistics IGetAllStatisticsUseCase,
+) IGetProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 

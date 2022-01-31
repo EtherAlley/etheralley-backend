@@ -14,9 +14,9 @@ func NewGetDefaultProfileUseCase(
 	logger *common.Logger,
 	settings *common.Settings,
 	blochchainIndexGateway *thegraph.Gateway,
-	getAllFungibleTokens GetAllFungibleTokensUseCase,
-	getAllStatistics GetAllStatisticsUseCase,
-) GetDefaultProfileUseCase {
+	getAllFungibleTokens IGetAllFungibleTokensUseCase,
+	getAllStatistics IGetAllStatisticsUseCase,
+) IGetDefaultProfileUseCase {
 	return GetDefaultProfile(logger, settings, blochchainIndexGateway, getAllFungibleTokens, getAllStatistics)
 }
 
@@ -26,9 +26,9 @@ func GetDefaultProfile(
 	logger *common.Logger,
 	settings *common.Settings,
 	blochchainIndexGateway gateways.IBlockchainIndexGateway,
-	getAllFungibleTokens GetAllFungibleTokensUseCase,
-	getAllStatistics GetAllStatisticsUseCase,
-) GetDefaultProfileUseCase {
+	getAllFungibleTokens IGetAllFungibleTokensUseCase,
+	getAllStatistics IGetAllStatisticsUseCase,
+) IGetDefaultProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		var nfts *[]entities.NonFungibleToken
 		var tokens *[]entities.FungibleToken
@@ -46,9 +46,23 @@ func GetDefaultProfile(
 
 			var knownContracts []string
 			if settings.IsDev() {
-				knownContracts = KnownGoerliContracts
+				knownContracts = []string{
+					common.UNI_GOERLI,
+					common.LINK_GOERLI,
+					common.HEX_GOERLI,
+					common.SHIB_GOERLI,
+					common.DAI_GOERLI,
+					common.CRO_GOERLI,
+				}
 			} else {
-				knownContracts = KnownMainnetContracts
+				knownContracts = []string{
+					common.UNI_MAINNET,
+					common.LINK_MAINNET,
+					common.HEX_MAINNET,
+					common.SHIB_MAINNET,
+					common.DAI_MAINNET,
+					common.CRO_MAINNET,
+				}
 			}
 
 			contracts := []entities.Contract{}
@@ -91,31 +105,4 @@ func GetDefaultProfile(
 
 		return profile, nil
 	}
-}
-
-var KnownGoerliContracts = []string{
-	common.UNI_GOERLI,
-	common.LINK_GOERLI,
-	common.HEX_GOERLI,
-	common.DAI_GOERLI,
-	common.BUSD_GOERLI,
-	common.USDC_GOERLI,
-	common.USDT_GOERLI,
-	common.WETH_GOERLI,
-}
-
-var KnownMainnetContracts = []string{
-	common.USDT_MAINNET,
-	common.BNB_MAINNET,
-	common.USDC_MAINNET,
-	common.HEX_MAINNET,
-	common.MATIC_MAINNET,
-	common.SHIB_MAINNET,
-	common.BUSD_MAINNET,
-	common.LINK_MAINNET,
-	common.CRO_MAINNET,
-	common.WBTC_MAINNET,
-	common.UST_MAINNET,
-	common.DAI_MAINNET,
-	common.UNI_MAINNET,
 }

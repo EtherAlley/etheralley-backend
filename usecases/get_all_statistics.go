@@ -8,11 +8,11 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-func NewGetAllStatisticsUseCase(logger *common.Logger, getStatistic GetStatisticUseCase) GetAllStatisticsUseCase {
+func NewGetAllStatisticsUseCase(logger *common.Logger, getStatistic IGetStatisticUseCase) IGetAllStatisticsUseCase {
 	return GetAllStatistics(logger, getStatistic)
 }
 
-func GetAllStatistics(logger *common.Logger, getStatistic GetStatisticUseCase) GetAllStatisticsUseCase {
+func GetAllStatistics(logger *common.Logger, getStatistic IGetStatisticUseCase) IGetAllStatisticsUseCase {
 	return func(ctx context.Context, address string, contract *[]entities.Contract) *[]entities.Statistic {
 		var wg sync.WaitGroup
 

@@ -12,7 +12,7 @@ func (hc *HttpController) resolveENSName(next http.Handler) http.Handler {
 		address := chi.URLParam(r, "address")
 		ctx := r.Context()
 
-		address, err := hc.getValidAddress(ctx, address)
+		address, err := hc.resolveAddress(ctx, address)
 
 		if err != nil {
 			RenderError(w, http.StatusBadRequest, "invalid address")

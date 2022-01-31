@@ -11,14 +11,14 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewGetNonFungibleTokenUseCase(logger *common.Logger, blockchainGateway *ethereum.Gateway, cacheGateway *redis.Gateway) GetNonFungibleTokenUseCase {
+func NewGetNonFungibleTokenUseCase(logger *common.Logger, blockchainGateway *ethereum.Gateway, cacheGateway *redis.Gateway) IGetNonFungibleTokenUseCase {
 	return GetNonFungibleToken(logger, blockchainGateway, cacheGateway)
 }
 
 // concurrent calls to get metadata & validate owner
 // metadata doesnt change so we cache it
 // metadata is an optional implementation in ERC721 and ERC1155 but we don't support presenting an nft with no metadata in the ui
-func GetNonFungibleToken(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) GetNonFungibleTokenUseCase {
+func GetNonFungibleToken(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) IGetNonFungibleTokenUseCase {
 	return func(ctx context.Context, address string, contract *entities.Contract, tokenId string) (*entities.NonFungibleToken, error) {
 		if err := common.ValidateStruct(contract); err != nil {
 			return nil, err

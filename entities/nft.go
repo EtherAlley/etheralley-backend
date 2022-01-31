@@ -3,8 +3,8 @@ package entities
 type NonFungibleToken struct {
 	Contract *Contract            `bson:"contract" json:"contract" validate:"required"`
 	TokenId  string               `bson:"token_id" json:"token_id" validate:"required,numeric"`
-	Balance  string               `json:"balance"`
-	Metadata *NonFungibleMetadata `json:"metadata"`
+	Balance  string               `bson:"-" json:"balance"`
+	Metadata *NonFungibleMetadata `bson:"metadata" json:"metadata"`
 }
 
 type NonFungibleMetadata struct {

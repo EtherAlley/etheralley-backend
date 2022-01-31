@@ -11,14 +11,14 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewGetFungibleTokenUseCase(logger *common.Logger, blockchainGateway *ethereum.Gateway, cacheGateway *redis.Gateway) GetFungibleTokenUseCase {
+func NewGetFungibleTokenUseCase(logger *common.Logger, blockchainGateway *ethereum.Gateway, cacheGateway *redis.Gateway) IGetFungibleTokenUseCase {
 	return GetFungibleToken(logger, blockchainGateway, cacheGateway)
 }
 
 // fetch balance, name, symbol and decimals concurrently
 // cache metadata
 // name, symbol and decimals are optional implementations
-func GetFungibleToken(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) GetFungibleTokenUseCase {
+func GetFungibleToken(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) IGetFungibleTokenUseCase {
 	return func(ctx context.Context, address string, contract *entities.Contract) (*entities.FungibleToken, error) {
 
 		var balance string

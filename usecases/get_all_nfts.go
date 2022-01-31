@@ -9,14 +9,14 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-func NewGetAllNonFungibleTokensUseCase(logger *common.Logger, getNonFungibleToken GetNonFungibleTokenUseCase) GetAllNonFungibleTokensUseCase {
+func NewGetAllNonFungibleTokensUseCase(logger *common.Logger, getNonFungibleToken IGetNonFungibleTokenUseCase) IGetAllNonFungibleTokensUseCase {
 	return GetAllNonFungibleTokens(logger, getNonFungibleToken)
 }
 
 // for each partial nft provided, fetch the hydrated nft concurrently
 // we can use a simple slice here since each result in the go routine writes to its own index location
 // invalid contracts or balances that are zero for the given address are dropped
-func GetAllNonFungibleTokens(logger *common.Logger, getNonFungibleToken GetNonFungibleTokenUseCase) GetAllNonFungibleTokensUseCase {
+func GetAllNonFungibleTokens(logger *common.Logger, getNonFungibleToken IGetNonFungibleTokenUseCase) IGetAllNonFungibleTokensUseCase {
 	return func(ctx context.Context, address string, partials *[]entities.NonFungibleToken) *[]entities.NonFungibleToken {
 		var wg sync.WaitGroup
 

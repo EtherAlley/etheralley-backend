@@ -8,14 +8,14 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-func NewGetAllFungibleTokensUseCase(logger *common.Logger, getFungibleToken GetFungibleTokenUseCase) GetAllFungibleTokensUseCase {
+func NewGetAllFungibleTokensUseCase(logger *common.Logger, getFungibleToken IGetFungibleTokenUseCase) IGetAllFungibleTokensUseCase {
 	return GetAllFungibleTokens(logger, getFungibleToken)
 }
 
 // fetch the full token info for each contract provided
 // we can use a simple slice here since each result in the go routine writes to its own index location
 // invalid contracts are discarded
-func GetAllFungibleTokens(logger *common.Logger, getFungibleToken GetFungibleTokenUseCase) GetAllFungibleTokensUseCase {
+func GetAllFungibleTokens(logger *common.Logger, getFungibleToken IGetFungibleTokenUseCase) IGetAllFungibleTokensUseCase {
 	return func(ctx context.Context, address string, contracts *[]entities.Contract) *[]entities.FungibleToken {
 		var wg sync.WaitGroup
 
