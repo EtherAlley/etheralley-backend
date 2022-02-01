@@ -83,19 +83,28 @@ func GetDefaultProfile(
 
 		go func() {
 			defer wg.Done()
-			contracts := []entities.Contract{
-				{
-					Address:    common.ZERO_ADDRESS,
-					Interface:  common.UNISWAP_V2_EXCHANGE,
-					Blockchain: common.ETHEREUM,
-				},
-				{
-					Address:    common.ZERO_ADDRESS,
-					Interface:  common.SUSHISWAP_EXCHANGE,
-					Blockchain: common.ETHEREUM,
+			input := GetAllStatisticsInput{
+				Address: address,
+				Stats: &[]StatisticInput{
+					{
+						Type: common.SWAP,
+						Contract: &entities.Contract{
+							Address:    common.ZERO_ADDRESS,
+							Interface:  common.UNISWAP_V2_EXCHANGE,
+							Blockchain: common.ETHEREUM,
+						},
+					},
+					{
+						Type: common.SWAP,
+						Contract: &entities.Contract{
+							Address:    common.ZERO_ADDRESS,
+							Interface:  common.SUSHISWAP_EXCHANGE,
+							Blockchain: common.ETHEREUM,
+						},
+					},
 				},
 			}
-			stats = getAllStatistics(ctx, address, &contracts)
+			stats = getAllStatistics(ctx, &input)
 		}()
 
 		wg.Wait()

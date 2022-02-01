@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 
+	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
@@ -37,7 +38,17 @@ type IGetFungibleTokenUseCase func(ctx context.Context, address string, contract
 type IGetAllFungibleTokensUseCase func(ctx context.Context, address string, contract *[]entities.Contract) *[]entities.FungibleToken
 
 // get the statistic for a given address and contract
-type IGetStatisticUseCase func(ctx context.Context, address string, contract *entities.Contract) (*entities.Statistic, error)
+type IGetStatisticUseCase func(ctx context.Context, address string, contract *entities.Contract, statType common.StatisticType) (*entities.Statistic, error)
+
+type StatisticInput struct {
+	Contract *entities.Contract   `validate:"required,dive"`
+	Type     common.StatisticType `validate:"required,oneof=SWAP"`
+}
+
+type GetAllStatisticsInput struct {
+	Address string            `validate:"required,eth_addr"`
+	Stats   *[]StatisticInput `validate:"required,dive"`
+}
 
 // get all statistics for a given address and slice of contract
-type IGetAllStatisticsUseCase func(ctx context.Context, address string, contract *[]entities.Contract) *[]entities.Statistic
+type IGetAllStatisticsUseCase func(ctx context.Context, input *GetAllStatisticsInput) *[]entities.Statistic

@@ -21,6 +21,12 @@ const (
 	UNISWAP_V3_EXCHANGE Interface = "UNISWAP_V3_EXCHANGE"
 )
 
+type StatisticType = string
+
+const (
+	SWAP StatisticType = "SWAP"
+)
+
 type Address = string
 
 const (

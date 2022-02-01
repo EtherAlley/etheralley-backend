@@ -93,11 +93,17 @@ func GetProfile(
 
 		go func() {
 			defer wg.Done()
-			contracts := []entities.Contract{}
-			for _, stats := range *profile.Statistics {
-				contracts = append(contracts, *stats.Contract)
+			input := GetAllStatisticsInput{
+				Address: profile.Address,
+				Stats:   &[]StatisticInput{},
 			}
-			profile.Statistics = getAllStatistics(ctx, profile.Address, &contracts)
+			for _, stats := range *profile.Statistics {
+				*input.Stats = append(*input.Stats, StatisticInput{
+					Contract: stats.Contract,
+					Type:     stats.Type,
+				})
+			}
+			profile.Statistics = getAllStatistics(ctx, &input)
 		}()
 
 		wg.Wait()

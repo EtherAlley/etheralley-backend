@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"context"
-	"sync"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -16,16 +15,12 @@ func NewSaveProfileUseCase(
 	cacheGateway *redis.Gateway,
 	databaseGateway *mongo.Gateway,
 	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
-	getAllFungibleTokens IGetAllFungibleTokensUseCase,
-	getAllStatistics IGetAllStatisticsUseCase,
 ) ISaveProfileUseCase {
 	return SaveProfile(
 		logger,
 		cacheGateway,
 		databaseGateway,
 		getAllNonFungibleTokens,
-		getAllFungibleTokens,
-		getAllStatistics,
 	)
 }
 
@@ -37,41 +32,13 @@ func SaveProfile(
 	cacheGateway gateways.ICacheGateway,
 	databaseGateway gateways.IDatabaseGateway,
 	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
-	getAllFungibleTokens IGetAllFungibleTokensUseCase,
-	getAllStatistics IGetAllStatisticsUseCase,
 ) ISaveProfileUseCase {
 	return func(ctx context.Context, profile *entities.Profile) error {
 		if err := common.ValidateStruct(profile); err != nil {
 			return err
 		}
 
-		var wg sync.WaitGroup
-		wg.Add(3)
-
-		go func() {
-			defer wg.Done()
-			profile.NonFungibleTokens = getAllNonFungibleTokens(ctx, profile.Address, profile.NonFungibleTokens)
-		}()
-
-		go func() {
-			defer wg.Done()
-			contracts := []entities.Contract{}
-			for _, token := range *profile.FungibleTokens {
-				contracts = append(contracts, *token.Contract)
-			}
-			profile.FungibleTokens = getAllFungibleTokens(ctx, profile.Address, &contracts)
-		}()
-
-		go func() {
-			defer wg.Done()
-			contracts := []entities.Contract{}
-			for _, stats := range *profile.Statistics {
-				contracts = append(contracts, *stats.Contract)
-			}
-			profile.Statistics = getAllStatistics(ctx, profile.Address, &contracts)
-		}()
-
-		wg.Wait()
+		profile.NonFungibleTokens = getAllNonFungibleTokens(ctx, profile.Address, profile.NonFungibleTokens)
 
 		cacheGateway.SaveProfile(ctx, profile)
 

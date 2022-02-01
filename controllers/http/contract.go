@@ -61,8 +61,9 @@ func (hc *HttpController) getStatisticRoute(w http.ResponseWriter, r *http.Reque
 
 	query := r.URL.Query()
 	address := query.Get("user_address")
+	statType := query.Get("type")
 
-	statistic, err := hc.getStatistic(r.Context(), address, contract)
+	statistic, err := hc.getStatistic(r.Context(), address, contract, statType)
 
 	if err != nil {
 		RenderError(w, http.StatusBadRequest, "bad request")

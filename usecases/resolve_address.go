@@ -18,15 +18,16 @@ func NewResolveAddressUseCase(logger *common.Logger, blockchainGateway *ethereum
 // attempt to cache resolved addresses
 // if no "." we check for valid hex address and return if valid
 func ResolveAddress(logger *common.Logger, blockchainGateway gateways.IBlockchainGateway, cacheGateway gateways.ICacheGateway) IResolveAddressUseCase {
-	return func(ctx context.Context, input string) (address string, err error) {
-		if strings.Contains(input, ".") {
-			normalized := strings.ToLower(input)
+	return func(ctx context.Context, input string) (string, error) {
+		normalized := strings.ToLower(input)
 
-			address, err = cacheGateway.GetENSAddressFromName(ctx, normalized)
+		if strings.Contains(normalized, ".") {
+
+			address, err := cacheGateway.GetENSAddressFromName(ctx, normalized)
 
 			if err == nil {
-				logger.Debugf("cache hit for ens name %v -> address %v", normalized, address)
-				return
+				logger.Debugf("cache hit for ens name %v -> address %v", input, address)
+				return address, err
 			}
 
 			logger.Debugf("cache miss for ens name %v", normalized)
@@ -35,20 +36,20 @@ func ResolveAddress(logger *common.Logger, blockchainGateway gateways.IBlockchai
 
 			if err != nil {
 				logger.Debugf("chain miss for ens name %v err: %v", normalized, err)
-				return
+				return address, err
 			}
 
 			logger.Debugf("chain hit for ens name %v -> address %v", normalized, address)
 
 			cacheGateway.SaveENSAddress(ctx, normalized, address)
 
-			return
+			return address, err
 		}
 
-		if err = common.ValidateField(input, `required,eth_addr`); err != nil {
-			return
+		if err := common.ValidateField(normalized, `required,eth_addr`); err != nil {
+			return normalized, err
 		}
 
-		return input, nil
+		return normalized, nil
 	}
 }

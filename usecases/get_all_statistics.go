@@ -13,26 +13,28 @@ func NewGetAllStatisticsUseCase(logger *common.Logger, getStatistic IGetStatisti
 }
 
 func GetAllStatistics(logger *common.Logger, getStatistic IGetStatisticUseCase) IGetAllStatisticsUseCase {
-	return func(ctx context.Context, address string, contract *[]entities.Contract) *[]entities.Statistic {
+	return func(ctx context.Context, input *GetAllStatisticsInput) *[]entities.Statistic {
 		var wg sync.WaitGroup
 
-		stats := make([]*entities.Statistic, len(*contract))
+		stats := make([]*entities.Statistic, len(*input.Stats))
 
-		for i, contract := range *contract {
+		for i, s := range *input.Stats {
 			wg.Add(1)
 
-			go func(i int, c entities.Contract) {
+			go func(
+				i int,
+				s StatisticInput) {
 				defer wg.Done()
 
-				stat, err := getStatistic(ctx, address, &c)
+				stat, err := getStatistic(ctx, input.Address, s.Contract, s.Type)
 
 				if err != nil {
-					logger.Errf(err, "invalid swaps contract: address %v chain %v interface %v", c.Address, c.Blockchain, c.Interface)
+					logger.Errf(err, "invalid swaps contract: type %v address %v chain %v interface %v", s.Type, s.Contract.Address, s.Contract.Blockchain, s.Contract.Interface)
 					return
 				}
 
 				stats[i] = stat
-			}(i, contract)
+			}(i, s)
 		}
 
 		wg.Wait()
