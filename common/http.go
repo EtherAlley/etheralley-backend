@@ -6,22 +6,8 @@ import (
 	"time"
 )
 
-type HttpClient struct {
-	logger *Logger
-	client *http.Client
-}
-
-func NewHttpClient(logger *Logger) *HttpClient {
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-		Timeout: time.Second * 5,
-	}
-	return &HttpClient{
-		logger,
-		client,
-	}
+type IHttpClient interface {
+	Do(method string, url string, options *HttpOptions) (*http.Response, error)
 }
 
 type Header struct {
@@ -32,7 +18,25 @@ type HttpOptions struct {
 	Headers []Header
 }
 
-func (c *HttpClient) Do(method string, url string, options *HttpOptions) (*http.Response, error) {
+type httpClient struct {
+	logger ILogger
+	client *http.Client
+}
+
+func NewHttpClient(logger ILogger) IHttpClient {
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+		Timeout: time.Second * 5,
+	}
+	return &httpClient{
+		logger,
+		client,
+	}
+}
+
+func (c *httpClient) Do(method string, url string, options *HttpOptions) (*http.Response, error) {
 	req, err := http.NewRequest(method, url, nil)
 
 	if err != nil {

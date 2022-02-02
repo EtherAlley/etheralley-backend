@@ -6,20 +6,21 @@ import (
 	"time"
 
 	"github.com/etheralley/etheralley-core-api/common"
+	"github.com/etheralley/etheralley-core-api/gateways"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Gateway struct {
-	logger   *common.Logger
+	logger   common.ILogger
 	profiles *mongo.Collection
 }
 
-func NewGateway(settings *common.Settings, logger *common.Logger) *Gateway {
+func NewGateway(settings common.ISettings, logger common.ILogger) gateways.IDatabaseGateway {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	mongoURI := fmt.Sprintf("mongodb://%v:%v@%v:%v/%v?retryWrites=true&w=majority", settings.MongoUsername, settings.MongoPassword, settings.MongoHost, settings.MongoPort, settings.MongoAdminDB)
+	mongoURI := fmt.Sprintf("mongodb://%v?retryWrites=true&w=majority", settings.DatabaseURI())
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 
@@ -28,7 +29,7 @@ func NewGateway(settings *common.Settings, logger *common.Logger) *Gateway {
 		panic(err)
 	}
 
-	db := client.Database(settings.MongoDB)
+	db := client.Database(settings.Database())
 	profiles := db.Collection("profiles")
 
 	return &Gateway{

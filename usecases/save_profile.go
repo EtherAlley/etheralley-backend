@@ -6,29 +6,13 @@ import (
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/gateways"
-	"github.com/etheralley/etheralley-core-api/gateways/mongo"
-	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
-
-func NewSaveProfileUseCase(
-	logger *common.Logger,
-	cacheGateway *redis.Gateway,
-	databaseGateway *mongo.Gateway,
-	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
-) ISaveProfileUseCase {
-	return SaveProfile(
-		logger,
-		cacheGateway,
-		databaseGateway,
-		getAllNonFungibleTokens,
-	)
-}
 
 // fetch metadata and ownership of nfts being submitted
 // try to save the profile to the cache
 // regardless of error, save the profile to the database
-func SaveProfile(
-	logger *common.Logger,
+func NewSaveProfile(
+	logger common.ILogger,
 	cacheGateway gateways.ICacheGateway,
 	databaseGateway gateways.IDatabaseGateway,
 	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,

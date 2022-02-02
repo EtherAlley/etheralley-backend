@@ -133,5 +133,5 @@ func (gw *Gateway) getNFTMetadataFromURI(uri string) (*entities.NonFungibleMetad
 }
 
 func (gw *Gateway) replaceIPFSScheme(url string) string {
-	return strings.Replace(url, "ipfs://", gw.settings.IPFSURI, 1)
+	return strings.Replace(url, "ipfs://", gw.settings.IPFSURI(), 1)
 }

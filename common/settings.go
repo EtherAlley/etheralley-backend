@@ -7,65 +7,134 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type Settings struct {
-	Env               string
-	Port              string
-	RedisHost         string
-	RedisPort         string
-	RedisDB           int
-	RedisPassword     string
-	MongoUsername     string
-	MongoPassword     string
-	MongoHost         string
-	MongoPort         string
-	MongoAdminDB      string
-	MongoDB           string
-	EthereumURI       string
-	PolygonURI        string
-	ArbitrumURI       string
-	OptimismURI       string
-	ENSMetadataURI    string
-	IPFSURI           string
-	TheGraphURI       string
-	TheGraphHostedURI string
+type ISettings interface {
+	Env() string
+	IsDev() bool
+	Port() string
+	CacheAddr() string
+	CacheDB() int
+	CachePassword() string
+	DatabaseURI() string
+	Database() string
+	EthereumURI() string
+	PolygonURI() string
+	ArbitrumURI() string
+	OptimismURI() string
+	ENSMetadataURI() string
+	IPFSURI() string
+	TheGraphURI() string
+	TheGraphHostedURI() string
 }
 
-func NewSettings() *Settings {
+type settings struct {
+	env               string
+	port              string
+	redisAddr         string
+	redisDB           string
+	redisPassword     string
+	mongoURI          string
+	mongoDB           string
+	ethereumURI       string
+	polygonURI        string
+	arbitrumURI       string
+	optimismURI       string
+	ensMetadataURI    string
+	ipfsURI           string
+	theGraphURI       string
+	theGraphHostedURI string
+}
+
+func NewSettings() ISettings {
 	err := godotenv.Load()
 	if err != nil {
 		panic("Error loading settings")
 	}
 
-	redisDB, err := strconv.Atoi(os.Getenv("REDIS_DB"))
-
-	if err != nil {
-		panic("Error parsing redis db value")
-	}
-
-	return &Settings{
-		Env:               os.Getenv("ENV"),
-		Port:              os.Getenv("PORT"),
-		RedisHost:         os.Getenv("REDIS_HOST"),
-		RedisPort:         os.Getenv("REDIS_PORT"),
-		RedisPassword:     os.Getenv("REDIS_PASSWORD"),
-		RedisDB:           redisDB,
-		MongoUsername:     os.Getenv("MONGO_USERNAME"),
-		MongoPassword:     os.Getenv("MONGO_PASSWORD"),
-		MongoHost:         os.Getenv("MONGO_HOST"),
-		MongoPort:         os.Getenv("MONGO_PORT"),
-		MongoAdminDB:      os.Getenv("MONGO_ADMIN_DB"),
-		MongoDB:           os.Getenv("MONGO_DB"),
-		EthereumURI:       os.Getenv("ETHEREUM_URI"),
-		PolygonURI:        os.Getenv("POLYGON_URI"),
-		ArbitrumURI:       os.Getenv("ARBITRUM_URI"),
-		OptimismURI:       os.Getenv("OPTIMISM_URI"),
-		ENSMetadataURI:    os.Getenv("ENS_METADATA_URI"),
-		IPFSURI:           os.Getenv("IPFS_URI"),
-		TheGraphURI:       os.Getenv("THE_GRAPH_URI"),
-		TheGraphHostedURI: os.Getenv("THE_GRAPH_HOSTED_URI"),
+	return &settings{
+		env:               os.Getenv("ENV"),
+		port:              os.Getenv("PORT"),
+		redisAddr:         os.Getenv("REDIS_ADDR"),
+		redisPassword:     os.Getenv("REDIS_PASSWORD"),
+		redisDB:           os.Getenv("REDIS_DB"),
+		mongoURI:          os.Getenv("MONGO_URI"),
+		mongoDB:           os.Getenv("MONGO_DB"),
+		ethereumURI:       os.Getenv("ETHEREUM_URI"),
+		polygonURI:        os.Getenv("POLYGON_URI"),
+		arbitrumURI:       os.Getenv("ARBITRUM_URI"),
+		optimismURI:       os.Getenv("OPTIMISM_URI"),
+		ensMetadataURI:    os.Getenv("ENS_METADATA_URI"),
+		ipfsURI:           os.Getenv("IPFS_URI"),
+		theGraphURI:       os.Getenv("THE_GRAPH_URI"),
+		theGraphHostedURI: os.Getenv("THE_GRAPH_HOSTED_URI"),
 	}
 }
 
-func (settings *Settings) IsDev() bool {
-	return settings.Env == "dev"
+func (s *settings) Env() string {
+	return s.env
+}
+
+func (s *settings) IsDev() bool {
+	return s.env == "dev"
+}
+
+func (s *settings) Port() string {
+	return s.port
+}
+
+func (s *settings) CacheAddr() string {
+	return s.redisAddr
+}
+
+func (s *settings) CacheDB() int {
+	redisDB, err := strconv.Atoi(s.redisDB)
+
+	if err != nil {
+		return 1
+	}
+
+	return redisDB
+}
+
+func (s *settings) CachePassword() string {
+	return s.redisPassword
+}
+
+func (s *settings) DatabaseURI() string {
+	return s.mongoURI
+}
+
+func (s *settings) Database() string {
+	return s.mongoDB
+}
+
+func (s *settings) EthereumURI() string {
+	return s.ethereumURI
+}
+
+func (s *settings) PolygonURI() string {
+	return s.polygonURI
+}
+
+func (s *settings) ArbitrumURI() string {
+	return s.arbitrumURI
+}
+
+func (s *settings) OptimismURI() string {
+	return s.optimismURI
+}
+
+func (s *settings) ENSMetadataURI() string {
+	return s.ensMetadataURI
+}
+
+func (s *settings) IPFSURI() string {
+	return s.ipfsURI
+}
+
+func (s *settings) TheGraphURI() string {
+	return s.theGraphURI
+}
+
+func (s *settings) TheGraphHostedURI() string {
+	return s.theGraphHostedURI
 }

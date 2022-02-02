@@ -6,15 +6,10 @@ import (
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/gateways"
-	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
 
-func NewGetChallengeUseCase(cacheGateway *redis.Gateway) IGetChallengeUseCase {
-	return GetChallenge(cacheGateway)
-}
-
 // generate a new challenge and save it to the cache
-func GetChallenge(cacheGateway gateways.ICacheGateway) IGetChallengeUseCase {
+func NewGetChallenge(cacheGateway gateways.ICacheGateway) IGetChallengeUseCase {
 	return func(ctx context.Context, address string) (*entities.Challenge, error) {
 		if err := common.ValidateField(address, `required,eth_addr`); err != nil {
 			return nil, err

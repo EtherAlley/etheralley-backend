@@ -6,55 +6,66 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type Logger struct {
+type ILogger interface {
+	Info(msg string)
+	Infof(msg string, v ...interface{})
+	Error(msg string)
+	Errorf(msg string, v ...interface{})
+	Err(err error, msg string)
+	Errf(err error, msg string, v ...interface{})
+	Debug(msg string)
+	Debugf(msg string, v ...interface{})
+}
+
+type logger struct {
 	logger zerolog.Logger
 }
 
-func NewLogger(settings *Settings) *Logger {
+func NewLogger(settings ISettings) ILogger {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
-	var logger zerolog.Logger
+	var zLogger zerolog.Logger
 
 	if settings.IsDev() {
-		logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr})
+		zLogger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr})
 	} else {
-		logger = zerolog.New(os.Stderr)
+		zLogger = zerolog.New(os.Stderr)
 
 	}
 
-	return &Logger{
-		logger: logger.With().Timestamp().Logger(),
+	return &logger{
+		logger: zLogger.With().Timestamp().Logger(),
 	}
 }
 
-func (logger Logger) Info(msg string) {
-	logger.logger.Info().Msg(msg)
+func (l logger) Info(msg string) {
+	l.logger.Info().Msg(msg)
 }
 
-func (logger Logger) Infof(msg string, v ...interface{}) {
-	logger.logger.Info().Msgf(msg, v...)
+func (l logger) Infof(msg string, v ...interface{}) {
+	l.logger.Info().Msgf(msg, v...)
 }
 
-func (logger Logger) Error(msg string) {
-	logger.logger.Error().Msg(msg)
+func (l logger) Error(msg string) {
+	l.logger.Error().Msg(msg)
 }
 
-func (logger Logger) Errorf(msg string, v ...interface{}) {
-	logger.logger.Error().Msgf(msg, v...)
+func (l logger) Errorf(msg string, v ...interface{}) {
+	l.logger.Error().Msgf(msg, v...)
 }
 
-func (logger Logger) Err(err error, msg string) {
-	logger.logger.Error().Err(err).Msg(msg)
+func (l logger) Err(err error, msg string) {
+	l.logger.Error().Err(err).Msg(msg)
 }
 
-func (logger Logger) Errf(err error, msg string, v ...interface{}) {
-	logger.logger.Error().Err(err).Msgf(msg, v...)
+func (l logger) Errf(err error, msg string, v ...interface{}) {
+	l.logger.Error().Err(err).Msgf(msg, v...)
 }
 
-func (logger Logger) Debug(msg string) {
-	logger.logger.Debug().Msg(msg)
+func (l logger) Debug(msg string) {
+	l.logger.Debug().Msg(msg)
 }
 
-func (logger Logger) Debugf(msg string, v ...interface{}) {
-	logger.logger.Debug().Msgf(msg, v...)
+func (l logger) Debugf(msg string, v ...interface{}) {
+	l.logger.Debug().Msgf(msg, v...)
 }

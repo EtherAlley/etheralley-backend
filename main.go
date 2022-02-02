@@ -18,7 +18,7 @@ import (
 	"go.uber.org/dig"
 )
 
-func awaitSigterm(logger *common.Logger) {
+func awaitSigterm(logger common.ILogger) {
 	logger.Info("awaiting sigterm")
 
 	cancelChan := make(chan os.Signal, 1)
@@ -42,18 +42,18 @@ func main() {
 	container.Provide(mongo.NewGateway)
 	container.Provide(ethereum.NewGateway)
 	container.Provide(thegraph.NewGateway)
-	container.Provide(usecases.NewGetChallengeUseCase)
-	container.Provide(usecases.NewGetProfileUseCase)
-	container.Provide(usecases.NewGetDefaultProfileUseCase)
-	container.Provide(usecases.NewSaveProfileUseCase)
-	container.Provide(usecases.NewVerifyChallengeUseCase)
-	container.Provide(usecases.NewGetNonFungibleTokenUseCase)
-	container.Provide(usecases.NewGetAllNonFungibleTokensUseCase)
-	container.Provide(usecases.NewResolveAddressUseCase)
-	container.Provide(usecases.NewGetFungibleTokenUseCase)
-	container.Provide(usecases.NewGetAllFungibleTokensUseCase)
-	container.Provide(usecases.NewGetStatisticUseCase)
-	container.Provide(usecases.NewGetAllStatisticsUseCase)
+	container.Provide(usecases.NewGetChallenge)
+	container.Provide(usecases.NewGetProfile)
+	container.Provide(usecases.NewGetDefaultProfile)
+	container.Provide(usecases.NewSaveProfile)
+	container.Provide(usecases.NewVerifyChallenge)
+	container.Provide(usecases.NewGetNonFungibleToken)
+	container.Provide(usecases.NewGetAllNonFungibleTokens)
+	container.Provide(usecases.NewResolveAddress)
+	container.Provide(usecases.NewGetFungibleToken)
+	container.Provide(usecases.NewGetAllFungibleTokens)
+	container.Provide(usecases.NewGetStatistic)
+	container.Provide(usecases.NewGetAllStatistics)
 	container.Provide(http.NewHttpController)
 
 	setRandSeed()

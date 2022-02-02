@@ -7,24 +7,13 @@ import (
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/gateways"
-	"github.com/etheralley/etheralley-core-api/gateways/thegraph"
 )
-
-func NewGetDefaultProfileUseCase(
-	logger *common.Logger,
-	settings *common.Settings,
-	blochchainIndexGateway *thegraph.Gateway,
-	getAllFungibleTokens IGetAllFungibleTokensUseCase,
-	getAllStatistics IGetAllStatisticsUseCase,
-) IGetDefaultProfileUseCase {
-	return GetDefaultProfile(logger, settings, blochchainIndexGateway, getAllFungibleTokens, getAllStatistics)
-}
 
 // attempt to provide a pleasent default profile when none has been configured.
 // fetch nfts and stats from the graph and fetch tokens from a fixed list.
-func GetDefaultProfile(
-	logger *common.Logger,
-	settings *common.Settings,
+func NewGetDefaultProfile(
+	logger common.ILogger,
+	settings common.ISettings,
 	blochchainIndexGateway gateways.IBlockchainIndexGateway,
 	getAllFungibleTokens IGetAllFungibleTokensUseCase,
 	getAllStatistics IGetAllStatisticsUseCase,

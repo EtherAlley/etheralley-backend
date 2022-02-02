@@ -7,28 +7,14 @@ import (
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/gateways"
-	"github.com/etheralley/etheralley-core-api/gateways/mongo"
-	"github.com/etheralley/etheralley-core-api/gateways/redis"
 )
-
-func NewGetProfileUseCase(
-	logger *common.Logger,
-	cacheGateway *redis.Gateway,
-	databaseGateway *mongo.Gateway,
-	getDefaultProfile IGetDefaultProfileUseCase,
-	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
-	getAllFungibleTokens IGetAllFungibleTokensUseCase,
-	getAllStatistics IGetAllStatisticsUseCase,
-) IGetProfileUseCase {
-	return GetProfile(logger, cacheGateway, databaseGateway, getDefaultProfile, getAllNonFungibleTokens, getAllFungibleTokens, getAllStatistics)
-}
 
 // first try to get the profile from the cache.
 // if cache miss, go to database
 // if database miss, fetch default tokens
 // if database hit, re-fetch transient token info
-func GetProfile(
-	logger *common.Logger,
+func NewGetProfile(
+	logger common.ILogger,
 	cacheGateway gateways.ICacheGateway,
 	databaseGateway gateways.IDatabaseGateway,
 	getDefaultProfile IGetDefaultProfileUseCase,

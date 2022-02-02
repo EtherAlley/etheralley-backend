@@ -8,20 +8,24 @@ import (
 	"github.com/hasura/go-graphql-client"
 )
 
-type GraphQLClient struct {
+type IGraphQLClient interface {
+	Query(ctx context.Context, url string, q interface{}, v map[string]interface{}) error
+}
+
+type graphQLClient struct {
 	httpClient *http.Client
 }
 
-func NewGraphQLClient() *GraphQLClient {
+func NewGraphQLClient() IGraphQLClient {
 	httpClient := &http.Client{
 		Timeout: time.Second * 5,
 	}
-	return &GraphQLClient{
+	return &graphQLClient{
 		httpClient,
 	}
 }
 
-func (g *GraphQLClient) Query(ctx context.Context, url string, q interface{}, v map[string]interface{}) error {
+func (g *graphQLClient) Query(ctx context.Context, url string, q interface{}, v map[string]interface{}) error {
 	client := graphql.NewClient(url, g.httpClient)
 
 	return client.Query(ctx, q, v)

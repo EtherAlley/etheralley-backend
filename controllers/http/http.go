@@ -12,8 +12,8 @@ import (
 )
 
 type HttpController struct {
-	settings            *common.Settings
-	logger              *common.Logger
+	settings            common.ISettings
+	logger              common.ILogger
 	getProfile          usecases.IGetProfileUseCase
 	saveProfile         usecases.ISaveProfileUseCase
 	getChallenge        usecases.IGetChallengeUseCase
@@ -25,8 +25,8 @@ type HttpController struct {
 }
 
 func NewHttpController(
-	settings *common.Settings,
-	logger *common.Logger,
+	settings common.ISettings,
+	logger common.ILogger,
 	getProfile usecases.IGetProfileUseCase,
 	saveProfile usecases.ISaveProfileUseCase,
 	getChallenge usecases.IGetChallengeUseCase,
@@ -84,7 +84,7 @@ func (hc *HttpController) Start() error {
 		r.Get("/statistic", hc.getStatisticRoute)
 	})
 
-	port := hc.settings.Port
+	port := hc.settings.Port()
 
 	hc.logger.Infof("listening on port %v", port)
 
