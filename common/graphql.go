@@ -3,7 +3,6 @@ package common
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/hasura/go-graphql-client"
 )
@@ -13,20 +12,21 @@ type IGraphQLClient interface {
 }
 
 type graphQLClient struct {
+	logger     ILogger
 	httpClient *http.Client
 }
 
-func NewGraphQLClient() IGraphQLClient {
-	httpClient := &http.Client{
-		Timeout: time.Second * 5,
-	}
+func NewGraphQLClient(logger ILogger) IGraphQLClient {
 	return &graphQLClient{
-		httpClient,
+		httpClient: &http.Client{},
+		logger:     logger,
 	}
 }
 
 func (g *graphQLClient) Query(ctx context.Context, url string, q interface{}, v map[string]interface{}) error {
 	client := graphql.NewClient(url, g.httpClient)
+
+	g.logger.Debugf(ctx, "graphql request %v", url)
 
 	return client.Query(ctx, q, v)
 }

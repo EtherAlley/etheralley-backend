@@ -1,6 +1,7 @@
 package ethereum
 
 import (
+	"context"
 	"errors"
 
 	cmn "github.com/etheralley/etheralley-core-api/common"
@@ -23,16 +24,16 @@ func NewGateway(logger cmn.ILogger, settings cmn.ISettings, http cmn.IHttpClient
 	}
 }
 
-func (gw *Gateway) getClient(blockchain cmn.Blockchain) (*ethclient.Client, error) {
+func (gw *Gateway) getClient(ctx context.Context, blockchain cmn.Blockchain) (*ethclient.Client, error) {
 	switch blockchain {
 	case cmn.ETHEREUM:
-		return ethclient.Dial(gw.settings.EthereumURI())
+		return ethclient.DialContext(ctx, gw.settings.EthereumURI())
 	case cmn.POLYGON:
-		return ethclient.Dial(gw.settings.PolygonURI())
+		return ethclient.DialContext(ctx, gw.settings.PolygonURI())
 	case cmn.OPTIMISM:
-		return ethclient.Dial(gw.settings.OptimismURI())
+		return ethclient.DialContext(ctx, gw.settings.OptimismURI())
 	case cmn.ARBITRUM:
-		return ethclient.Dial(gw.settings.ArbitrumURI())
+		return ethclient.DialContext(ctx, gw.settings.ArbitrumURI())
 	}
 	return nil, errors.New("invalid blockchain provided")
 }

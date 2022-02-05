@@ -30,7 +30,7 @@ func NewGetFungibleToken(
 
 		go func() {
 			defer wg.Done()
-			balance, balanceErr = blockchainGateway.GetFungibleBalance(address, contract)
+			balance, balanceErr = blockchainGateway.GetFungibleBalance(ctx, address, contract)
 		}()
 
 		go func() {
@@ -39,31 +39,31 @@ func NewGetFungibleToken(
 			metadata, err := cacheGateway.GetFungibleMetadata(ctx, contract)
 
 			if err == nil {
-				logger.Debugf("cache hit for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+				logger.Debugf(ctx, "cache hit for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
 				name = metadata.Name
 				symbol = metadata.Symbol
 				decimals = metadata.Decimals
 				return
 			}
 
-			logger.Debugf("cache miss for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+			logger.Debugf(ctx, "cache miss for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
 
 			var innerWg sync.WaitGroup
 			innerWg.Add(3)
 
 			go func() {
 				defer innerWg.Done()
-				name, _ = blockchainGateway.GetFungibleName(contract)
+				name, _ = blockchainGateway.GetFungibleName(ctx, contract)
 			}()
 
 			go func() {
 				defer innerWg.Done()
-				symbol, _ = blockchainGateway.GetFungibleSymbol(contract)
+				symbol, _ = blockchainGateway.GetFungibleSymbol(ctx, contract)
 			}()
 
 			go func() {
 				defer innerWg.Done()
-				decimals, _ = blockchainGateway.GetFungibleDecimals(contract)
+				decimals, _ = blockchainGateway.GetFungibleDecimals(ctx, contract)
 			}()
 
 			innerWg.Wait()
@@ -79,7 +79,7 @@ func NewGetFungibleToken(
 		wg.Wait()
 
 		if balanceErr != nil {
-			logger.Debugf("err finding token balance: contract address %v blockchain %v err %v", contract.Address, contract.Blockchain, balanceErr)
+			logger.Debugf(ctx, "err finding token balance: contract address %v blockchain %v err %v", contract.Address, contract.Blockchain, balanceErr)
 			return nil, balanceErr
 		}
 

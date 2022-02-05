@@ -1,6 +1,7 @@
 package ethereum
 
 import (
+	"context"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -16,8 +17,8 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func (gw *Gateway) GetNonFungibleMetadata(contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error) {
-	client, err := gw.getClient(contract.Blockchain)
+func (gw *Gateway) GetNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error) {
+	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
 		return nil, err
@@ -49,11 +50,11 @@ func (gw *Gateway) GetNonFungibleMetadata(contract *entities.Contract, tokenId s
 		return nil, err
 	}
 
-	return gw.getNFTMetadataFromURI(uri)
+	return gw.getNFTMetadataFromURI(ctx, uri)
 }
 
-func (gw *Gateway) GetNonFungibleBalance(address string, contract *entities.Contract, tokenId string) (string, error) {
-	client, err := gw.getClient(contract.Blockchain)
+func (gw *Gateway) GetNonFungibleBalance(ctx context.Context, address string, contract *entities.Contract, tokenId string) (string, error) {
+	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
 		return "", err
@@ -156,13 +157,13 @@ type NFTMetadataRespBody struct {
 	Properties  *map[string]interface{}   `bson:"properties" json:"properties"`
 }
 
-func (gw *Gateway) getNFTMetadataFromURI(uri string) (*entities.NonFungibleMetadata, error) {
+func (gw *Gateway) getNFTMetadataFromURI(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error) {
 	uri = gw.replaceIPFSScheme(uri)
 
-	resp, err := gw.http.Do("GET", uri, nil)
+	resp, err := gw.http.Do(ctx, "GET", uri, nil)
 
 	if err != nil {
-		gw.logger.Errf(err, "nft metadata url follow http err: ")
+		gw.logger.Errf(ctx, err, "nft metadata url follow http err: ")
 		return nil, errors.New("could not fetch metadata url")
 	}
 

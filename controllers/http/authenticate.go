@@ -3,11 +3,13 @@ package http
 import (
 	"net/http"
 	"strings"
+
+	"github.com/etheralley/etheralley-core-api/common"
 )
 
 func (hc *HttpController) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		address := r.Context().Value(contextKeyAddress).(string)
+		address := r.Context().Value(common.ContextKeyAddress).(string)
 		token := strings.Split(r.Header.Get("Authorization"), " ")
 
 		if len(token) != 2 || token[0] != "Bearer" {

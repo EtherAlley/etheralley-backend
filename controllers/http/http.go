@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -51,7 +52,9 @@ func NewHttpController(
 }
 
 func (hc *HttpController) Start() error {
-	hc.logger.Info("starting http controller")
+	ctx := context.Background()
+
+	hc.logger.Info(ctx, "starting http controller")
 
 	r := chi.NewRouter()
 
@@ -63,6 +66,8 @@ func (hc *HttpController) Start() error {
 		MaxAge:           300,
 	}))
 	r.Use(hc.recoverer)
+	r.Use(hc.requestId)
+	r.Use(hc.timeout)
 
 	r.Route("/health", hc.registerHealthRoutes)
 
@@ -86,30 +91,19 @@ func (hc *HttpController) Start() error {
 
 	port := hc.settings.Port()
 
-	hc.logger.Infof("listening on port %v", port)
+	hc.logger.Infof(ctx, "listening on port %v", port)
 
 	err := http.ListenAndServe(fmt.Sprintf(":%v", port), r)
 
-	hc.logger.Err(err, "error in http controller")
+	hc.logger.Err(ctx, err, "error in http controller")
 
 	return err
 }
 
-func (controller *HttpController) Exit() {
-	controller.logger.Error("detected exit in http controller")
+func (hc *HttpController) Exit() {
+	ctx := context.Background()
+	hc.logger.Error(ctx, "detected exit in http controller")
 }
-
-// context keys
-type contextKey string
-
-func (c contextKey) String() string {
-	return "etheralley context key " + string(c)
-}
-
-var (
-	contextKeyAddress  = contextKey("address")
-	contextKeyContract = contextKey("contract")
-)
 
 // response rendering
 type ErrBody struct {

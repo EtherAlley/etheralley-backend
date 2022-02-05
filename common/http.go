@@ -1,13 +1,13 @@
 package common
 
 import (
+	"context"
 	"errors"
 	"net/http"
-	"time"
 )
 
 type IHttpClient interface {
-	Do(method string, url string, options *HttpOptions) (*http.Response, error)
+	Do(ctx context.Context, method string, url string, options *HttpOptions) (*http.Response, error)
 }
 
 type Header struct {
@@ -28,7 +28,6 @@ func NewHttpClient(logger ILogger) IHttpClient {
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
-		Timeout: time.Second * 5,
 	}
 	return &httpClient{
 		logger,
@@ -36,11 +35,11 @@ func NewHttpClient(logger ILogger) IHttpClient {
 	}
 }
 
-func (c *httpClient) Do(method string, url string, options *HttpOptions) (*http.Response, error) {
-	req, err := http.NewRequest(method, url, nil)
+func (c *httpClient) Do(ctx context.Context, method string, url string, options *HttpOptions) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, method, url, nil)
 
 	if err != nil {
-		c.logger.Errf(err, "http err building request: ")
+		c.logger.Errf(ctx, err, "http err building request: ")
 		return nil, err
 	}
 
@@ -51,17 +50,17 @@ func (c *httpClient) Do(method string, url string, options *HttpOptions) (*http.
 
 	}
 
-	c.logger.Debugf("http request %v %v", method, url)
+	c.logger.Debugf(ctx, "http request %v %v", method, url)
 
 	resp, err := c.client.Do(req)
 
 	if err != nil {
-		c.logger.Errf(err, "http response err: ")
+		c.logger.Errf(ctx, err, "http response err: ")
 		return nil, err
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
-		c.logger.Errorf("http invalid status code %v", resp.StatusCode)
+		c.logger.Errorf(ctx, "http invalid status code %v", resp.StatusCode)
 		return nil, errors.New("http invalid status code")
 	}
 

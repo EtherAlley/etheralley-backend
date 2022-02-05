@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
@@ -18,13 +19,13 @@ func (hc *HttpController) parseContract(next http.Handler) http.Handler {
 			Blockchain: query.Get("blockchain"),
 		}
 
-		ctx = context.WithValue(ctx, contextKeyContract, contract)
+		ctx = context.WithValue(ctx, common.ContextKeyContract, contract)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 func (hc *HttpController) getTokenRoute(w http.ResponseWriter, r *http.Request) {
-	contract := r.Context().Value(contextKeyContract).(*entities.Contract)
+	contract := r.Context().Value(common.ContextKeyContract).(*entities.Contract)
 
 	query := r.URL.Query()
 	address := query.Get("user_address")
@@ -40,7 +41,7 @@ func (hc *HttpController) getTokenRoute(w http.ResponseWriter, r *http.Request) 
 }
 
 func (hc *HttpController) getNFTRoute(w http.ResponseWriter, r *http.Request) {
-	contract := r.Context().Value(contextKeyContract).(*entities.Contract)
+	contract := r.Context().Value(common.ContextKeyContract).(*entities.Contract)
 
 	query := r.URL.Query()
 	address := query.Get("user_address")
@@ -57,7 +58,7 @@ func (hc *HttpController) getNFTRoute(w http.ResponseWriter, r *http.Request) {
 }
 
 func (hc *HttpController) getStatisticRoute(w http.ResponseWriter, r *http.Request) {
-	contract := r.Context().Value(contextKeyContract).(*entities.Contract)
+	contract := r.Context().Value(common.ContextKeyContract).(*entities.Contract)
 
 	query := r.URL.Query()
 	address := query.Get("user_address")

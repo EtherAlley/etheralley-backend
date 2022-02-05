@@ -11,7 +11,7 @@ func (hc *HttpController) recoverer(next http.Handler) http.Handler {
 		defer func() {
 			if rvr := recover(); rvr != nil && rvr != http.ErrAbortHandler {
 
-				hc.logger.Errorf("Caught panic in recoverer: %+v", rvr)
+				hc.logger.Errorf(r.Context(), "Caught panic in recoverer: %+v", rvr)
 
 				w.WriteHeader(http.StatusBadRequest)
 			}

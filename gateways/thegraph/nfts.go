@@ -33,7 +33,7 @@ func (gw *Gateway) GetNonFungibleTokens(ctx context.Context, address string) *[]
 	url, err := gw.GetSubgraphUrl(common.ETHEREUM, common.ERC721)
 
 	if err != nil {
-		gw.logger.Errf(err, "error building subgraph url for address: %v", address)
+		gw.logger.Errf(ctx, err, "error building subgraph url for address: %v", address)
 		return &nfts
 	}
 
@@ -44,7 +44,7 @@ func (gw *Gateway) GetNonFungibleTokens(ctx context.Context, address string) *[]
 	err = gw.graphClient.Query(ctx, url, query, variables)
 
 	if err != nil {
-		gw.logger.Errf(err, "error calling subgraph for address: %v", address)
+		gw.logger.Errf(ctx, err, "error calling subgraph for address: %v", address)
 		return &nfts
 	}
 
@@ -58,10 +58,10 @@ func (gw *Gateway) GetNonFungibleTokens(ctx context.Context, address string) *[]
 		go func(i int, t ERC721Token) {
 			defer wg.Done()
 
-			metadata, err := gw.getNFTMetadataFromURI(t.Uri)
+			metadata, err := gw.getNFTMetadataFromURI(ctx, t.Uri)
 
 			if err != nil {
-				gw.logger.Errf(err, "err fetching nft metadata: contract address %v token id %v user address %v", t.Contract.Id, t.Identifier, address)
+				gw.logger.Errf(ctx, err, "err fetching nft metadata: contract address %v token id %v user address %v", t.Contract.Id, t.Identifier, address)
 				return
 			}
 
@@ -98,13 +98,13 @@ type NFTMetadataRespBody struct {
 	Properties  *map[string]interface{}   `bson:"properties" json:"properties"`
 }
 
-func (gw *Gateway) getNFTMetadataFromURI(uri string) (*entities.NonFungibleMetadata, error) {
+func (gw *Gateway) getNFTMetadataFromURI(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error) {
 	uri = gw.replaceIPFSScheme(uri)
 
-	resp, err := gw.httpClient.Do("GET", uri, nil)
+	resp, err := gw.httpClient.Do(ctx, "GET", uri, nil)
 
 	if err != nil {
-		gw.logger.Errf(err, "nft metadata url follow http err: ")
+		gw.logger.Errf(ctx, err, "nft metadata url follow http err: ")
 		return nil, errors.New("could not fetch metadata url")
 	}
 

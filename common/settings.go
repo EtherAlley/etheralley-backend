@@ -1,13 +1,18 @@
 package common
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
 
 type ISettings interface {
+	Hostname() string
+	InstanceID() string
 	Env() string
 	IsDev() bool
 	Port() string
@@ -27,6 +32,8 @@ type ISettings interface {
 }
 
 type settings struct {
+	hostname          string
+	instanceID        string
 	env               string
 	port              string
 	redisAddr         string
@@ -50,7 +57,24 @@ func NewSettings() ISettings {
 		panic("Error loading settings")
 	}
 
+	// See https://github.com/go-chi/chi/blob/master/middleware/request_id.go#L46
+	hostname, err := os.Hostname()
+	if hostname == "" || err != nil {
+		hostname = "localhost"
+	}
+
+	var buf [12]byte
+	var instanceID string
+	for len(instanceID) < 10 {
+		rand.Read(buf[:])
+		instanceID = base64.StdEncoding.EncodeToString(buf[:])
+		instanceID = strings.NewReplacer("+", "", "/", "").Replace(instanceID)
+	}
+	instanceID = instanceID[0:10]
+
 	return &settings{
+		hostname:          hostname,
+		instanceID:        instanceID,
 		env:               os.Getenv("ENV"),
 		port:              os.Getenv("PORT"),
 		redisAddr:         os.Getenv("REDIS_ADDR"),
@@ -67,6 +91,14 @@ func NewSettings() ISettings {
 		theGraphURI:       os.Getenv("THE_GRAPH_URI"),
 		theGraphHostedURI: os.Getenv("THE_GRAPH_HOSTED_URI"),
 	}
+}
+
+func (s *settings) Hostname() string {
+	return s.hostname
+}
+
+func (s *settings) InstanceID() string {
+	return s.instanceID
 }
 
 func (s *settings) Env() string {

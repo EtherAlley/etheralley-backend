@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -19,7 +20,7 @@ func (hc *HttpController) resolveENSName(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx = context.WithValue(ctx, contextKeyAddress, address)
+		ctx = context.WithValue(ctx, common.ContextKeyAddress, address)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

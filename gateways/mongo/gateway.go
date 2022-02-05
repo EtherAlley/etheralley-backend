@@ -3,7 +3,6 @@ package mongo
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/gateways"
@@ -17,15 +16,14 @@ type Gateway struct {
 }
 
 func NewGateway(settings common.ISettings, logger common.ILogger) gateways.IDatabaseGateway {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	ctx := context.Background()
 
 	mongoURI := fmt.Sprintf("mongodb://%v?retryWrites=true&w=majority", settings.DatabaseURI())
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 
 	if err != nil {
-		logger.Err(err, "mongo connection error")
+		logger.Err(ctx, err, "mongo connection error")
 		panic(err)
 	}
 

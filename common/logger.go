@@ -1,24 +1,26 @@
 package common
 
 import (
+	"context"
 	"os"
 
 	"github.com/rs/zerolog"
 )
 
 type ILogger interface {
-	Info(msg string)
-	Infof(msg string, v ...interface{})
-	Error(msg string)
-	Errorf(msg string, v ...interface{})
-	Err(err error, msg string)
-	Errf(err error, msg string, v ...interface{})
-	Debug(msg string)
-	Debugf(msg string, v ...interface{})
+	Info(ctx context.Context, msg string)
+	Infof(ctx context.Context, msg string, v ...interface{})
+	Error(ctx context.Context, msg string)
+	Errorf(ctx context.Context, msg string, v ...interface{})
+	Err(ctx context.Context, err error, msg string)
+	Errf(ctx context.Context, err error, msg string, v ...interface{})
+	Debug(ctx context.Context, msg string)
+	Debugf(ctx context.Context, msg string, v ...interface{})
 }
 
 type logger struct {
-	logger zerolog.Logger
+	settings ISettings
+	logger   zerolog.Logger
 }
 
 func NewLogger(settings ISettings) ILogger {
@@ -28,44 +30,72 @@ func NewLogger(settings ISettings) ILogger {
 
 	if settings.IsDev() {
 		zLogger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr})
+		zLogger = zLogger.Level(zerolog.DebugLevel)
 	} else {
 		zLogger = zerolog.New(os.Stderr)
-
+		zLogger = zLogger.Level(zerolog.InfoLevel)
 	}
 
 	return &logger{
-		logger: zLogger.With().Timestamp().Logger(),
+		settings: settings,
+		logger:   zLogger.With().Timestamp().Logger(),
 	}
 }
 
-func (l logger) Info(msg string) {
-	l.logger.Info().Msg(msg)
+// add additional context to the event log
+func (l *logger) addContext(ctx context.Context, event *zerolog.Event) {
+	requestId := ctx.Value(ContextKeyRequestId)
+	if requestId != nil {
+		event.Str("request id", requestId.(string))
+	}
+	event.Str("hostname", l.settings.Hostname())
+	event.Str("instanceID", l.settings.InstanceID())
 }
 
-func (l logger) Infof(msg string, v ...interface{}) {
-	l.logger.Info().Msgf(msg, v...)
+func (l *logger) Info(ctx context.Context, msg string) {
+	event := l.logger.Info()
+	l.addContext(ctx, event)
+	event.Msg(msg)
 }
 
-func (l logger) Error(msg string) {
-	l.logger.Error().Msg(msg)
+func (l *logger) Infof(ctx context.Context, msg string, v ...interface{}) {
+	event := l.logger.Info()
+	l.addContext(ctx, event)
+	event.Msgf(msg, v...)
 }
 
-func (l logger) Errorf(msg string, v ...interface{}) {
-	l.logger.Error().Msgf(msg, v...)
+func (l *logger) Error(ctx context.Context, msg string) {
+	event := l.logger.Error()
+	l.addContext(ctx, event)
+	event.Msg(msg)
 }
 
-func (l logger) Err(err error, msg string) {
-	l.logger.Error().Err(err).Msg(msg)
+func (l *logger) Errorf(ctx context.Context, msg string, v ...interface{}) {
+	event := l.logger.Error()
+	l.addContext(ctx, event)
+	event.Msgf(msg, v...)
 }
 
-func (l logger) Errf(err error, msg string, v ...interface{}) {
-	l.logger.Error().Err(err).Msgf(msg, v...)
+func (l *logger) Err(ctx context.Context, err error, msg string) {
+	event := l.logger.Error()
+	l.addContext(ctx, event)
+	event.Stack().Err(err).Msg(msg)
 }
 
-func (l logger) Debug(msg string) {
-	l.logger.Debug().Msg(msg)
+func (l *logger) Errf(ctx context.Context, err error, msg string, v ...interface{}) {
+	event := l.logger.Error()
+	l.addContext(ctx, event)
+	event.Stack().Err(err).Msgf(msg, v...)
 }
 
-func (l logger) Debugf(msg string, v ...interface{}) {
-	l.logger.Debug().Msgf(msg, v...)
+func (l *logger) Debug(ctx context.Context, msg string) {
+	event := l.logger.Debug()
+	l.addContext(ctx, event)
+	event.Msg(msg)
+}
+
+func (l *logger) Debugf(ctx context.Context, msg string, v ...interface{}) {
+	event := l.logger.Debug()
+	l.addContext(ctx, event)
+	event.Msgf(msg, v...)
 }

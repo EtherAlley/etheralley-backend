@@ -28,7 +28,7 @@ func NewGetAllStatistics(
 				stat, err := getStatistic(ctx, input.Address, s.Contract, s.Type)
 
 				if err != nil {
-					logger.Errf(err, "invalid swaps contract: type %v address %v chain %v interface %v", s.Type, s.Contract.Address, s.Contract.Blockchain, s.Contract.Interface)
+					logger.Errf(ctx, err, "invalid swaps contract: type %v address %v chain %v interface %v", s.Type, s.Contract.Address, s.Contract.Blockchain, s.Contract.Interface)
 					return
 				}
 

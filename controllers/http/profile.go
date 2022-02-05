@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
 func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *http.Request) {
-	address := r.Context().Value(contextKeyAddress).(string)
+	address := r.Context().Value(common.ContextKeyAddress).(string)
 
 	profile, err := hc.getProfile(r.Context(), address)
 
@@ -21,7 +22,7 @@ func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *htt
 }
 
 func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Request) {
-	address := r.Context().Value(contextKeyAddress).(string)
+	address := r.Context().Value(common.ContextKeyAddress).(string)
 
 	profile := &entities.Profile{}
 	err := json.NewDecoder(r.Body).Decode(profile)

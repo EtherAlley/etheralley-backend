@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -19,13 +20,14 @@ import (
 )
 
 func awaitSigterm(logger common.ILogger) {
-	logger.Info("awaiting sigterm")
+	ctx := context.Background()
+	logger.Info(ctx, "awaiting sigterm")
 
 	cancelChan := make(chan os.Signal, 1)
 	signal.Notify(cancelChan, syscall.SIGTERM, syscall.SIGINT)
 	sig := <-cancelChan
 
-	logger.Infof("caught sigterm %v", sig)
+	logger.Infof(ctx, "caught sigterm %v", sig)
 }
 
 func setRandSeed() {

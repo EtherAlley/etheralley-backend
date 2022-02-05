@@ -30,21 +30,21 @@ func NewGetProfile(
 		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
 
 		if err == nil {
-			logger.Debugf("cache hit for profile %v", address)
+			logger.Debugf(ctx, "cache hit for profile %v", address)
 			return profile, nil
 		}
 
-		logger.Debugf("cache miss for profile %v", address)
+		logger.Debugf(ctx, "cache miss for profile %v", address)
 
 		profile, err = databaseGateway.GetProfileByAddress(ctx, address)
 
 		if err == common.ErrNotFound {
-			logger.Debugf("db miss for profile %v", address)
+			logger.Debugf(ctx, "db miss for profile %v", address)
 
 			profile, err := getDefaultProfile(ctx, address)
 
 			if err != nil {
-				logger.Err(err, "err getting default profile")
+				logger.Err(ctx, err, "err getting default profile")
 				return nil, err
 			}
 
@@ -54,11 +54,11 @@ func NewGetProfile(
 		}
 
 		if err != nil {
-			logger.Err(err, "err getting profile from db")
+			logger.Err(ctx, err, "err getting profile from db")
 			return nil, err
 		}
 
-		logger.Debugf("db hit for profile %v", address)
+		logger.Debugf(ctx, "db hit for profile %v", address)
 
 		var wg sync.WaitGroup
 		wg.Add(3)

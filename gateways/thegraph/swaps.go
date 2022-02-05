@@ -37,7 +37,7 @@ func (gw *Gateway) GetSwaps(ctx context.Context, address string, contract *entit
 	url, err := gw.GetSubgraphUrl(contract.Blockchain, contract.Interface)
 
 	if err != nil {
-		gw.logger.Err(err, "error building subgraph url")
+		gw.logger.Err(ctx, err, "error building subgraph url")
 		return nil, err
 	}
 
@@ -48,7 +48,7 @@ func (gw *Gateway) GetSwaps(ctx context.Context, address string, contract *entit
 	err = gw.graphClient.Query(ctx, url, query, variables)
 
 	if err != nil {
-		gw.logger.Err(err, "error calling subgraph")
+		gw.logger.Err(ctx, err, "error calling subgraph")
 		return nil, err
 	}
 

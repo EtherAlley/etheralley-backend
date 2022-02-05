@@ -29,7 +29,7 @@ func NewGetAllFungibleTokens(
 				token, err := getFungibleToken(ctx, address, &c)
 
 				if err != nil {
-					logger.Errf(err, "invalid token: contract address %v chain %v", c.Address, c.Blockchain)
+					logger.Errf(ctx, err, "invalid token: contract address %v chain %v", c.Address, c.Blockchain)
 					return
 				}
 

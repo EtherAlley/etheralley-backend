@@ -29,7 +29,7 @@ func NewGetAllNonFungibleTokens(
 				nft, err := getNonFungibleToken(ctx, address, p.Contract, p.TokenId)
 
 				if err != nil {
-					logger.Errf(err, "invalid nft: contract address %v token id %v chain %v", p.Contract.Address, p.TokenId, p.Contract.Blockchain)
+					logger.Errf(ctx, err, "invalid nft: contract address %v token id %v chain %v", p.Contract.Address, p.TokenId, p.Contract.Blockchain)
 					return
 				}
 

@@ -39,30 +39,30 @@ func NewGetNonFungibleToken(
 			metadata, metadataErr = cacheGateway.GetNonFungibleMetadata(ctx, contract, tokenId)
 
 			if metadataErr == nil {
-				logger.Debugf("cache hit for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+				logger.Debugf(ctx, "cache hit for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 				return
 			}
 
-			logger.Debugf("cache miss for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+			logger.Debugf(ctx, "cache miss for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 
-			metadata, metadataErr = blockchainGateway.GetNonFungibleMetadata(contract, tokenId)
+			metadata, metadataErr = blockchainGateway.GetNonFungibleMetadata(ctx, contract, tokenId)
 
 			if metadataErr != nil {
-				logger.Debugf("err finding nft metadata: contract address %v token id %v chain %v err %v", contract.Address, tokenId, contract.Blockchain, metadataErr)
+				logger.Debugf(ctx, "err finding nft metadata: contract address %v token id %v chain %v err %v", contract.Address, tokenId, contract.Blockchain, metadataErr)
 				return
 			}
 
-			logger.Debugf("found nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+			logger.Debugf(ctx, "found nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 
 			cacheGateway.SaveNonFungibleMetadata(ctx, contract, tokenId, metadata)
 		}()
 
 		go func() {
 			defer wg.Done()
-			balance, balanceErr = blockchainGateway.GetNonFungibleBalance(address, contract, tokenId)
+			balance, balanceErr = blockchainGateway.GetNonFungibleBalance(ctx, address, contract, tokenId)
 
 			if balanceErr != nil {
-				logger.Errf(balanceErr, "err verifying nft ownership: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+				logger.Errf(ctx, balanceErr, "err verifying nft ownership: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 			}
 		}()
 

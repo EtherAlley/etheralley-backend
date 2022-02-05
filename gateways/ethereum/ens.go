@@ -2,6 +2,7 @@ package ethereum
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"strings"
 
@@ -17,8 +18,8 @@ var ENSContractAddress = common.HexToAddress("00000000000C2E074eC69A0dFb2997BA6C
 
 // https://eips.ethereum.org/EIPS/eip-137
 // https://docs.ens.domains/dapp-developer-guide/resolving-names
-func (gw *Gateway) GetENSAddressFromName(name string) (address string, err error) {
-	client, err := gw.getClient(cmn.ETHEREUM) // awlays use layer 1 for ens resolution
+func (gw *Gateway) GetENSAddressFromName(ctx context.Context, name string) (address string, err error) {
+	client, err := gw.getClient(ctx, cmn.ETHEREUM) // awlays use layer 1 for ens resolution
 
 	if err != nil {
 		return
