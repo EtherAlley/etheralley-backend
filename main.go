@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/controllers"
@@ -28,10 +26,6 @@ func awaitSigterm(logger common.ILogger) {
 	sig := <-cancelChan
 
 	logger.Infof(ctx, "caught sigterm %v", sig)
-}
-
-func setRandSeed() {
-	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {
@@ -57,8 +51,6 @@ func main() {
 	container.Provide(usecases.NewGetStatistic)
 	container.Provide(usecases.NewGetAllStatistics)
 	container.Provide(http.NewHttpController)
-
-	setRandSeed()
 
 	// start controllers in concurrent go routines
 	err := container.Invoke(func(controller *http.HttpController) {
