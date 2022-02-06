@@ -16,6 +16,10 @@ type ILogger interface {
 	Errf(ctx context.Context, err error, msg string, v ...interface{})
 	Debug(ctx context.Context, msg string)
 	Debugf(ctx context.Context, msg string, v ...interface{})
+	Event(ctx context.Context, strs []struct {
+		Key   string
+		Value string
+	})
 }
 
 type logger struct {
@@ -46,10 +50,8 @@ func NewLogger(settings ISettings) ILogger {
 func (l *logger) addContext(ctx context.Context, event *zerolog.Event) {
 	requestId := ctx.Value(ContextKeyRequestId)
 	if requestId != nil {
-		event.Str("request id", requestId.(string))
+		event.Str("requestid", requestId.(string))
 	}
-	event.Str("hostname", l.settings.Hostname())
-	event.Str("instanceID", l.settings.InstanceID())
 }
 
 func (l *logger) Info(ctx context.Context, msg string) {
@@ -98,4 +100,16 @@ func (l *logger) Debugf(ctx context.Context, msg string, v ...interface{}) {
 	event := l.logger.Debug()
 	l.addContext(ctx, event)
 	event.Msgf(msg, v...)
+}
+
+func (l *logger) Event(ctx context.Context, strs []struct {
+	Key   string
+	Value string
+}) {
+	event := l.logger.Info()
+	l.addContext(ctx, event)
+	for _, str := range strs {
+		event.Str(str.Key, str.Value)
+	}
+	event.Msg("event")
 }

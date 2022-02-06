@@ -9,6 +9,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/usecases"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 )
 
@@ -65,11 +66,14 @@ func (hc *HttpController) Start() error {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
-	r.Use(hc.recoverer)
+	r.Use(middleware.NoCache)
+	r.Use(middleware.RealIP)
 	r.Use(hc.requestId)
+	r.Use(hc.logEvent)
+	r.Use(hc.recoverer)
 	r.Use(hc.timeout)
 
-	r.Route("/health", hc.registerHealthRoutes)
+	r.Get("/", hc.healthRoute)
 
 	r.Route("/profiles/{address}", func(r chi.Router) {
 		r.Use(hc.resolveENSName)

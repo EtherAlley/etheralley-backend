@@ -24,6 +24,10 @@ func NewGateway(logger common.ILogger, settings common.ISettings, graphClient co
 	}
 }
 
+// TODO:
+// https://thegraph.com/hosted-service/subgraph/ianlapham/uniswap-v3-polygon
+// https://thegraph.com/hosted-service/subgraph/ianlapham/uniswap-arbitrum-one
+// https://thegraph.com/hosted-service/subgraph/ianlapham/uniswap-optimism
 func (gw Gateway) GetSubgraphUrl(b common.Blockchain, i common.Interface) (string, error) {
 	hostedURI := gw.settings.TheGraphHostedURI()
 	decURI := gw.settings.TheGraphURI()

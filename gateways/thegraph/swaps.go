@@ -8,11 +8,10 @@ import (
 
 type SwapsQuery = struct {
 	Swaps []struct {
-		Id          string `graphql:"id" json:"id"`
 		Timestamp   string `graphql:"timestamp" json:"timestamp"`
-		To          string `graphql:"to" json:"to"`
 		AmountUSD   string `graphql:"amountUSD" json:"amountUSD"`
 		Transaction struct {
+			Id    string `graphql:"id" json:"id"`
 			Swaps []struct {
 				Amount0In  string `graphql:"amount0In" json:"amount0In"`
 				Amount0Out string `graphql:"amount0Out" json:"amount0Out"`
@@ -86,7 +85,7 @@ func (gw *Gateway) GetSwaps(ctx context.Context, address string, contract *entit
 		}
 
 		swaps = append(swaps, entities.Swap{
-			Id:        swap.Id,
+			Id:        swap.Transaction.Id,
 			Timestamp: swap.Timestamp,
 			AmountUSD: swap.AmountUSD,
 			Input:     &input,
