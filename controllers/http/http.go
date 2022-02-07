@@ -76,13 +76,13 @@ func (hc *HttpController) Start() error {
 	r.Get("/", hc.healthRoute)
 
 	r.Route("/profiles/{address}", func(r chi.Router) {
-		r.Use(hc.resolveENSName)
+		r.Use(hc.resolveAddr)
 		r.Get("/", hc.getProfileByAddressRoute)
 		r.With(hc.authenticate).Put("/", hc.saveProfileRoute)
 	})
 
 	r.Route("/challenges/{address}", func(r chi.Router) {
-		r.Use(hc.resolveENSName)
+		r.Use(hc.resolveAddr)
 		r.Get("/", hc.getChallengeRoute)
 	})
 

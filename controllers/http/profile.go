@@ -32,9 +32,7 @@ func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	profile.Address = address
-
-	err = hc.saveProfile(r.Context(), profile)
+	err = hc.saveProfile(r.Context(), address, profile)
 
 	if err != nil {
 		RenderError(w, http.StatusBadRequest, "bad request")

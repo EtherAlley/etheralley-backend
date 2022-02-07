@@ -11,27 +11,29 @@ import (
 
 // attempt to provide a pleasent default profile when none has been configured.
 // fetch nfts and stats from the graph and fetch tokens from a fixed list.
+// fetch primary ens name for address if configured
 func NewGetDefaultProfile(
 	logger common.ILogger,
 	settings common.ISettings,
 	blochchainIndexGateway gateways.IBlockchainIndexGateway,
 	getAllFungibleTokens IGetAllFungibleTokensUseCase,
 	getAllStatistics IGetAllStatisticsUseCase,
+	resolveENSName IResolveENSNameUseCase,
 ) IGetDefaultProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		if err := common.ValidateField(address, `required,eth_addr`); err != nil {
 			return nil, err
 		}
 
-		var nfts *[]entities.NonFungibleToken
-		var tokens *[]entities.FungibleToken
-		var stats *[]entities.Statistic
+		profile := &entities.Profile{
+			Address: address,
+		}
 		var wg sync.WaitGroup
-		wg.Add(3)
+		wg.Add(4)
 
 		go func() {
 			defer wg.Done()
-			nfts = blochchainIndexGateway.GetNonFungibleTokens(ctx, address)
+			profile.NonFungibleTokens = blochchainIndexGateway.GetNonFungibleTokens(ctx, address)
 		}()
 
 		go func() {
@@ -67,7 +69,7 @@ func NewGetDefaultProfile(
 				})
 			}
 
-			tokens = getAllFungibleTokens(ctx, address, &contracts)
+			profile.FungibleTokens = getAllFungibleTokens(ctx, address, &contracts)
 		}()
 
 		go func() {
@@ -93,17 +95,20 @@ func NewGetDefaultProfile(
 					},
 				},
 			}
-			stats = getAllStatistics(ctx, &input)
+			profile.Statistics = getAllStatistics(ctx, &input)
+		}()
+
+		go func() {
+			defer wg.Done()
+			name, err := resolveENSName(ctx, address)
+			if err != nil {
+				profile.ENSName = "" // Not all addresses have an ens name. We should not propigate an erro for this
+			} else {
+				profile.ENSName = name
+			}
 		}()
 
 		wg.Wait()
-
-		profile := &entities.Profile{
-			Address:           address,
-			NonFungibleTokens: nfts,
-			FungibleTokens:    tokens,
-			Statistics:        stats,
-		}
 
 		return profile, nil
 	}

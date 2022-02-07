@@ -18,8 +18,10 @@ type ICacheGateway interface {
 	SaveChallenge(ctx context.Context, challenge *entities.Challenge) error
 	GetNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error)
 	SaveNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string, metadata *entities.NonFungibleMetadata) error
-	GetENSAddressFromName(ctx context.Context, ensName string) (string, error)
-	SaveENSAddress(ctx context.Context, ensName string, address string) error
+	GetENSAddressFromName(ctx context.Context, name string) (string, error)
+	SaveENSAddress(ctx context.Context, name string, address string) error
+	GetENSNameFromAddress(ctx context.Context, address string) (string, error)
+	SaveENSName(ctx context.Context, address string, name string) error
 	GetFungibleMetadata(ctx context.Context, contract *entities.Contract) (*entities.FungibleMetadata, error)
 	SaveFungibleMetadata(ctx context.Context, contract *entities.Contract, metadata *entities.FungibleMetadata) error
 }
@@ -32,6 +34,7 @@ type IBlockchainGateway interface {
 	GetFungibleSymbol(ctx context.Context, contract *entities.Contract) (string, error)
 	GetFungibleDecimals(ctx context.Context, contract *entities.Contract) (uint8, error)
 	GetENSAddressFromName(ctx context.Context, ensName string) (string, error)
+	GetENSNameFromAddress(ctx context.Context, address string) (name string, err error)
 }
 
 type IBlockchainIndexGateway interface {

@@ -14,7 +14,7 @@ type IGetProfileUseCase func(ctx context.Context, address string) (*entities.Pro
 type IGetDefaultProfileUseCase func(ctx context.Context, address string) (*entities.Profile, error)
 
 // save the provided profile
-type ISaveProfileUseCase func(ctx context.Context, profile *entities.Profile) error
+type ISaveProfileUseCase func(ctx context.Context, address string, profile *entities.Profile) error
 
 // get a challenge message for the provided address
 type IGetChallengeUseCase func(ctx context.Context, address string) (*entities.Challenge, error)
@@ -23,7 +23,10 @@ type IGetChallengeUseCase func(ctx context.Context, address string) (*entities.C
 type IVerifyChallengeUseCase func(ctx context.Context, address string, sigHex string) error
 
 // resolve an address from an ens name
-type IResolveAddressUseCase func(ctx context.Context, ensName string) (string, error)
+type IResolveAddressUseCase func(ctx context.Context, ensName string) (address string, err error)
+
+// resolve an ens name for an address
+type IResolveENSNameUseCase func(ctx context.Context, address string) (name string, err error)
 
 // get the metadata and balance of an nft
 type IGetNonFungibleTokenUseCase func(ctx context.Context, address string, contract *entities.Contract, tokenId string) (*entities.NonFungibleToken, error)

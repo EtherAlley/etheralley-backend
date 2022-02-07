@@ -8,12 +8,13 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (hc *HttpController) resolveENSName(next http.Handler) http.Handler {
+// the address param of the route could be either an ens name or an address
+func (hc *HttpController) resolveAddr(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		address := chi.URLParam(r, "address")
+		input := chi.URLParam(r, "address")
 		ctx := r.Context()
 
-		address, err := hc.resolveAddress(ctx, address)
+		address, err := hc.resolveAddress(ctx, input)
 
 		if err != nil {
 			RenderError(w, http.StatusBadRequest, "invalid address")

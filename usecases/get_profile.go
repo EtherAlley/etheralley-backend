@@ -11,8 +11,8 @@ import (
 
 // first try to get the profile from the cache.
 // if cache miss, go to database
-// if database miss, fetch default tokens
-// if database hit, re-fetch transient token info
+// if database miss, fetch default profile
+// if database hit, re-fetch transient token info and ens name
 func NewGetProfile(
 	logger common.ILogger,
 	cacheGateway gateways.ICacheGateway,
@@ -21,6 +21,7 @@ func NewGetProfile(
 	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
 	getAllFungibleTokens IGetAllFungibleTokensUseCase,
 	getAllStatistics IGetAllStatisticsUseCase,
+	resolveENSName IResolveENSNameUseCase,
 ) IGetProfileUseCase {
 	return func(ctx context.Context, address string) (*entities.Profile, error) {
 		if err := common.ValidateField(address, `required,eth_addr`); err != nil {
@@ -61,7 +62,7 @@ func NewGetProfile(
 		logger.Debugf(ctx, "db hit for profile %v", address)
 
 		var wg sync.WaitGroup
-		wg.Add(3)
+		wg.Add(4)
 
 		go func() {
 			defer wg.Done()
@@ -90,6 +91,16 @@ func NewGetProfile(
 				})
 			}
 			profile.Statistics = getAllStatistics(ctx, &input)
+		}()
+
+		go func() {
+			defer wg.Done()
+			name, err := resolveENSName(ctx, address)
+			if err != nil {
+				profile.ENSName = "" // Not all addresses have an ens name. We should not propigate an erro for this
+			} else {
+				profile.ENSName = name
+			}
 		}()
 
 		wg.Wait()
