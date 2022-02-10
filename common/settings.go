@@ -121,7 +121,7 @@ func (s *settings) CacheDB() int {
 	redisDB, err := strconv.Atoi(s.redisDB)
 
 	if err != nil {
-		return 1
+		return 0
 	}
 
 	return redisDB
