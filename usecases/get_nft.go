@@ -11,7 +11,9 @@ import (
 
 // concurrent calls to get metadata & validate owner
 // metadata doesnt change so we cache it
-// metadata is an optional implementation in ERC721 and ERC1155 but we don't support presenting an nft with no metadata in the ui
+// metadata is an optional implementation in ERC721 and ERC1155 and may not exist
+// its also possible that we simply have issues following the uri
+// in these scenarios we will return nil metadata
 func NewGetNonFungibleToken(
 	logger common.ILogger,
 	blockchainGateway gateways.IBlockchainGateway,
@@ -72,8 +74,10 @@ func NewGetNonFungibleToken(
 			return nil, balanceErr
 		}
 
+		// getting metadata, particularly following urls is a flakey operation. we are intentionally not bubbling up an error here and simply returning nil metadata.
+		// if the contract provided is bad it can be detected and bubbled in the balance error
 		if metadataErr != nil {
-			return nil, metadataErr
+			metadata = nil
 		}
 
 		nft := &entities.NonFungibleToken{

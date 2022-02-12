@@ -80,6 +80,7 @@ func (gw *Gateway) GetNonFungibleTokens(ctx context.Context, address string) *[]
 
 	wg.Wait()
 
+	// because this is building a default view, we can completely filter out bad nfts, even if its issues with metadata, etc
 	for _, token := range tokens {
 		if token != nil {
 			nfts = append(nfts, *token)

@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"context"
-	"math/big"
 	"sync"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -11,7 +10,7 @@ import (
 
 // for each partial nft provided, fetch the hydrated nft concurrently
 // we can use a simple slice here since each result in the go routine writes to its own index location
-// invalid contracts or balances that are zero for the given address are dropped
+// invalid contracts are filter out of the resultin slice
 func NewGetAllNonFungibleTokens(
 	logger common.ILogger,
 	getNonFungibleToken IGetNonFungibleTokenUseCase,
@@ -33,11 +32,7 @@ func NewGetAllNonFungibleTokens(
 					return
 				}
 
-				balance := new(big.Int)
-				balance.SetString(nft.Balance, 10)
-				if balance.Cmp(big.NewInt(0)) == 1 {
-					nfts[i] = nft
-				}
+				nfts[i] = nft
 
 			}(i, partial)
 		}
