@@ -3,7 +3,6 @@ package usecases
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -51,6 +50,7 @@ func NewGetInteractionUseCase(
 		interaction := &entities.Interaction{
 			Transaction:     input.Interaction.Transaction,
 			Type:            input.Interaction.Type,
+			Timestamp:       data.Timestamp,
 			TransactionData: data,
 		}
 
@@ -74,7 +74,6 @@ func validateContractCreation(data *entities.TransactionData) error {
 }
 
 func validateSendEther(data *entities.TransactionData) error {
-	fmt.Println(data.Value)
 	if data.Value == "0" {
 		return errors.New("send ether - zero value")
 	}

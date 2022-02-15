@@ -3,6 +3,7 @@ package ethereum
 import (
 	"context"
 	"errors"
+	"sync"
 
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/ethereum/go-ethereum/common"
@@ -18,14 +19,55 @@ func (gw *Gateway) GetTransactionData(ctx context.Context, transaction *entities
 
 	hash := common.HexToHash(transaction.Id)
 
-	tx, isPending, err := client.TransactionByHash(ctx, hash)
+	var tx *types.Transaction
+	var txErr error
+	var header *types.Header
+	var headerErr error
 
-	if err != nil {
-		return nil, err
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+
+		transaction, isPending, err := client.TransactionByHash(ctx, hash)
+
+		if err != nil {
+			txErr = err
+			return
+		}
+
+		if isPending {
+			txErr = errors.New("pending transaction")
+			return
+		}
+		tx = transaction
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		txRct, err := client.TransactionReceipt(ctx, hash)
+
+		if err != nil {
+			headerErr = err
+			return
+		}
+
+		hdr, err := client.HeaderByNumber(ctx, txRct.BlockNumber)
+
+		headerErr = err
+		header = hdr
+	}()
+
+	wg.Wait()
+
+	if txErr != nil {
+		return nil, txErr
 	}
 
-	if isPending {
-		return nil, errors.New("pending transaction")
+	if headerErr != nil {
+		return nil, headerErr
 	}
 
 	data := tx.Data()
@@ -46,10 +88,11 @@ func (gw *Gateway) GetTransactionData(ctx context.Context, transaction *entities
 	value := tx.Value().String()
 
 	txData := &entities.TransactionData{
-		From:  from.Hex(),
-		To:    to,
-		Data:  data,
-		Value: value,
+		Timestamp: header.Time,
+		From:      from.Hex(),
+		To:        to,
+		Data:      data,
+		Value:     value,
 	}
 
 	return txData, nil

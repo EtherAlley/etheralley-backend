@@ -8,8 +8,9 @@ type Transaction struct {
 }
 
 type TransactionData struct {
-	From  string  `bson:"-" json:"-"`
-	To    *string `bson:"-" json:"-"`
-	Data  []byte  `bson:"-" json:"-"`
-	Value string  `bson:"-" json:"-"`
+	Timestamp uint64  `bson:"-" json:"-"`
+	From      string  `bson:"-" json:"-"`
+	To        *string `bson:"-" json:"-"`
+	Data      []byte  `bson:"-" json:"-"`
+	Value     string  `bson:"-" json:"-"`
 }
