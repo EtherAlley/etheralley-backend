@@ -20,6 +20,7 @@ func NewSaveProfile(
 	getAllFungibleTokens IGetAllFungibleTokensUseCase,
 	getAllStatistics IGetAllStatisticsUseCase,
 	resolveENSName IResolveENSNameUseCase,
+	getAllInteractions IGetAllInteractionsUseCase,
 ) ISaveProfileUseCase {
 	return func(ctx context.Context, address string, profile *entities.Profile) error {
 		if err := common.ValidateStruct(profile); err != nil {
@@ -29,7 +30,7 @@ func NewSaveProfile(
 		profile.Address = address
 
 		var wg sync.WaitGroup
-		wg.Add(4)
+		wg.Add(5)
 
 		go func() {
 			defer wg.Done()
@@ -68,6 +69,21 @@ func NewSaveProfile(
 			} else {
 				profile.ENSName = name
 			}
+		}()
+
+		go func() {
+			defer wg.Done()
+			input := GetAllInteractionsInput{
+				Address:      profile.Address,
+				Interactions: &[]InteractionInput{},
+			}
+			for _, interaction := range *profile.Interactions {
+				*input.Interactions = append(*input.Interactions, InteractionInput{
+					Transaction: interaction.Transaction,
+					Type:        interaction.Type,
+				})
+			}
+			profile.Interactions = getAllInteractions(ctx, &input)
 		}()
 
 		wg.Wait()

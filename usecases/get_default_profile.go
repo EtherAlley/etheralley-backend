@@ -26,7 +26,8 @@ func NewGetDefaultProfile(
 		}
 
 		profile := &entities.Profile{
-			Address: address,
+			Address:      address,
+			Interactions: &[]entities.Interaction{},
 		}
 		var wg sync.WaitGroup
 		wg.Add(4)

@@ -6,7 +6,6 @@ import (
 
 	cmn "github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/gateways"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -37,5 +36,3 @@ func (gw *Gateway) getClient(ctx context.Context, blockchain cmn.Blockchain) (*e
 	}
 	return nil, errors.New("invalid blockchain provided")
 }
-
-var zeroAddress = common.HexToAddress("0")

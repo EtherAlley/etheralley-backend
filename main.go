@@ -51,6 +51,8 @@ func main() {
 	container.Provide(usecases.NewGetAllFungibleTokens)
 	container.Provide(usecases.NewGetStatistic)
 	container.Provide(usecases.NewGetAllStatistics)
+	container.Provide(usecases.NewGetInteractionUseCase)
+	container.Provide(usecases.NewGetAllInteractionsUseCase)
 	container.Provide(http.NewHttpController)
 
 	// start controllers in concurrent go routines

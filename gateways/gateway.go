@@ -35,6 +35,7 @@ type IBlockchainGateway interface {
 	GetFungibleDecimals(ctx context.Context, contract *entities.Contract) (uint8, error)
 	GetENSAddressFromName(ctx context.Context, ensName string) (string, error)
 	GetENSNameFromAddress(ctx context.Context, address string) (name string, err error)
+	GetTransactionData(ctx context.Context, tx *entities.Transaction) (*entities.TransactionData, error)
 }
 
 type IBlockchainIndexGateway interface {

@@ -7,7 +7,8 @@ func (c ContextKey) String() string {
 }
 
 var (
-	ContextKeyRequestId = ContextKey("request id")
-	ContextKeyAddress   = ContextKey("address")
-	ContextKeyContract  = ContextKey("contract")
+	ContextKeyRequestId   = ContextKey("request id")
+	ContextKeyAddress     = ContextKey("address")
+	ContextKeyContract    = ContextKey("contract")
+	ContextKeyTransaction = ContextKey("transaction")
 )

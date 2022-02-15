@@ -55,3 +55,24 @@ type GetAllStatisticsInput struct {
 
 // get all statistics for a given address and slice of contract
 type IGetAllStatisticsUseCase func(ctx context.Context, input *GetAllStatisticsInput) *[]entities.Statistic
+
+type InteractionInput struct {
+	Transaction *entities.Transaction `validate:"required,dive"`
+	Type        common.Interaction    `validate:"required,oneof=CONTRACT_CREATION SEND_ETHER"`
+}
+
+type GetInteractionInput struct {
+	Address     string            `validate:"required,eth_addr"`
+	Interaction *InteractionInput `validate:"required,dive"`
+}
+
+// get the interaction for a given transaction
+type IGetInteractionUseCase func(ctx context.Context, input *GetInteractionInput) (*entities.Interaction, error)
+
+type GetAllInteractionsInput struct {
+	Address      string              `validate:"required,eth_addr"`
+	Interactions *[]InteractionInput `validate:"required,dive"`
+}
+
+// get all interactions
+type IGetAllInteractionsUseCase func(ctx context.Context, input *GetAllInteractionsInput) *[]entities.Interaction

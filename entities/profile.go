@@ -6,4 +6,5 @@ type Profile struct {
 	NonFungibleTokens *[]NonFungibleToken `bson:"non_fungible_tokens" json:"non_fungible_tokens" validate:"required,dive"`
 	FungibleTokens    *[]FungibleToken    `bson:"fungible_tokens" json:"fungible_tokens" validate:"required,dive"`
 	Statistics        *[]Statistic        `bson:"statistics" json:"statistics" validate:"required,dive"`
+	Interactions      *[]Interaction      `bson:"interactions" json:"interactions" validate:"required,dive"`
 }

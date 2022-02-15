@@ -21,6 +21,13 @@ const (
 	UNISWAP_V3_EXCHANGE Interface = "UNISWAP_V3_EXCHANGE"
 )
 
+type Interaction = string
+
+const (
+	CONTRACT_CREATION Interaction = "CONTRACT_CREATION"
+	SEND_ETHER        Interaction = "SEND_ETHER"
+)
+
 type StatisticType = string
 
 const (

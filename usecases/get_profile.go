@@ -12,7 +12,7 @@ import (
 // first try to get the profile from the cache.
 // if cache miss, go to database
 // if database miss, fetch default profile
-// if database hit, re-fetch transient token info and ens name
+// if database hit, re-fetch transient info
 func NewGetProfile(
 	logger common.ILogger,
 	cacheGateway gateways.ICacheGateway,

@@ -24,6 +24,7 @@ type HttpController struct {
 	resolveAddress      usecases.IResolveAddressUseCase
 	getFungibleToken    usecases.IGetFungibleTokenUseCase
 	getStatistic        usecases.IGetStatisticUseCase
+	getInteraction      usecases.IGetInteractionUseCase
 }
 
 func NewHttpController(
@@ -37,6 +38,7 @@ func NewHttpController(
 	resolveAddress usecases.IResolveAddressUseCase,
 	getFungibleToken usecases.IGetFungibleTokenUseCase,
 	getStatistic usecases.IGetStatisticUseCase,
+	getInteraction usecases.IGetInteractionUseCase,
 ) *HttpController {
 	return &HttpController{
 		settings,
@@ -49,6 +51,7 @@ func NewHttpController(
 		resolveAddress,
 		getFungibleToken,
 		getStatistic,
+		getInteraction,
 	}
 }
 
@@ -86,11 +89,16 @@ func (hc *HttpController) Start() error {
 		r.Get("/", hc.getChallengeRoute)
 	})
 
-	r.Route("/", func(r chi.Router) {
+	r.Route("/contracts", func(r chi.Router) {
 		r.Use(hc.parseContract)
 		r.Get("/token", hc.getTokenRoute)
 		r.Get("/nft", hc.getNFTRoute)
 		r.Get("/statistic", hc.getStatisticRoute)
+	})
+
+	r.Route("/transactions", func(r chi.Router) {
+		r.Use(hc.parseTransaction)
+		r.Get("/interaction", hc.getInteractionRoute)
 	})
 
 	port := hc.settings.Port()
