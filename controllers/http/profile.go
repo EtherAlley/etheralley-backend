@@ -9,35 +9,37 @@ import (
 )
 
 func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *http.Request) {
-	address := r.Context().Value(common.ContextKeyAddress).(string)
+	ctx := r.Context()
+	address := ctx.Value(common.ContextKeyAddress).(string)
 
-	profile, err := hc.getProfile(r.Context(), address)
+	profile, err := hc.getProfile(ctx, address)
 
 	if err != nil {
-		RenderError(w, http.StatusBadRequest, "bad request")
+		hc.presenter.PresentBadRequest(ctx, w, err)
 		return
 	}
 
-	Render(w, http.StatusOK, profile)
+	hc.presenter.PresentProfile(ctx, w, profile)
 }
 
 func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Request) {
-	address := r.Context().Value(common.ContextKeyAddress).(string)
+	ctx := r.Context()
+	address := ctx.Value(common.ContextKeyAddress).(string)
 
 	profile := &entities.Profile{}
 	err := json.NewDecoder(r.Body).Decode(profile)
 
 	if err != nil {
-		RenderError(w, http.StatusBadRequest, "bad request")
+		hc.presenter.PresentBadRequest(ctx, w, err)
 		return
 	}
 
-	err = hc.saveProfile(r.Context(), address, profile)
+	err = hc.saveProfile(ctx, address, profile)
 
 	if err != nil {
-		RenderError(w, http.StatusBadRequest, "bad request")
+		hc.presenter.PresentBadRequest(ctx, w, err)
 		return
 	}
 
-	RenderNoBody(w, http.StatusCreated)
+	hc.presenter.PresentSavedProfile(ctx, w)
 }

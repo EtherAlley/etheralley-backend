@@ -17,7 +17,7 @@ func (hc *HttpController) resolveAddr(next http.Handler) http.Handler {
 		address, err := hc.resolveAddress(ctx, input)
 
 		if err != nil {
-			RenderError(w, http.StatusBadRequest, "invalid address")
+			hc.presenter.PresentBadRequest(ctx, w, err)
 			return
 		}
 

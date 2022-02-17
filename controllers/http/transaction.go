@@ -39,9 +39,9 @@ func (hc *HttpController) getInteractionRoute(w http.ResponseWriter, r *http.Req
 	})
 
 	if err != nil {
-		RenderError(w, http.StatusBadRequest, "bad request")
+		hc.presenter.PresentBadRequest(ctx, w, err)
 		return
 	}
 
-	Render(w, http.StatusOK, interaction)
+	hc.presenter.PresentInteraction(ctx, w, interaction)
 }

@@ -7,14 +7,15 @@ import (
 )
 
 func (hc *HttpController) getChallengeRoute(w http.ResponseWriter, r *http.Request) {
-	address := r.Context().Value(common.ContextKeyAddress).(string)
+	ctx := r.Context()
+	address := ctx.Value(common.ContextKeyAddress).(string)
 
-	challenge, err := hc.getChallenge(r.Context(), address)
+	challenge, err := hc.getChallenge(ctx, address)
 
 	if err != nil {
-		RenderError(w, http.StatusBadRequest, "bad request")
+		hc.presenter.PresentBadRequest(ctx, w, err)
 		return
 	}
 
-	Render(w, http.StatusOK, challenge)
+	hc.presenter.PresentChallenge(ctx, w, challenge)
 }

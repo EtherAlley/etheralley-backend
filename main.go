@@ -8,11 +8,12 @@ import (
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/controllers"
-	"github.com/etheralley/etheralley-core-api/controllers/http"
+	httpControllers "github.com/etheralley/etheralley-core-api/controllers/http"
 	"github.com/etheralley/etheralley-core-api/gateways/ethereum"
 	"github.com/etheralley/etheralley-core-api/gateways/mongo"
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 	"github.com/etheralley/etheralley-core-api/gateways/thegraph"
+	httpPresenters "github.com/etheralley/etheralley-core-api/presenters/http"
 	"github.com/etheralley/etheralley-core-api/usecases"
 	"go.uber.org/dig"
 )
@@ -53,10 +54,11 @@ func main() {
 	container.Provide(usecases.NewGetAllStatistics)
 	container.Provide(usecases.NewGetInteractionUseCase)
 	container.Provide(usecases.NewGetAllInteractionsUseCase)
-	container.Provide(http.NewHttpController)
+	container.Provide(httpPresenters.NewPresenter)
+	container.Provide(httpControllers.NewHttpController)
 
 	// start controllers in concurrent go routines
-	err := container.Invoke(func(controller *http.HttpController) {
+	err := container.Invoke(func(controller *httpControllers.HttpController) {
 		go controllers.StartController(controller)
 	})
 

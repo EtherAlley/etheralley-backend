@@ -25,51 +25,54 @@ func (hc *HttpController) parseContract(next http.Handler) http.Handler {
 }
 
 func (hc *HttpController) getTokenRoute(w http.ResponseWriter, r *http.Request) {
-	contract := r.Context().Value(common.ContextKeyContract).(*entities.Contract)
+	ctx := r.Context()
+	contract := ctx.Value(common.ContextKeyContract).(*entities.Contract)
 
 	query := r.URL.Query()
 	address := query.Get("user_address")
 
-	token, err := hc.getFungibleToken(r.Context(), address, contract)
+	token, err := hc.getFungibleToken(ctx, address, contract)
 
 	if err != nil {
-		RenderError(w, http.StatusBadRequest, "bad request")
+		hc.presenter.PresentBadRequest(ctx, w, err)
 		return
 	}
 
-	Render(w, http.StatusOK, token)
+	hc.presenter.PresentFungibleToken(ctx, w, token)
 }
 
 func (hc *HttpController) getNFTRoute(w http.ResponseWriter, r *http.Request) {
-	contract := r.Context().Value(common.ContextKeyContract).(*entities.Contract)
+	ctx := r.Context()
+	contract := ctx.Value(common.ContextKeyContract).(*entities.Contract)
 
 	query := r.URL.Query()
 	address := query.Get("user_address")
 	tokenId := query.Get("token_id")
 
-	nft, err := hc.getNonFungibleToken(r.Context(), address, contract, tokenId)
+	nft, err := hc.getNonFungibleToken(ctx, address, contract, tokenId)
 
 	if err != nil {
-		RenderError(w, http.StatusBadRequest, "bad request")
+		hc.presenter.PresentBadRequest(ctx, w, err)
 		return
 	}
 
-	Render(w, http.StatusOK, nft)
+	hc.presenter.PresentNonFungibleToken(ctx, w, nft)
 }
 
 func (hc *HttpController) getStatisticRoute(w http.ResponseWriter, r *http.Request) {
-	contract := r.Context().Value(common.ContextKeyContract).(*entities.Contract)
+	ctx := r.Context()
+	contract := ctx.Value(common.ContextKeyContract).(*entities.Contract)
 
 	query := r.URL.Query()
 	address := query.Get("user_address")
 	statType := query.Get("type")
 
-	statistic, err := hc.getStatistic(r.Context(), address, contract, statType)
+	statistic, err := hc.getStatistic(ctx, address, contract, statType)
 
 	if err != nil {
-		RenderError(w, http.StatusBadRequest, "bad request")
+		hc.presenter.PresentBadRequest(ctx, w, err)
 		return
 	}
 
-	Render(w, http.StatusOK, statistic)
+	hc.presenter.PresentStatistic(ctx, w, statistic)
 }

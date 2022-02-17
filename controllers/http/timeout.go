@@ -9,7 +9,7 @@ import (
 // cancel context after a certian threshold
 //
 // we are intentionally not returning an error response
-// and allowing for the usecase to handle downstream context timeouts naturally
+// and allowing for the usecases to handle downstream context timeouts naturally
 //
 // see https://github.com/go-chi/chi/blob/master/middleware/timeout.go#L33
 func (hc *HttpController) timeout(next http.Handler) http.Handler {

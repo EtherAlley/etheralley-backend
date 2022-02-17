@@ -65,7 +65,7 @@ func NewSaveProfile(
 			defer wg.Done()
 			name, err := resolveENSName(ctx, address)
 			if err != nil {
-				profile.ENSName = "" // Not all addresses have an ens name. We should not propigate an erro for this
+				profile.ENSName = "" // Not all addresses have an ens name. We should not propigate an error for this
 			} else {
 				profile.ENSName = name
 			}

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"net/http"
 )
 
@@ -13,7 +14,7 @@ func (hc *HttpController) recoverer(next http.Handler) http.Handler {
 
 				hc.logger.Errorf(r.Context(), "Caught panic in recoverer: %+v", rvr)
 
-				w.WriteHeader(http.StatusBadRequest)
+				hc.presenter.PresentBadRequest(r.Context(), w, errors.New("caught panic in recoverer"))
 			}
 		}()
 
