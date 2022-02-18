@@ -31,6 +31,7 @@ func renderNoBody(w http.ResponseWriter, statusCode int) {
 
 func toProfileJson(profile *entities.Profile) *profileJson {
 	return &profileJson{
+		Address:           profile.Address,
 		ENSName:           profile.ENSName,
 		NonFungibleTokens: toNonFungibleTokensJson(profile.NonFungibleTokens),
 		FungibleTokens:    toFungibleTokensJson(profile.FungibleTokens),

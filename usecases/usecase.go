@@ -5,8 +5,7 @@ import (
 )
 
 type ProfileInput struct {
-	Address           string                   `json:"address" validate:"required,eth_addr"`
-	ENSName           string                   `json:"ens_name" validate:"required"`
+	Address           string                   `json:"-" validate:"required,eth_addr"`
 	NonFungibleTokens *[]NonFungibleTokenInput `json:"non_fungible_tokens" validate:"required,dive"`
 	FungibleTokens    *[]FungibleTokenInput    `json:"fungible_tokens" validate:"required,dive"`
 	Statistics        *[]StatisticInput        `json:"statistics" validate:"required,dive"`

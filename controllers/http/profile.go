@@ -35,6 +35,8 @@ func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	profile.Address = ctx.Value(common.ContextKeyAddress).(string)
+
 	err = hc.saveProfile(ctx, &usecases.SaveProfileInput{
 		Profile: profile,
 	})

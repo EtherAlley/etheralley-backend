@@ -44,25 +44,177 @@ func (g *Gateway) SaveProfile(ctx context.Context, profile *entities.Profile) er
 }
 
 func fromProfileJson(profileJson *profileJson) *entities.Profile {
-	profile := &entities.Profile{
+	nfts := []entities.NonFungibleToken{}
+	for _, nft := range *profileJson.NonFungibleTokens {
+		nfts = append(nfts, entities.NonFungibleToken{
+			TokenId: nft.TokenId,
+			Contract: &entities.Contract{
+				Blockchain: nft.Contract.Blockchain,
+				Address:    nft.Contract.Address,
+				Interface:  nft.Contract.Interface,
+			},
+			Balance: nft.Balance,
+			Metadata: &entities.NonFungibleMetadata{
+				Name:        nft.Metadata.Name,
+				Description: nft.Metadata.Description,
+				Image:       nft.Metadata.Image,
+				Attributes:  nft.Metadata.Attributes,
+			},
+		})
+	}
+	tokens := []entities.FungibleToken{}
+	for _, token := range *profileJson.FungibleTokens {
+		tokens = append(tokens, entities.FungibleToken{
+			Contract: &entities.Contract{
+				Blockchain: token.Contract.Blockchain,
+				Address:    token.Contract.Address,
+				Interface:  token.Contract.Interface,
+			},
+			Balance: token.Balance,
+			Metadata: &entities.FungibleMetadata{
+				Name:     token.Metadata.Name,
+				Symbol:   token.Metadata.Symbol,
+				Decimals: token.Metadata.Decimals,
+			},
+		})
+	}
+	stats := []entities.Statistic{}
+	for _, stat := range *profileJson.Statistics {
+		swaps := []entities.Swap{}
+		arr := stat.Data.([]interface{})
+		for _, ele := range arr {
+			s := ele.(swapJson)
+			swap := entities.Swap{
+				Id:        s.Id,
+				Timestamp: s.Timestamp,
+				AmountUSD: s.AmountUSD,
+				Input: &entities.SwapToken{
+					Id:     s.Input.Id,
+					Amount: s.Input.Amount,
+					Symbol: s.Input.Symbol,
+				},
+				Output: &entities.SwapToken{
+					Id:     s.Output.Id,
+					Amount: s.Output.Amount,
+					Symbol: s.Output.Symbol,
+				},
+			}
+			swaps = append(swaps, swap)
+		}
+		stats = append(stats, entities.Statistic{
+			Type: stat.Type,
+			Contract: &entities.Contract{
+				Blockchain: stat.Contract.Blockchain,
+				Address:    stat.Contract.Address,
+				Interface:  stat.Contract.Interface,
+			},
+			Data: &swaps,
+		})
+	}
+	interactions := []entities.Interaction{}
+	for _, interaction := range *profileJson.Interactions {
+		interactions = append(interactions, entities.Interaction{
+			Type: interaction.Type,
+			Transaction: &entities.Transaction{
+				Blockchain: interaction.Transaction.Blockchain,
+				Id:         interaction.Transaction.Id,
+			},
+			Timestamp: interaction.Timestamp,
+		})
+	}
+	return &entities.Profile{
 		Address:           profileJson.Address,
 		ENSName:           profileJson.ENSName,
-		NonFungibleTokens: &[]entities.NonFungibleToken{},
-		FungibleTokens:    &[]entities.FungibleToken{},
-		Statistics:        &[]entities.Statistic{},
-		Interactions:      &[]entities.Interaction{},
+		NonFungibleTokens: &nfts,
+		FungibleTokens:    &tokens,
+		Statistics:        &stats,
+		Interactions:      &interactions,
 	}
-	return profile
 }
 
 func toProfileJson(profile *entities.Profile) *profileJson {
-	profileJson := &profileJson{
+	nfts := []nonFungibleTokenJson{}
+	for _, nft := range *profile.NonFungibleTokens {
+		nfts = append(nfts, nonFungibleTokenJson{
+			TokenId: nft.TokenId,
+			Contract: &contractJson{
+				Blockchain: nft.Contract.Blockchain,
+				Address:    nft.Contract.Address,
+				Interface:  nft.Contract.Interface,
+			},
+			Balance: nft.Balance,
+			Metadata: &nonFungibleMetadataJson{
+				Name:        nft.Metadata.Name,
+				Description: nft.Metadata.Description,
+				Image:       nft.Metadata.Image,
+				Attributes:  nft.Metadata.Attributes,
+			},
+		})
+	}
+	tokens := []fungibleTokenJson{}
+	for _, token := range *profile.FungibleTokens {
+		tokens = append(tokens, fungibleTokenJson{
+			Contract: &contractJson{
+				Blockchain: token.Contract.Blockchain,
+				Address:    token.Contract.Address,
+				Interface:  token.Contract.Interface,
+			},
+			Balance: token.Balance,
+			Metadata: &fungibleMetadataJson{
+				Name:     token.Metadata.Name,
+				Symbol:   token.Metadata.Symbol,
+				Decimals: token.Metadata.Decimals,
+			},
+		})
+	}
+	stats := []statisticJson{}
+	for _, stat := range *profile.Statistics {
+		swaps := []swapJson{}
+		for _, s := range *stat.Data.(*[]entities.Swap) {
+			swap := swapJson{
+				Id:        s.Id,
+				Timestamp: s.Timestamp,
+				AmountUSD: s.AmountUSD,
+				Input: &swapTokenJson{
+					Id:     s.Input.Id,
+					Amount: s.Input.Amount,
+					Symbol: s.Input.Symbol,
+				},
+				Output: &swapTokenJson{
+					Id:     s.Output.Id,
+					Amount: s.Output.Amount,
+					Symbol: s.Output.Symbol,
+				},
+			}
+			swaps = append(swaps, swap)
+		}
+		stats = append(stats, statisticJson{
+			Type: stat.Type,
+			Contract: &contractJson{
+				Blockchain: stat.Contract.Blockchain,
+				Address:    stat.Contract.Address,
+				Interface:  stat.Contract.Interface,
+			},
+			Data: &swaps,
+		})
+	}
+	interactions := []interactionJson{}
+	for _, interaction := range *profile.Interactions {
+		interactions = append(interactions, interactionJson{
+			Type: interaction.Type,
+			Transaction: &transactionJson{
+				Blockchain: interaction.Transaction.Blockchain,
+				Id:         interaction.Transaction.Id,
+			},
+			Timestamp: interaction.Timestamp,
+		})
+	}
+	return &profileJson{
 		Address:           profile.Address,
 		ENSName:           profile.ENSName,
-		NonFungibleTokens: &[]nonFungibleTokenJson{},
-		FungibleTokens:    &[]fungibleTokenJson{},
-		Statistics:        &[]statisticJson{},
-		Interactions:      &[]interactionJson{},
+		NonFungibleTokens: &nfts,
+		FungibleTokens:    &tokens,
+		Statistics:        &stats,
+		Interactions:      &interactions,
 	}
-	return profileJson
 }
