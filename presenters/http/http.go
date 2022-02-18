@@ -107,40 +107,11 @@ func toNonFungibleJson(nft *entities.NonFungibleToken) *nonFungibleTokenJson {
 }
 
 func toStatisticJson(stat *entities.Statistic) *statisticJson {
-	switch stat.Type {
-	case common.SWAP:
-		return toSwapsJson(stat)
-	default:
-		return nil
-	}
-}
-
-func toSwapsJson(stat *entities.Statistic) *statisticJson {
-	json := &statisticJson{
+	return &statisticJson{
 		Contract: toContractJson(stat.Contract),
 		Type:     stat.Type,
+		Data:     stat.Data,
 	}
-	swaps := []swapJson{}
-	for _, s := range *stat.Data.(*[]entities.Swap) {
-		swap := swapJson{
-			Id:        s.Id,
-			Timestamp: s.Timestamp,
-			AmountUSD: s.AmountUSD,
-			Input: &swapTokenJson{
-				Id:     s.Input.Id,
-				Amount: s.Input.Amount,
-				Symbol: s.Input.Symbol,
-			},
-			Output: &swapTokenJson{
-				Id:     s.Output.Id,
-				Amount: s.Output.Amount,
-				Symbol: s.Output.Symbol,
-			},
-		}
-		swaps = append(swaps, swap)
-	}
-	json.Data = &swaps
-	return json
 }
 
 func toContractJson(contract *entities.Contract) *contractJson {
@@ -211,20 +182,6 @@ type statisticJson struct {
 	Type     common.StatisticType `json:"type"`
 	Contract *contractJson        `json:"contract"`
 	Data     interface{}          `json:"data"`
-}
-
-type swapTokenJson = struct {
-	Id     string `json:"id"`
-	Amount string `json:"amount"`
-	Symbol string `json:"symbol"`
-}
-
-type swapJson = struct {
-	Id        string         `json:"id"`
-	Timestamp string         `json:"timestamp"`
-	AmountUSD string         `json:"amountUSD"`
-	Input     *swapTokenJson `json:"input"`
-	Output    *swapTokenJson `json:"output"`
 }
 
 type interactionJson struct {

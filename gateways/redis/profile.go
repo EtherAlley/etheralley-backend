@@ -80,27 +80,6 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 	}
 	stats := []entities.Statistic{}
 	for _, stat := range *profileJson.Statistics {
-		swaps := []entities.Swap{}
-		arr := stat.Data.([]interface{})
-		for _, ele := range arr {
-			s := ele.(swapJson)
-			swap := entities.Swap{
-				Id:        s.Id,
-				Timestamp: s.Timestamp,
-				AmountUSD: s.AmountUSD,
-				Input: &entities.SwapToken{
-					Id:     s.Input.Id,
-					Amount: s.Input.Amount,
-					Symbol: s.Input.Symbol,
-				},
-				Output: &entities.SwapToken{
-					Id:     s.Output.Id,
-					Amount: s.Output.Amount,
-					Symbol: s.Output.Symbol,
-				},
-			}
-			swaps = append(swaps, swap)
-		}
 		stats = append(stats, entities.Statistic{
 			Type: stat.Type,
 			Contract: &entities.Contract{
@@ -108,7 +87,7 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 				Address:    stat.Contract.Address,
 				Interface:  stat.Contract.Interface,
 			},
-			Data: &swaps,
+			Data: &stat.Data,
 		})
 	}
 	interactions := []entities.Interaction{}
@@ -169,25 +148,6 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 	}
 	stats := []statisticJson{}
 	for _, stat := range *profile.Statistics {
-		swaps := []swapJson{}
-		for _, s := range *stat.Data.(*[]entities.Swap) {
-			swap := swapJson{
-				Id:        s.Id,
-				Timestamp: s.Timestamp,
-				AmountUSD: s.AmountUSD,
-				Input: &swapTokenJson{
-					Id:     s.Input.Id,
-					Amount: s.Input.Amount,
-					Symbol: s.Input.Symbol,
-				},
-				Output: &swapTokenJson{
-					Id:     s.Output.Id,
-					Amount: s.Output.Amount,
-					Symbol: s.Output.Symbol,
-				},
-			}
-			swaps = append(swaps, swap)
-		}
 		stats = append(stats, statisticJson{
 			Type: stat.Type,
 			Contract: &contractJson{
@@ -195,7 +155,7 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 				Address:    stat.Contract.Address,
 				Interface:  stat.Contract.Interface,
 			},
-			Data: &swaps,
+			Data: stat.Data,
 		})
 	}
 	interactions := []interactionJson{}

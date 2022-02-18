@@ -76,20 +76,6 @@ type statisticJson struct {
 	Data     interface{}          `json:"data"`
 }
 
-type swapTokenJson = struct {
-	Id     string `json:"id"`
-	Amount string `json:"amount"`
-	Symbol string `json:"symbol"`
-}
-
-type swapJson = struct {
-	Id        string         `json:"id"`
-	Timestamp string         `json:"timestamp"`
-	AmountUSD string         `json:"amountUSD"`
-	Input     *swapTokenJson `json:"input"`
-	Output    *swapTokenJson `json:"output"`
-}
-
 type interactionJson struct {
 	Transaction *transactionJson
 	Type        common.Interaction `json:"type"`
