@@ -9,23 +9,36 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
-// concurrent calls to get metadata & validate owner
-// metadata doesnt change so we cache it
-// metadata is an optional implementation in ERC721 and ERC1155 and may not exist
-// its also possible that we simply have issues following the uri
-// in these scenarios we will return nil metadata
+type GetNonFungibleTokenInput struct {
+	Address          string                 `validate:"required,eth_addr"`
+	NonFungibleToken *NonFungibleTokenInput `validate:"required,dive"`
+}
+
+// Get the metadata and balance of an nft
+//
+// Metadata doesnt change so we cache it
+//
+// Metadata is an optional implementation in ERC721 and ERC1155 and may not exist.
+// Its also possible that we simply have issues following the uri.
+// In these scenarios we will return nil metadata and not bubble up an err
+type IGetNonFungibleTokenUseCase func(ctx context.Context, input *GetNonFungibleTokenInput) (*entities.NonFungibleToken, error)
+
 func NewGetNonFungibleToken(
 	logger common.ILogger,
 	blockchainGateway gateways.IBlockchainGateway,
 	cacheGateway gateways.ICacheGateway,
 ) IGetNonFungibleTokenUseCase {
-	return func(ctx context.Context, address string, contract *entities.Contract, tokenId string) (*entities.NonFungibleToken, error) {
-		if err := common.ValidateStruct(contract); err != nil {
+	return func(ctx context.Context, input *GetNonFungibleTokenInput) (*entities.NonFungibleToken, error) {
+		if err := common.ValidateStruct(input); err != nil {
 			return nil, err
 		}
 
-		if err := common.ValidateField(tokenId, `required,numeric`); err != nil {
-			return nil, err
+		address := input.Address
+		tokenId := input.NonFungibleToken.TokenId
+		contract := &entities.Contract{
+			Blockchain: input.NonFungibleToken.Contract.Blockchain,
+			Address:    input.NonFungibleToken.Contract.Address,
+			Interface:  input.NonFungibleToken.Contract.Interface,
 		}
 
 		var wg sync.WaitGroup

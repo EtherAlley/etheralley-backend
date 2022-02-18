@@ -1,13 +1,13 @@
 package entities
 
 type FungibleToken struct {
-	Contract *Contract         `bson:"contract" json:"contract" validate:"required"`
-	Balance  string            `bson:"-" json:"balance"`
-	Metadata *FungibleMetadata `bson:"metadata" json:"metadata"`
+	Contract *Contract
+	Balance  string
+	Metadata *FungibleMetadata
 }
 
 type FungibleMetadata struct {
-	Name     string `bson:"name" json:"name"`
-	Symbol   string `bson:"symbol" json:"symbol"`
-	Decimals uint8  `bson:"decimals" json:"decimals"`
+	Name     string
+	Symbol   string
+	Decimals uint8
 }

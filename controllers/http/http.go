@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/etheralley/etheralley-core-api/common"
+	"github.com/etheralley/etheralley-core-api/presenters"
 	"github.com/etheralley/etheralley-core-api/usecases"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -16,6 +17,7 @@ import (
 type HttpController struct {
 	settings            common.ISettings
 	logger              common.ILogger
+	presenter           presenters.IPresenter
 	getProfile          usecases.IGetProfileUseCase
 	saveProfile         usecases.ISaveProfileUseCase
 	getChallenge        usecases.IGetChallengeUseCase
@@ -30,6 +32,7 @@ type HttpController struct {
 func NewHttpController(
 	settings common.ISettings,
 	logger common.ILogger,
+	presenter presenters.IPresenter,
 	getProfile usecases.IGetProfileUseCase,
 	saveProfile usecases.ISaveProfileUseCase,
 	getChallenge usecases.IGetChallengeUseCase,
@@ -43,6 +46,7 @@ func NewHttpController(
 	return &HttpController{
 		settings,
 		logger,
+		presenter,
 		getProfile,
 		saveProfile,
 		getChallenge,

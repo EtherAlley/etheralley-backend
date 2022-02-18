@@ -8,14 +8,22 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
-// generate a new challenge and save it to the cache
+type GetChallengeInput struct {
+	Address string `validate:"required,eth_addr"`
+}
+
+// Get a challenge message for the provided address
+//
+// Generate a new challenge and save it to the cache
+type IGetChallengeUseCase func(ctx context.Context, input *GetChallengeInput) (*entities.Challenge, error)
+
 func NewGetChallenge(cacheGateway gateways.ICacheGateway) IGetChallengeUseCase {
-	return func(ctx context.Context, address string) (*entities.Challenge, error) {
-		if err := common.ValidateField(address, `required,eth_addr`); err != nil {
+	return func(ctx context.Context, input *GetChallengeInput) (*entities.Challenge, error) {
+		if err := common.ValidateStruct(input); err != nil {
 			return nil, err
 		}
 
-		challenge := entities.NewChallenge(address)
+		challenge := entities.NewChallenge(input.Address)
 
 		err := cacheGateway.SaveChallenge(ctx, challenge)
 

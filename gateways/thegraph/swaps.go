@@ -6,7 +6,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-type SwapsQuery = struct {
+type swapsQuery = struct {
 	Swaps []struct {
 		Timestamp   string `graphql:"timestamp" json:"timestamp"`
 		AmountUSD   string `graphql:"amountUSD" json:"amountUSD"`
@@ -32,7 +32,21 @@ type SwapsQuery = struct {
 	} `graphql:"swaps(first: 5, orderBy: amountUSD, orderDirection: desc, where: { to: $to })" json:"swaps"`
 }
 
-func (gw *Gateway) GetSwaps(ctx context.Context, address string, contract *entities.Contract) (*[]entities.Swap, error) {
+type swapJson = struct {
+	Id        string         `json:"id"`
+	Timestamp string         `json:"timestamp"`
+	AmountUSD string         `json:"amountUSD"`
+	Input     *swapTokenJson `json:"input"`
+	Output    *swapTokenJson `json:"output"`
+}
+
+type swapTokenJson = struct {
+	Id     string `json:"id"`
+	Amount string `json:"amount"`
+	Symbol string `json:"symbol"`
+}
+
+func (gw *Gateway) GetSwaps(ctx context.Context, address string, contract *entities.Contract) (interface{}, error) {
 	url, err := gw.GetSubgraphUrl(contract.Blockchain, contract.Interface)
 
 	if err != nil {
@@ -40,7 +54,7 @@ func (gw *Gateway) GetSwaps(ctx context.Context, address string, contract *entit
 		return nil, err
 	}
 
-	query := &SwapsQuery{}
+	query := &swapsQuery{}
 	variables := map[string]interface{}{
 		"to": address,
 	}
@@ -51,15 +65,15 @@ func (gw *Gateway) GetSwaps(ctx context.Context, address string, contract *entit
 		return nil, err
 	}
 
-	swaps := []entities.Swap{}
+	swaps := []swapJson{}
 	for _, swap := range query.Swaps {
 		swapLen := len(swap.Transaction.Swaps)
 		if swapLen == 0 {
 			continue
 		}
 
-		input := entities.SwapToken{}
-		output := entities.SwapToken{}
+		input := swapTokenJson{}
+		output := swapTokenJson{}
 
 		inputSwap := swap.Transaction.Swaps[0]
 		outputSwap := swap.Transaction.Swaps[swapLen-1]
@@ -84,7 +98,7 @@ func (gw *Gateway) GetSwaps(ctx context.Context, address string, contract *entit
 			output.Symbol = outputSwap.Pair.Token1.Symbol
 		}
 
-		swaps = append(swaps, entities.Swap{
+		swaps = append(swaps, swapJson{
 			Id:        swap.Transaction.Id,
 			Timestamp: swap.Timestamp,
 			AmountUSD: swap.AmountUSD,

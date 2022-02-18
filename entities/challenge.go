@@ -6,8 +6,8 @@ import (
 )
 
 type Challenge struct {
-	Address string `json:"-"`
-	Message string `json:"message"`
+	Address string
+	Message string
 }
 
 func NewChallenge(address string) *Challenge {

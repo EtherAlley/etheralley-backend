@@ -8,44 +8,56 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-// for each partial nft provided, fetch the hydrated nft concurrently
-// we can use a simple slice here since each result in the go routine writes to its own index location
-// invalid contracts are filter out of the resultin slice
+type GetAllNonFungibleTokensInput struct {
+	NonFungibleTokens *[]GetNonFungibleTokenInput `validate:"required"`
+}
+
+//Get the metadata and balance of a slice of nfts
+//
+// For transient info for each nft provided concurrently
+//
+// Invalid contracts have a zeroed balance and nil metadata returned
+type IGetAllNonFungibleTokensUseCase func(ctx context.Context, input *GetAllNonFungibleTokensInput) *[]entities.NonFungibleToken
+
 func NewGetAllNonFungibleTokens(
 	logger common.ILogger,
 	getNonFungibleToken IGetNonFungibleTokenUseCase,
 ) IGetAllNonFungibleTokensUseCase {
-	return func(ctx context.Context, address string, partials *[]entities.NonFungibleToken) *[]entities.NonFungibleToken {
-		var wg sync.WaitGroup
+	return func(ctx context.Context, input *GetAllNonFungibleTokensInput) *[]entities.NonFungibleToken {
+		if err := common.ValidateStruct(input); err != nil {
+			return &[]entities.NonFungibleToken{}
+		}
 
-		nfts := make([]*entities.NonFungibleToken, len(*partials))
-		for i, partial := range *partials {
+		var wg sync.WaitGroup
+		nfts := make([]entities.NonFungibleToken, len(*input.NonFungibleTokens))
+
+		for i, n := range *input.NonFungibleTokens {
 			wg.Add(1)
 
-			go func(i int, p entities.NonFungibleToken) {
+			go func(i int, nftInput GetNonFungibleTokenInput) {
 				defer wg.Done()
 
-				nft, err := getNonFungibleToken(ctx, address, p.Contract, p.TokenId)
+				nft, err := getNonFungibleToken(ctx, &nftInput)
 
 				if err != nil {
-					logger.Errf(ctx, err, "invalid nft: contract address %v token id %v chain %v", p.Contract.Address, p.TokenId, p.Contract.Blockchain)
-					return
+					nfts[i] = entities.NonFungibleToken{
+						TokenId: nftInput.NonFungibleToken.TokenId,
+						Contract: &entities.Contract{
+							Blockchain: nftInput.NonFungibleToken.Contract.Blockchain,
+							Address:    nftInput.NonFungibleToken.Contract.Address,
+							Interface:  nftInput.NonFungibleToken.Contract.Interface,
+						},
+						Balance:  "0",
+						Metadata: nil,
+					}
+				} else {
+					nfts[i] = *nft
 				}
-
-				nfts[i] = nft
-
-			}(i, partial)
+			}(i, n)
 		}
 
 		wg.Wait()
 
-		trimmedNfts := []entities.NonFungibleToken{}
-		for _, nft := range nfts {
-			if nft != nil {
-				trimmedNfts = append(trimmedNfts, *nft)
-			}
-		}
-
-		return &trimmedNfts
+		return &nfts
 	}
 }

@@ -1,51 +1,41 @@
-package redis
+package mongo
 
 import (
 	"context"
-	"encoding/json"
-	"time"
 
+	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const ProfileNamespace = "profile"
-
 func (g *Gateway) GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error) {
-	profileString, err := g.client.Get(ctx, getFullKey(ProfileNamespace, address)).Result()
+	profileBson := &profileBson{}
 
-	if err != nil {
-		return nil, err
+	err := g.profiles.FindOne(ctx, bson.D{primitive.E{Key: "_id", Value: address}}).Decode(profileBson)
+
+	if err == mongo.ErrNoDocuments {
+		return nil, common.ErrNotFound
 	}
 
-	profJson := &profileJson{}
-	err = json.Unmarshal([]byte(profileString), profJson)
+	profile := fromProfileBson(profileBson)
 
-	if err != nil {
-		return nil, err
-	}
-
-	profile := fromProfileJson(profJson)
-
-	return profile, nil
+	return profile, err
 }
 
 func (g *Gateway) SaveProfile(ctx context.Context, profile *entities.Profile) error {
-	profJson := toProfileJson(profile)
+	profileBson := toProfileBson(profile)
 
-	bytes, err := json.Marshal(profJson)
-
-	if err != nil {
-		return err
-	}
-
-	_, err = g.client.Set(ctx, getFullKey(ProfileNamespace, profile.Address), bytes, time.Hour*24).Result()
+	_, err := g.profiles.UpdateOne(ctx, bson.D{primitive.E{Key: "_id", Value: profile.Address}}, bson.D{primitive.E{Key: "$set", Value: profileBson}}, options.Update().SetUpsert(true))
 
 	return err
 }
 
-func fromProfileJson(profileJson *profileJson) *entities.Profile {
+func fromProfileBson(profileBson *profileBson) *entities.Profile {
 	nfts := []entities.NonFungibleToken{}
-	for _, nft := range *profileJson.NonFungibleTokens {
+	for _, nft := range *profileBson.NonFungibleTokens {
 		nfts = append(nfts, entities.NonFungibleToken{
 			TokenId: nft.TokenId,
 			Contract: &entities.Contract{
@@ -53,33 +43,20 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 				Address:    nft.Contract.Address,
 				Interface:  nft.Contract.Interface,
 			},
-			Balance: nft.Balance,
-			Metadata: &entities.NonFungibleMetadata{
-				Name:        nft.Metadata.Name,
-				Description: nft.Metadata.Description,
-				Image:       nft.Metadata.Image,
-				Attributes:  nft.Metadata.Attributes,
-			},
 		})
 	}
 	tokens := []entities.FungibleToken{}
-	for _, token := range *profileJson.FungibleTokens {
+	for _, token := range *profileBson.FungibleTokens {
 		tokens = append(tokens, entities.FungibleToken{
 			Contract: &entities.Contract{
 				Blockchain: token.Contract.Blockchain,
 				Address:    token.Contract.Address,
 				Interface:  token.Contract.Interface,
 			},
-			Balance: token.Balance,
-			Metadata: &entities.FungibleMetadata{
-				Name:     token.Metadata.Name,
-				Symbol:   token.Metadata.Symbol,
-				Decimals: token.Metadata.Decimals,
-			},
 		})
 	}
 	stats := []entities.Statistic{}
-	for _, stat := range *profileJson.Statistics {
+	for _, stat := range *profileBson.Statistics {
 		stats = append(stats, entities.Statistic{
 			Type: stat.Type,
 			Contract: &entities.Contract{
@@ -87,23 +64,20 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 				Address:    stat.Contract.Address,
 				Interface:  stat.Contract.Interface,
 			},
-			Data: &stat.Data,
 		})
 	}
 	interactions := []entities.Interaction{}
-	for _, interaction := range *profileJson.Interactions {
+	for _, interaction := range *profileBson.Interactions {
 		interactions = append(interactions, entities.Interaction{
 			Type: interaction.Type,
 			Transaction: &entities.Transaction{
 				Blockchain: interaction.Transaction.Blockchain,
 				Id:         interaction.Transaction.Id,
 			},
-			Timestamp: interaction.Timestamp,
 		})
 	}
 	return &entities.Profile{
-		Address:           profileJson.Address,
-		ENSName:           profileJson.ENSName,
+		Address:           profileBson.Address,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,
 		Statistics:        &stats,
@@ -111,67 +85,51 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 	}
 }
 
-func toProfileJson(profile *entities.Profile) *profileJson {
-	nfts := []nonFungibleTokenJson{}
+func toProfileBson(profile *entities.Profile) *profileBson {
+	nfts := []nonFungibleTokenBson{}
 	for _, nft := range *profile.NonFungibleTokens {
-		nfts = append(nfts, nonFungibleTokenJson{
+		nfts = append(nfts, nonFungibleTokenBson{
 			TokenId: nft.TokenId,
-			Contract: &contractJson{
+			Contract: &contractBson{
 				Blockchain: nft.Contract.Blockchain,
 				Address:    nft.Contract.Address,
 				Interface:  nft.Contract.Interface,
 			},
-			Balance: nft.Balance,
-			Metadata: &nonFungibleMetadataJson{
-				Name:        nft.Metadata.Name,
-				Description: nft.Metadata.Description,
-				Image:       nft.Metadata.Image,
-				Attributes:  nft.Metadata.Attributes,
-			},
 		})
 	}
-	tokens := []fungibleTokenJson{}
+	tokens := []fungibleTokenBson{}
 	for _, token := range *profile.FungibleTokens {
-		tokens = append(tokens, fungibleTokenJson{
-			Contract: &contractJson{
+		tokens = append(tokens, fungibleTokenBson{
+			Contract: &contractBson{
 				Blockchain: token.Contract.Blockchain,
 				Address:    token.Contract.Address,
 				Interface:  token.Contract.Interface,
 			},
-			Balance: token.Balance,
-			Metadata: &fungibleMetadataJson{
-				Name:     token.Metadata.Name,
-				Symbol:   token.Metadata.Symbol,
-				Decimals: token.Metadata.Decimals,
-			},
 		})
 	}
-	stats := []statisticJson{}
+	stats := []statisticBson{}
 	for _, stat := range *profile.Statistics {
-		stats = append(stats, statisticJson{
+		stats = append(stats, statisticBson{
 			Type: stat.Type,
-			Contract: &contractJson{
+			Contract: &contractBson{
 				Blockchain: stat.Contract.Blockchain,
 				Address:    stat.Contract.Address,
 				Interface:  stat.Contract.Interface,
 			},
-			Data: stat.Data,
 		})
 	}
-	interactions := []interactionJson{}
+	interactions := []interactionBson{}
 	for _, interaction := range *profile.Interactions {
-		interactions = append(interactions, interactionJson{
+		interactions = append(interactions, interactionBson{
 			Type: interaction.Type,
-			Transaction: &transactionJson{
+			Transaction: &transactionBson{
 				Blockchain: interaction.Transaction.Blockchain,
 				Id:         interaction.Transaction.Id,
 			},
-			Timestamp: interaction.Timestamp,
 		})
 	}
-	return &profileJson{
+	return &profileBson{
 		Address:           profile.Address,
-		ENSName:           profile.ENSName,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,
 		Statistics:        &stats,

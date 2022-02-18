@@ -9,6 +9,14 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
+type GetFungibleTokenInput struct {
+	Address string              `validate:"required,eth_addr"`
+	Token   *FungibleTokenInput `validate:"required,dive"`
+}
+
+// get the metadata and balance of an nft
+type IGetFungibleTokenUseCase func(ctx context.Context, input *GetFungibleTokenInput) (*entities.FungibleToken, error)
+
 // fetch balance, name, symbol and decimals concurrently
 // cache metadata
 // name, symbol and decimals are optional implementations
@@ -17,7 +25,17 @@ func NewGetFungibleToken(
 	blockchainGateway gateways.IBlockchainGateway,
 	cacheGateway gateways.ICacheGateway,
 ) IGetFungibleTokenUseCase {
-	return func(ctx context.Context, address string, contract *entities.Contract) (*entities.FungibleToken, error) {
+	return func(ctx context.Context, input *GetFungibleTokenInput) (*entities.FungibleToken, error) {
+		if err := common.ValidateStruct(input); err != nil {
+			return nil, err
+		}
+
+		address := input.Address
+		contract := &entities.Contract{
+			Blockchain: input.Token.Contract.Blockchain,
+			Address:    input.Token.Contract.Address,
+			Interface:  input.Token.Contract.Interface,
+		}
 
 		var balance string
 		var name string

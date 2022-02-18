@@ -9,6 +9,13 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
+type GetProfileInput struct {
+	Address string `validate:"required,eth_addr"`
+}
+
+// get the profile for the provided address
+type IGetProfileUseCase func(ctx context.Context, input *GetProfileInput) (*entities.Profile, error)
+
 // first try to get the profile from the cache.
 // if cache miss, go to database
 // if database miss, fetch default profile
@@ -23,26 +30,28 @@ func NewGetProfile(
 	getAllStatistics IGetAllStatisticsUseCase,
 	resolveENSName IResolveENSNameUseCase,
 ) IGetProfileUseCase {
-	return func(ctx context.Context, address string) (*entities.Profile, error) {
-		if err := common.ValidateField(address, `required,eth_addr`); err != nil {
+	return func(ctx context.Context, input *GetProfileInput) (*entities.Profile, error) {
+		if err := common.ValidateStruct(input); err != nil {
 			return nil, err
 		}
 
-		profile, err := cacheGateway.GetProfileByAddress(ctx, address)
+		profile, err := cacheGateway.GetProfileByAddress(ctx, input.Address)
 
 		if err == nil {
-			logger.Debugf(ctx, "cache hit for profile %v", address)
+			logger.Debugf(ctx, "cache hit for profile %v", input.Address)
 			return profile, nil
 		}
 
-		logger.Debugf(ctx, "cache miss for profile %v", address)
+		logger.Debugf(ctx, "cache miss for profile %v", input.Address)
 
-		profile, err = databaseGateway.GetProfileByAddress(ctx, address)
+		profile, err = databaseGateway.GetProfileByAddress(ctx, input.Address)
 
 		if err == common.ErrNotFound {
-			logger.Debugf(ctx, "db miss for profile %v", address)
+			logger.Debugf(ctx, "db miss for profile %v", input.Address)
 
-			profile, err := getDefaultProfile(ctx, address)
+			profile, err := getDefaultProfile(ctx, &GetDefaultProfileInput{
+				Address: input.Address,
+			})
 
 			if err != nil {
 				logger.Err(ctx, err, "err getting default profile")
@@ -59,48 +68,88 @@ func NewGetProfile(
 			return nil, err
 		}
 
-		logger.Debugf(ctx, "db hit for profile %v", address)
+		logger.Debugf(ctx, "db hit for profile %v", input.Address)
 
 		var wg sync.WaitGroup
 		wg.Add(4)
 
 		go func() {
 			defer wg.Done()
-			profile.NonFungibleTokens = getAllNonFungibleTokens(ctx, profile.Address, profile.NonFungibleTokens)
-		}()
 
-		go func() {
-			defer wg.Done()
-			contracts := []entities.Contract{}
-			for _, token := range *profile.FungibleTokens {
-				contracts = append(contracts, *token.Contract)
-			}
-			profile.FungibleTokens = getAllFungibleTokens(ctx, profile.Address, &contracts)
-		}()
-
-		go func() {
-			defer wg.Done()
-			input := GetAllStatisticsInput{
+			// Not all addresses have an ens name. We should not propigate an error for this
+			name, _ := resolveENSName(ctx, &ResolveENSNameInput{
 				Address: profile.Address,
-				Stats:   &[]StatisticInput{},
-			}
-			for _, stats := range *profile.Statistics {
-				*input.Stats = append(*input.Stats, StatisticInput{
-					Contract: stats.Contract,
-					Type:     stats.Type,
+			})
+
+			profile.ENSName = name
+		}()
+
+		go func() {
+			defer wg.Done()
+
+			nfts := []GetNonFungibleTokenInput{}
+			for _, nft := range *profile.NonFungibleTokens {
+				nfts = append(nfts, GetNonFungibleTokenInput{
+					Address: profile.Address,
+					NonFungibleToken: &NonFungibleTokenInput{
+						TokenId: nft.TokenId,
+						Contract: &ContractInput{
+							Blockchain: nft.Contract.Blockchain,
+							Address:    nft.Contract.Address,
+							Interface:  nft.Contract.Interface,
+						},
+					},
 				})
 			}
-			profile.Statistics = getAllStatistics(ctx, &input)
+
+			profile.NonFungibleTokens = getAllNonFungibleTokens(ctx, &GetAllNonFungibleTokensInput{
+				NonFungibleTokens: &nfts,
+			})
 		}()
 
 		go func() {
 			defer wg.Done()
-			name, err := resolveENSName(ctx, address)
-			if err != nil {
-				profile.ENSName = "" // Not all addresses have an ens name. We should not propigate an erro for this
-			} else {
-				profile.ENSName = name
+
+			tokens := []GetFungibleTokenInput{}
+			for _, token := range *profile.FungibleTokens {
+				tokens = append(tokens, GetFungibleTokenInput{
+					Address: profile.Address,
+					Token: &FungibleTokenInput{
+						Contract: &ContractInput{
+							Blockchain: token.Contract.Blockchain,
+							Address:    token.Contract.Address,
+							Interface:  token.Contract.Interface,
+						},
+					},
+				})
 			}
+
+			profile.FungibleTokens = getAllFungibleTokens(ctx, &GetAllFungibleTokensInput{
+				Tokens: &tokens,
+			})
+		}()
+
+		go func() {
+			defer wg.Done()
+
+			stats := []GetStatisticsInput{}
+			for _, stat := range *profile.Statistics {
+				stats = append(stats, GetStatisticsInput{
+					Address: profile.Address,
+					Statistic: &StatisticInput{
+						Type: stat.Type,
+						Contract: &ContractInput{
+							Blockchain: stat.Contract.Blockchain,
+							Address:    stat.Contract.Address,
+							Interface:  stat.Contract.Interface,
+						},
+					},
+				})
+			}
+
+			profile.Statistics = getAllStatistics(ctx, &GetAllStatisticsInput{
+				Stats: &stats,
+			})
 		}()
 
 		wg.Wait()

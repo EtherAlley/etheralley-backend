@@ -5,7 +5,5 @@ import (
 )
 
 func (hc *HttpController) healthRoute(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("."))
+	hc.presenter.PresentHealth(r.Context(), w)
 }

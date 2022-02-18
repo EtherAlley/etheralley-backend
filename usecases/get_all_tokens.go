@@ -8,44 +8,56 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-// fetch the full token info for each contract provided
-// we can use a simple slice here since each result in the go routine writes to its own index location
-// invalid contracts are discarded
+type GetAllFungibleTokensInput struct {
+	Tokens *[]GetFungibleTokenInput `validate:"required"`
+}
+
+// Get a slice of fungible tokens for the given contracts/address
+//
+// Fetch the full token info for each contract provided
+//
+// Invalid contracts will return a token with a zeroed balance
+type IGetAllFungibleTokensUseCase func(ctx context.Context, input *GetAllFungibleTokensInput) *[]entities.FungibleToken
+
 func NewGetAllFungibleTokens(
 	logger common.ILogger,
 	getFungibleToken IGetFungibleTokenUseCase,
 ) IGetAllFungibleTokensUseCase {
-	return func(ctx context.Context, address string, contracts *[]entities.Contract) *[]entities.FungibleToken {
+	return func(ctx context.Context, input *GetAllFungibleTokensInput) *[]entities.FungibleToken {
+		if err := common.ValidateStruct(input); err != nil {
+			return &[]entities.FungibleToken{}
+		}
+
 		var wg sync.WaitGroup
 
-		arr := make([]*entities.FungibleToken, len(*contracts))
+		tokens := make([]entities.FungibleToken, len(*input.Tokens))
 
-		for i, contract := range *contracts {
+		for i, t := range *input.Tokens {
 			wg.Add(1)
 
-			go func(i int, c entities.Contract) {
+			go func(i int, tokenInput GetFungibleTokenInput) {
 				defer wg.Done()
 
-				token, err := getFungibleToken(ctx, address, &c)
+				token, err := getFungibleToken(ctx, &tokenInput)
 
 				if err != nil {
-					logger.Errf(ctx, err, "invalid token: contract address %v chain %v", c.Address, c.Blockchain)
-					return
+					tokens[i] = entities.FungibleToken{
+						Contract: &entities.Contract{
+							Blockchain: tokenInput.Token.Contract.Blockchain,
+							Address:    tokenInput.Token.Contract.Address,
+							Interface:  tokenInput.Token.Contract.Interface,
+						},
+						Balance: "0",
+					}
+				} else {
+					tokens[i] = *token
 				}
 
-				arr[i] = token
-			}(i, contract)
+			}(i, t)
 		}
 
 		wg.Wait()
 
-		trimmedTokens := []entities.FungibleToken{}
-		for _, token := range arr {
-			if token != nil {
-				trimmedTokens = append(trimmedTokens, *token)
-			}
-		}
-
-		return &trimmedTokens
+		return &tokens
 	}
 }

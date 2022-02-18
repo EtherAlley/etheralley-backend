@@ -1,78 +1,43 @@
 package usecases
 
 import (
-	"context"
-
 	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-// get the profile for the provided address
-type IGetProfileUseCase func(ctx context.Context, address string) (*entities.Profile, error)
+type ProfileInput struct {
+	Address           string                   `json:"-" validate:"required,eth_addr"`
+	NonFungibleTokens *[]NonFungibleTokenInput `json:"non_fungible_tokens" validate:"required,dive"`
+	FungibleTokens    *[]FungibleTokenInput    `json:"fungible_tokens" validate:"required,dive"`
+	Statistics        *[]StatisticInput        `json:"statistics" validate:"required,dive"`
+	Interactions      *[]InteractionInput      `json:"interactions" validate:"required,dive"`
+}
 
-// get a default profile for the provided address
-type IGetDefaultProfileUseCase func(ctx context.Context, address string) (*entities.Profile, error)
+type ContractInput struct {
+	Blockchain common.Blockchain `json:"blockchain" validate:"required,oneof=ethereum polygon arbitrum optimism"`
+	Address    string            `json:"address" validate:"required,eth_addr"`
+	Interface  common.Interface  `json:"interface" validate:"required,oneof=ERC721 ERC1155 ERC20 ENS_REGISTRAR SUSHISWAP_EXCHANGE UNISWAP_V2_EXCHANGE  UNISWAP_V3_EXCHANGE"`
+}
 
-// save the provided profile
-type ISaveProfileUseCase func(ctx context.Context, address string, profile *entities.Profile) error
+type TransactionInput struct {
+	Id         string            `json:"id" validate:"required"`
+	Blockchain common.Blockchain `json:"blockchain" validate:"required,oneof=ethereum polygon arbitrum optimism"`
+}
 
-// get a challenge message for the provided address
-type IGetChallengeUseCase func(ctx context.Context, address string) (*entities.Challenge, error)
+type NonFungibleTokenInput struct {
+	Contract *ContractInput `json:"contract" validate:"required,dive"`
+	TokenId  string         `json:"token_id" validate:"required,numeric"`
+}
 
-// verify if the provided signature was signed with the correct address and signed the correct challenge message
-type IVerifyChallengeUseCase func(ctx context.Context, address string, sigHex string) error
-
-// resolve an address from an ens name
-type IResolveAddressUseCase func(ctx context.Context, ensName string) (address string, err error)
-
-// resolve an ens name for an address
-type IResolveENSNameUseCase func(ctx context.Context, address string) (name string, err error)
-
-// get the metadata and balance of an nft
-type IGetNonFungibleTokenUseCase func(ctx context.Context, address string, contract *entities.Contract, tokenId string) (*entities.NonFungibleToken, error)
-
-//get the metadata and balance of a slice of nfts
-type IGetAllNonFungibleTokensUseCase func(ctx context.Context, address string, partials *[]entities.NonFungibleToken) *[]entities.NonFungibleToken
-
-// get the metadata and balance of an nft
-type IGetFungibleTokenUseCase func(ctx context.Context, address string, contract *entities.Contract) (*entities.FungibleToken, error)
-
-// get a slice of fungible tokens for the given address and contracts
-type IGetAllFungibleTokensUseCase func(ctx context.Context, address string, contract *[]entities.Contract) *[]entities.FungibleToken
-
-// get the statistic for a given address and contract
-type IGetStatisticUseCase func(ctx context.Context, address string, contract *entities.Contract, statType common.StatisticType) (*entities.Statistic, error)
+type FungibleTokenInput struct {
+	Contract *ContractInput `json:"contract" validate:"required,dive"`
+}
 
 type StatisticInput struct {
-	Contract *entities.Contract   `validate:"required,dive"`
-	Type     common.StatisticType `validate:"required,oneof=SWAP"`
+	Contract *ContractInput       `json:"contract" validate:"required,dive"`
+	Type     common.StatisticType `json:"type" validate:"required,oneof=SWAP"`
 }
-
-type GetAllStatisticsInput struct {
-	Address string            `validate:"required,eth_addr"`
-	Stats   *[]StatisticInput `validate:"required,dive"`
-}
-
-// get all statistics for a given address and slice of contract
-type IGetAllStatisticsUseCase func(ctx context.Context, input *GetAllStatisticsInput) *[]entities.Statistic
 
 type InteractionInput struct {
-	Transaction *entities.Transaction `validate:"required,dive"`
-	Type        common.Interaction    `validate:"required,oneof=CONTRACT_CREATION SEND_ETHER"`
+	Transaction *TransactionInput  `json:"transaction" validate:"required,dive"`
+	Type        common.Interaction `json:"type" validate:"required,oneof=CONTRACT_CREATION SEND_ETHER"`
 }
-
-type GetInteractionInput struct {
-	Address     string            `validate:"required,eth_addr"`
-	Interaction *InteractionInput `validate:"required,dive"`
-}
-
-// get the interaction for a given transaction
-type IGetInteractionUseCase func(ctx context.Context, input *GetInteractionInput) (*entities.Interaction, error)
-
-type GetAllInteractionsInput struct {
-	Address      string              `validate:"required,eth_addr"`
-	Interactions *[]InteractionInput `validate:"required,dive"`
-}
-
-// get all interactions
-type IGetAllInteractionsUseCase func(ctx context.Context, input *GetAllInteractionsInput) *[]entities.Interaction

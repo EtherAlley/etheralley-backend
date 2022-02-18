@@ -8,27 +8,37 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
+type GetAllInteractionsInput struct {
+	Interactions *[]GetInteractionInput `validate:"required"`
+}
+
+// Get all interactions
+//
+// Invalid Interactions are removed from the returned slice
+type IGetAllInteractionsUseCase func(ctx context.Context, input *GetAllInteractionsInput) *[]entities.Interaction
+
 func NewGetAllInteractionsUseCase(
 	logger common.ILogger,
 	getInteraction IGetInteractionUseCase,
 ) IGetAllInteractionsUseCase {
 	return func(ctx context.Context, input *GetAllInteractionsInput) *[]entities.Interaction {
+		if err := common.ValidateStruct(input); err != nil {
+			return &[]entities.Interaction{}
+		}
+
 		var wg sync.WaitGroup
 
 		interactions := make([]*entities.Interaction, len(*input.Interactions))
 		for i, intrInput := range *input.Interactions {
 			wg.Add(1)
 
-			go func(i int, intr InteractionInput) {
+			go func(i int, intr GetInteractionInput) {
 				defer wg.Done()
 
-				interaction, err := getInteraction(ctx, &GetInteractionInput{
-					Address:     input.Address,
-					Interaction: &intr,
-				})
+				interaction, err := getInteraction(ctx, &intr)
 
 				if err != nil {
-					logger.Errf(ctx, err, "invalid input: transaction id %v blockchain %v type %v address %v", intr.Transaction.Id, intr.Transaction.Blockchain, intr.Type, input.Address)
+					logger.Errf(ctx, err, "invalid input: transaction id %v blockchain %v type %v address %v", intr.Interaction.Transaction.Id, intr.Interaction.Transaction.Blockchain, intr.Interaction.Type, intr.Address)
 					return
 				}
 
