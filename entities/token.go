@@ -1,7 +1,7 @@
 package entities
 
 type FungibleToken struct {
-	Contract *Contract `validate:"required"`
+	Contract *Contract
 	Balance  string
 	Metadata *FungibleMetadata
 }

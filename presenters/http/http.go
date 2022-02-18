@@ -166,6 +166,7 @@ func toTransactionJson(transaction *entities.Transaction) *transactiontJson {
 }
 
 type profileJson struct {
+	Address           string                  `json:"address"`
 	ENSName           string                  `json:"ens_name"`
 	NonFungibleTokens *[]nonFungibleTokenJson `json:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`

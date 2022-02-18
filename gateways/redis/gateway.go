@@ -30,7 +30,7 @@ func getFullKey(keys ...string) string {
 }
 
 type profileJson struct {
-	Address           string                  `json:"-"`
+	Address           string                  `json:"address"`
 	ENSName           string                  `json:"ens_name"`
 	NonFungibleTokens *[]nonFungibleTokenJson `json:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`

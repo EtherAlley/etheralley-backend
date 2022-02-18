@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/usecases"
 )
 
@@ -14,7 +13,7 @@ func (hc *HttpController) parseTransaction(next http.Handler) http.Handler {
 		query := r.URL.Query()
 		ctx := r.Context()
 
-		tx := &entities.Transaction{
+		tx := &usecases.TransactionInput{
 			Id:         query.Get("tx_id"),
 			Blockchain: query.Get("blockchain"),
 		}
@@ -28,12 +27,10 @@ func (hc *HttpController) getInteractionRoute(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 	query := r.URL.Query()
 
-	tx := ctx.Value(common.ContextKeyTransaction).(*entities.Transaction)
-
 	interaction, err := hc.getInteraction(ctx, &usecases.GetInteractionInput{
 		Address: query.Get("user_address"),
 		Interaction: &usecases.InteractionInput{
-			Transaction: tx,
+			Transaction: ctx.Value(common.ContextKeyTransaction).(*usecases.TransactionInput),
 			Type:        query.Get("type"),
 		},
 	})

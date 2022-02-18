@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/etheralley/etheralley-core-api/common"
+	"github.com/etheralley/etheralley-core-api/usecases"
 )
 
 func (hc *HttpController) authenticate(next http.Handler) http.Handler {
@@ -18,7 +19,10 @@ func (hc *HttpController) authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		err := hc.verifyChallenge(r.Context(), address, token[1])
+		err := hc.verifyChallenge(r.Context(), &usecases.VerifyChallengeInput{
+			Address: address,
+			SigHex:  token[1],
+		})
 
 		if err != nil {
 			hc.presenter.PresentUnathorized(ctx, w)

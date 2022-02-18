@@ -8,11 +8,24 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
+type GetAllStatisticsInput struct {
+	Stats *[]GetStatisticsInput `validate:"required"`
+}
+
+// Get all statistic data for a given slice of statistics
+//
+// Invalid contracts are discarded
+type IGetAllStatisticsUseCase func(ctx context.Context, input *GetAllStatisticsInput) *[]entities.Statistic
+
 func NewGetAllStatistics(
 	logger common.ILogger,
 	getStatistic IGetStatisticUseCase,
 ) IGetAllStatisticsUseCase {
 	return func(ctx context.Context, input *GetAllStatisticsInput) *[]entities.Statistic {
+		if err := common.ValidateStruct(input); err != nil {
+			return &[]entities.Statistic{}
+		}
+
 		var wg sync.WaitGroup
 
 		stats := make([]*entities.Statistic, len(*input.Stats))
@@ -20,15 +33,13 @@ func NewGetAllStatistics(
 		for i, s := range *input.Stats {
 			wg.Add(1)
 
-			go func(
-				i int,
-				s StatisticInput) {
+			go func(i int, statInput GetStatisticsInput) {
 				defer wg.Done()
 
-				stat, err := getStatistic(ctx, input.Address, s.Contract, s.Type)
+				stat, err := getStatistic(ctx, &statInput)
 
 				if err != nil {
-					logger.Errf(ctx, err, "invalid swaps contract: type %v address %v chain %v interface %v", s.Type, s.Contract.Address, s.Contract.Blockchain, s.Contract.Interface)
+					logger.Errf(ctx, err, "invalid swaps contract: type %v address %v chain %v interface %v", statInput.Statistic.Type, statInput.Address, statInput.Statistic.Contract.Blockchain, statInput.Statistic.Contract.Interface)
 					return
 				}
 

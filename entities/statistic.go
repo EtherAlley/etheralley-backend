@@ -3,8 +3,8 @@ package entities
 import "github.com/etheralley/etheralley-core-api/common"
 
 type Statistic struct {
-	Type     common.StatisticType `validate:"required,oneof=SWAP"`
-	Contract *Contract            `validate:"required"`
+	Type     common.StatisticType
+	Contract *Contract
 	Data     StatisticalData
 }
 

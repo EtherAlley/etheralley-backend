@@ -10,8 +10,16 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
-// fetch transaction data
-// validate transaction against interaction type
+type GetInteractionInput struct {
+	Address     string            `validate:"required,eth_addr"`
+	Interaction *InteractionInput `validate:"required,dive"`
+}
+
+// Get the transaction data for a given interaction input
+//
+// Validate transaction against interaction type
+type IGetInteractionUseCase func(ctx context.Context, input *GetInteractionInput) (*entities.Interaction, error)
+
 func NewGetInteractionUseCase(
 	logger common.ILogger,
 	blockchainGateway gateways.IBlockchainGateway,
@@ -21,13 +29,19 @@ func NewGetInteractionUseCase(
 			return nil, err
 		}
 
-		data, err := blockchainGateway.GetTransactionData(ctx, input.Interaction.Transaction)
+		address := input.Address
+		tx := &entities.Transaction{
+			Id:         input.Interaction.Transaction.Id,
+			Blockchain: input.Interaction.Transaction.Blockchain,
+		}
+
+		data, err := blockchainGateway.GetTransactionData(ctx, tx)
 
 		if err != nil {
 			return nil, err
 		}
 
-		err = validateTransaction(input.Address, data)
+		err = validateTransaction(address, data)
 
 		if err != nil {
 			return nil, err
@@ -48,7 +62,7 @@ func NewGetInteractionUseCase(
 		}
 
 		interaction := &entities.Interaction{
-			Transaction:     input.Interaction.Transaction,
+			Transaction:     tx,
 			Type:            input.Interaction.Type,
 			Timestamp:       data.Timestamp,
 			TransactionData: data,

@@ -8,6 +8,13 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
+type ResolveAddressInput struct {
+	Value string `validate:"required"`
+}
+
+// resolve an address from an ens name
+type IResolveAddressUseCase func(ctx context.Context, input *ResolveAddressInput) (address string, err error)
+
 // Attempts to detect provided input format and resolve ens address
 //
 // Provided input is normalized to avoid user error
@@ -23,12 +30,16 @@ func NewResolveENSAddress(
 	blockchainGateway gateways.IBlockchainGateway,
 	cacheGateway gateways.ICacheGateway,
 ) IResolveAddressUseCase {
-	return func(ctx context.Context, input string) (string, error) {
-		input = strings.ToLower(input)
+	return func(ctx context.Context, input *ResolveAddressInput) (string, error) {
+		if err := common.ValidateStruct(input); err != nil {
+			return "", err
+		}
 
-		if strings.Contains(input, ".") {
+		value := strings.ToLower(input.Value)
 
-			address, err := cacheGateway.GetENSAddressFromName(ctx, input)
+		if strings.Contains(value, ".") {
+
+			address, err := cacheGateway.GetENSAddressFromName(ctx, value)
 
 			if err == nil {
 				logger.Debugf(ctx, "cache hit for ens name %v -> address %v", input, address)
@@ -37,7 +48,7 @@ func NewResolveENSAddress(
 
 			logger.Debugf(ctx, "cache miss for getting address from ens name %v", input)
 
-			address, err = blockchainGateway.GetENSAddressFromName(ctx, input)
+			address, err = blockchainGateway.GetENSAddressFromName(ctx, value)
 
 			if err != nil {
 				logger.Debugf(ctx, "err getting address from ens name %v %v", input, err)
@@ -48,15 +59,15 @@ func NewResolveENSAddress(
 
 			address = strings.ToLower(address)
 
-			cacheGateway.SaveENSAddress(ctx, input, address)
+			cacheGateway.SaveENSAddress(ctx, value, address)
 
 			return address, err
 		}
 
-		if err := common.ValidateField(input, `required,eth_addr`); err != nil {
-			return input, err
+		if err := common.ValidateField(value, `required,eth_addr`); err != nil {
+			return value, err
 		}
 
-		return input, nil
+		return value, nil
 	}
 }

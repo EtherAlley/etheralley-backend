@@ -5,33 +5,36 @@ import (
 	"net/http"
 
 	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/entities"
+	"github.com/etheralley/etheralley-core-api/usecases"
 )
 
 func (hc *HttpController) parseContract(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query()
 		ctx := r.Context()
+		query := r.URL.Query()
 
-		contract := &entities.Contract{
+		contract := &usecases.ContractInput{
 			Address:    query.Get("contract"),
 			Interface:  query.Get("interface"),
 			Blockchain: query.Get("blockchain"),
 		}
 
 		ctx = context.WithValue(ctx, common.ContextKeyContract, contract)
+
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 func (hc *HttpController) getTokenRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contract := ctx.Value(common.ContextKeyContract).(*entities.Contract)
-
 	query := r.URL.Query()
-	address := query.Get("user_address")
 
-	token, err := hc.getFungibleToken(ctx, address, contract)
+	token, err := hc.getFungibleToken(ctx, &usecases.GetFungibleTokenInput{
+		Address: query.Get("user_address"),
+		Token: &usecases.FungibleTokenInput{
+			Contract: ctx.Value(common.ContextKeyContract).(*usecases.ContractInput),
+		},
+	})
 
 	if err != nil {
 		hc.presenter.PresentBadRequest(ctx, w, err)
@@ -43,13 +46,15 @@ func (hc *HttpController) getTokenRoute(w http.ResponseWriter, r *http.Request) 
 
 func (hc *HttpController) getNFTRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contract := ctx.Value(common.ContextKeyContract).(*entities.Contract)
-
 	query := r.URL.Query()
-	address := query.Get("user_address")
-	tokenId := query.Get("token_id")
 
-	nft, err := hc.getNonFungibleToken(ctx, address, contract, tokenId)
+	nft, err := hc.getNonFungibleToken(ctx, &usecases.GetNonFungibleTokenInput{
+		Address: query.Get("user_address"),
+		NonFungibleToken: &usecases.NonFungibleTokenInput{
+			TokenId:  query.Get("token_id"),
+			Contract: ctx.Value(common.ContextKeyContract).(*usecases.ContractInput),
+		},
+	})
 
 	if err != nil {
 		hc.presenter.PresentBadRequest(ctx, w, err)
@@ -61,13 +66,15 @@ func (hc *HttpController) getNFTRoute(w http.ResponseWriter, r *http.Request) {
 
 func (hc *HttpController) getStatisticRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contract := ctx.Value(common.ContextKeyContract).(*entities.Contract)
-
 	query := r.URL.Query()
-	address := query.Get("user_address")
-	statType := query.Get("type")
 
-	statistic, err := hc.getStatistic(ctx, address, contract, statType)
+	statistic, err := hc.getStatistic(ctx, &usecases.GetStatisticsInput{
+		Address: query.Get("user_address"),
+		Statistic: &usecases.StatisticInput{
+			Contract: ctx.Value(common.ContextKeyContract).(*usecases.ContractInput),
+			Type:     query.Get("type"),
+		},
+	})
 
 	if err != nil {
 		hc.presenter.PresentBadRequest(ctx, w, err)

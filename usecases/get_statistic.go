@@ -9,13 +9,29 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
+type GetStatisticsInput struct {
+	Address   string          `validate:"required,eth_addr"`
+	Statistic *StatisticInput `validate:"required,dive"`
+}
+
+// get the statistic for a given address and contract
+type IGetStatisticUseCase func(ctx context.Context, input *GetStatisticsInput) (*entities.Statistic, error)
+
 func NewGetStatistic(
 	logger common.ILogger,
 	blockchainIndexGateway gateways.IBlockchainIndexGateway,
 ) IGetStatisticUseCase {
-	return func(ctx context.Context, address string, contract *entities.Contract, statType common.StatisticType) (*entities.Statistic, error) {
-		if err := common.ValidateStruct(contract); err != nil {
+	return func(ctx context.Context, input *GetStatisticsInput) (*entities.Statistic, error) {
+		if err := common.ValidateStruct(input); err != nil {
 			return nil, err
+		}
+
+		address := input.Address
+		statType := input.Statistic.Type
+		contract := &entities.Contract{
+			Blockchain: input.Statistic.Contract.Blockchain,
+			Address:    input.Statistic.Contract.Address,
+			Interface:  input.Statistic.Contract.Interface,
 		}
 
 		var data interface{}

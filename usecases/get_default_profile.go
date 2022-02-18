@@ -9,6 +9,13 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
+type GetDefaultProfileInput struct {
+	Address string `validate:"required,eth_addr"`
+}
+
+// get a default profile for the provided address
+type IGetDefaultProfileUseCase func(ctx context.Context, input *GetDefaultProfileInput) (*entities.Profile, error)
+
 // attempt to provide a pleasent default profile when none has been configured.
 // fetch nfts and stats from the graph and fetch tokens from a fixed list.
 // fetch primary ens name for address if configured
@@ -20,13 +27,13 @@ func NewGetDefaultProfile(
 	getAllStatistics IGetAllStatisticsUseCase,
 	resolveENSName IResolveENSNameUseCase,
 ) IGetDefaultProfileUseCase {
-	return func(ctx context.Context, address string) (*entities.Profile, error) {
-		if err := common.ValidateField(address, `required,eth_addr`); err != nil {
+	return func(ctx context.Context, input *GetDefaultProfileInput) (*entities.Profile, error) {
+		if err := common.ValidateStruct(input); err != nil {
 			return nil, err
 		}
 
 		profile := &entities.Profile{
-			Address:      address,
+			Address:      input.Address,
 			Interactions: &[]entities.Interaction{},
 		}
 		var wg sync.WaitGroup
@@ -34,7 +41,18 @@ func NewGetDefaultProfile(
 
 		go func() {
 			defer wg.Done()
-			profile.NonFungibleTokens = blochchainIndexGateway.GetNonFungibleTokens(ctx, address)
+
+			// Not all addresses have an ens name. We should not propigate an error for this
+			name, _ := resolveENSName(ctx, &ResolveENSNameInput{
+				Address: input.Address,
+			})
+
+			profile.ENSName = name
+		}()
+
+		go func() {
+			defer wg.Done()
+			profile.NonFungibleTokens = blochchainIndexGateway.GetNonFungibleTokens(ctx, input.Address)
 		}()
 
 		go func() {
@@ -61,52 +79,54 @@ func NewGetDefaultProfile(
 				}
 			}
 
-			contracts := []entities.Contract{}
+			tokens := []GetFungibleTokenInput{}
 			for _, address := range knownContracts {
-				contracts = append(contracts, entities.Contract{
-					Address:    address,
-					Blockchain: common.ETHEREUM,
-					Interface:  common.ERC20,
+				tokens = append(tokens, GetFungibleTokenInput{
+					Address: input.Address,
+					Token: &FungibleTokenInput{
+						Contract: &ContractInput{
+							Blockchain: common.ETHEREUM,
+							Address:    address,
+							Interface:  common.ERC20,
+						},
+					},
 				})
 			}
 
-			profile.FungibleTokens = getAllFungibleTokens(ctx, address, &contracts)
+			profile.FungibleTokens = getAllFungibleTokens(ctx, &GetAllFungibleTokensInput{
+				Tokens: &tokens,
+			})
 		}()
 
 		go func() {
 			defer wg.Done()
 			input := GetAllStatisticsInput{
-				Address: address,
-				Stats: &[]StatisticInput{
+				Stats: &[]GetStatisticsInput{
 					{
-						Type: common.SWAP,
-						Contract: &entities.Contract{
-							Address:    common.ZERO_ADDRESS,
-							Interface:  common.UNISWAP_V2_EXCHANGE,
-							Blockchain: common.ETHEREUM,
+						Address: input.Address,
+						Statistic: &StatisticInput{
+							Type: common.SWAP,
+							Contract: &ContractInput{
+								Address:    common.ZERO_ADDRESS,
+								Interface:  common.UNISWAP_V2_EXCHANGE,
+								Blockchain: common.ETHEREUM,
+							},
 						},
 					},
 					{
-						Type: common.SWAP,
-						Contract: &entities.Contract{
-							Address:    common.ZERO_ADDRESS,
-							Interface:  common.SUSHISWAP_EXCHANGE,
-							Blockchain: common.ETHEREUM,
+						Address: input.Address,
+						Statistic: &StatisticInput{
+							Type: common.SWAP,
+							Contract: &ContractInput{
+								Address:    common.ZERO_ADDRESS,
+								Interface:  common.SUSHISWAP_EXCHANGE,
+								Blockchain: common.ETHEREUM,
+							},
 						},
 					},
 				},
 			}
 			profile.Statistics = getAllStatistics(ctx, &input)
-		}()
-
-		go func() {
-			defer wg.Done()
-			name, err := resolveENSName(ctx, address)
-			if err != nil {
-				profile.ENSName = "" // Not all addresses have an ens name. We should not propigate an erro for this
-			} else {
-				profile.ENSName = name
-			}
 		}()
 
 		wg.Wait()

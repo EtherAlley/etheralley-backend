@@ -5,14 +5,16 @@ import (
 	"net/http"
 
 	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/entities"
+	"github.com/etheralley/etheralley-core-api/usecases"
 )
 
 func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	address := ctx.Value(common.ContextKeyAddress).(string)
 
-	profile, err := hc.getProfile(ctx, address)
+	profile, err := hc.getProfile(ctx, &usecases.GetProfileInput{
+		Address: address,
+	})
 
 	if err != nil {
 		hc.presenter.PresentBadRequest(ctx, w, err)
@@ -24,9 +26,8 @@ func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *htt
 
 func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	address := ctx.Value(common.ContextKeyAddress).(string)
 
-	profile := &entities.Profile{}
+	profile := &usecases.ProfileInput{}
 	err := json.NewDecoder(r.Body).Decode(profile)
 
 	if err != nil {
@@ -34,7 +35,9 @@ func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = hc.saveProfile(ctx, address, profile)
+	err = hc.saveProfile(ctx, &usecases.SaveProfileInput{
+		Profile: profile,
+	})
 
 	if err != nil {
 		hc.presenter.PresentBadRequest(ctx, w, err)

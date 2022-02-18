@@ -1,8 +1,8 @@
 package entities
 
 type NonFungibleToken struct {
-	Contract *Contract `validate:"required"`
-	TokenId  string    `validate:"required,numeric"`
+	Contract *Contract
+	TokenId  string
 	Balance  string
 	Metadata *NonFungibleMetadata
 }

@@ -8,33 +8,45 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-// fetch the full token info for each contract provided
-// we can use a simple slice here since each result in the go routine writes to its own index location
-// invalid contracts are discarded
+type GetAllFungibleTokensInput struct {
+	Tokens *[]GetFungibleTokenInput `validate:"required"`
+}
+
+// Get a slice of fungible tokens for the given contracts/address
+//
+// Fetch the full token info for each contract provided
+//
+// Invalid contracts are discarded
+type IGetAllFungibleTokensUseCase func(ctx context.Context, input *GetAllFungibleTokensInput) *[]entities.FungibleToken
+
 func NewGetAllFungibleTokens(
 	logger common.ILogger,
 	getFungibleToken IGetFungibleTokenUseCase,
 ) IGetAllFungibleTokensUseCase {
-	return func(ctx context.Context, address string, contracts *[]entities.Contract) *[]entities.FungibleToken {
+	return func(ctx context.Context, input *GetAllFungibleTokensInput) *[]entities.FungibleToken {
+		if err := common.ValidateStruct(input); err != nil {
+			return &[]entities.FungibleToken{}
+		}
+
 		var wg sync.WaitGroup
 
-		arr := make([]*entities.FungibleToken, len(*contracts))
+		arr := make([]*entities.FungibleToken, len(*input.Tokens))
 
-		for i, contract := range *contracts {
+		for i, t := range *input.Tokens {
 			wg.Add(1)
 
-			go func(i int, c entities.Contract) {
+			go func(i int, tokenInput GetFungibleTokenInput) {
 				defer wg.Done()
 
-				token, err := getFungibleToken(ctx, address, &c)
+				token, err := getFungibleToken(ctx, &tokenInput)
 
 				if err != nil {
-					logger.Errf(ctx, err, "invalid token: contract address %v chain %v", c.Address, c.Blockchain)
+					logger.Errf(ctx, err, "invalid token: contract address %v chain %v interface %v", tokenInput.Token.Contract.Address, tokenInput.Token.Contract.Blockchain, tokenInput.Token.Contract.Interface)
 					return
 				}
 
 				arr[i] = token
-			}(i, contract)
+			}(i, t)
 		}
 
 		wg.Wait()

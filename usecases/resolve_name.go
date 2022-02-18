@@ -8,6 +8,13 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
+type ResolveENSNameInput struct {
+	Address string `validate:"required,eth_addr"`
+}
+
+// resolve an ens name for an address
+type IResolveENSNameUseCase func(ctx context.Context, input *ResolveENSNameInput) (name string, err error)
+
 // Provided address is normalized to avoid user error
 //
 // Resolved values are cached
@@ -16,8 +23,12 @@ func NewResolveENSName(
 	blockchainGateway gateways.IBlockchainGateway,
 	cacheGateway gateways.ICacheGateway,
 ) IResolveENSNameUseCase {
-	return func(ctx context.Context, address string) (string, error) {
-		address = strings.ToLower(address)
+	return func(ctx context.Context, input *ResolveENSNameInput) (string, error) {
+		if err := common.ValidateStruct(input); err != nil {
+			return "", err
+		}
+
+		address := strings.ToLower(input.Address)
 
 		name, err := cacheGateway.GetENSNameFromAddress(ctx, address)
 

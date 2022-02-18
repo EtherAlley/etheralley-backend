@@ -3,8 +3,8 @@ package entities
 import "github.com/etheralley/etheralley-core-api/common"
 
 type Transaction struct {
-	Id         string            `validate:"required"`
-	Blockchain common.Blockchain `validate:"required,oneof=ethereum polygon arbitrum optimism"`
+	Id         string
+	Blockchain common.Blockchain
 }
 
 type TransactionData struct {
