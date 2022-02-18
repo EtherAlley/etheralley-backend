@@ -20,7 +20,7 @@ type GetNonFungibleTokenInput struct {
 //
 // Metadata is an optional implementation in ERC721 and ERC1155 and may not exist.
 // Its also possible that we simply have issues following the uri.
-// In these scenarios we will return nil metadata
+// In these scenarios we will return nil metadata and not bubble up an err
 type IGetNonFungibleTokenUseCase func(ctx context.Context, input *GetNonFungibleTokenInput) (*entities.NonFungibleToken, error)
 
 func NewGetNonFungibleToken(

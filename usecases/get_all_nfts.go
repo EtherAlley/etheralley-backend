@@ -16,7 +16,7 @@ type GetAllNonFungibleTokensInput struct {
 //
 // For transient info for each nft provided concurrently
 //
-// Invalid contracts are discarded
+// Invalid contracts have a zeroed balance and nil metadata returned
 type IGetAllNonFungibleTokensUseCase func(ctx context.Context, input *GetAllNonFungibleTokensInput) *[]entities.NonFungibleToken
 
 func NewGetAllNonFungibleTokens(
@@ -29,8 +29,8 @@ func NewGetAllNonFungibleTokens(
 		}
 
 		var wg sync.WaitGroup
+		nfts := make([]entities.NonFungibleToken, len(*input.NonFungibleTokens))
 
-		nfts := make([]*entities.NonFungibleToken, len(*input.NonFungibleTokens))
 		for i, n := range *input.NonFungibleTokens {
 			wg.Add(1)
 
@@ -40,24 +40,24 @@ func NewGetAllNonFungibleTokens(
 				nft, err := getNonFungibleToken(ctx, &nftInput)
 
 				if err != nil {
-					logger.Errf(ctx, err, "invalid nft: contract address %v token id %v chain %v", nftInput.NonFungibleToken.Contract.Address, nftInput.NonFungibleToken.TokenId, nftInput.NonFungibleToken.Contract.Blockchain)
-					return
+					nfts[i] = entities.NonFungibleToken{
+						TokenId: nftInput.NonFungibleToken.TokenId,
+						Contract: &entities.Contract{
+							Blockchain: nftInput.NonFungibleToken.Contract.Blockchain,
+							Address:    nftInput.NonFungibleToken.Contract.Address,
+							Interface:  nftInput.NonFungibleToken.Contract.Interface,
+						},
+						Balance:  "0",
+						Metadata: nil,
+					}
+				} else {
+					nfts[i] = *nft
 				}
-
-				nfts[i] = nft
-
 			}(i, n)
 		}
 
 		wg.Wait()
 
-		trimmedNfts := []entities.NonFungibleToken{}
-		for _, nft := range nfts {
-			if nft != nil {
-				trimmedNfts = append(trimmedNfts, *nft)
-			}
-		}
-
-		return &trimmedNfts
+		return &nfts
 	}
 }

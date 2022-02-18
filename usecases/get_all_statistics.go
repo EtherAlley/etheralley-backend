@@ -14,7 +14,7 @@ type GetAllStatisticsInput struct {
 
 // Get all statistic data for a given slice of statistics
 //
-// Invalid contracts are discarded
+// Invalid contracts will return a statistic with nil Data
 type IGetAllStatisticsUseCase func(ctx context.Context, input *GetAllStatisticsInput) *[]entities.Statistic
 
 func NewGetAllStatistics(
@@ -28,7 +28,7 @@ func NewGetAllStatistics(
 
 		var wg sync.WaitGroup
 
-		stats := make([]*entities.Statistic, len(*input.Stats))
+		stats := make([]entities.Statistic, len(*input.Stats))
 
 		for i, s := range *input.Stats {
 			wg.Add(1)
@@ -39,23 +39,24 @@ func NewGetAllStatistics(
 				stat, err := getStatistic(ctx, &statInput)
 
 				if err != nil {
-					logger.Errf(ctx, err, "invalid swaps contract: type %v address %v chain %v interface %v", statInput.Statistic.Type, statInput.Address, statInput.Statistic.Contract.Blockchain, statInput.Statistic.Contract.Interface)
-					return
+					stats[i] = entities.Statistic{
+						Type: statInput.Statistic.Type,
+						Contract: &entities.Contract{
+							Blockchain: statInput.Statistic.Contract.Blockchain,
+							Address:    statInput.Statistic.Contract.Address,
+							Interface:  statInput.Statistic.Contract.Interface,
+						},
+						Data: nil,
+					}
+				} else {
+					stats[i] = *stat
 				}
 
-				stats[i] = stat
 			}(i, s)
 		}
 
 		wg.Wait()
 
-		trimmedStats := []entities.Statistic{}
-		for _, stat := range stats {
-			if stat != nil {
-				trimmedStats = append(trimmedStats, *stat)
-			}
-		}
-
-		return &trimmedStats
+		return &stats
 	}
 }

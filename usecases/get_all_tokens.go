@@ -16,7 +16,7 @@ type GetAllFungibleTokensInput struct {
 //
 // Fetch the full token info for each contract provided
 //
-// Invalid contracts are discarded
+// Invalid contracts will return a token with a zeroed balance
 type IGetAllFungibleTokensUseCase func(ctx context.Context, input *GetAllFungibleTokensInput) *[]entities.FungibleToken
 
 func NewGetAllFungibleTokens(
@@ -30,7 +30,7 @@ func NewGetAllFungibleTokens(
 
 		var wg sync.WaitGroup
 
-		arr := make([]*entities.FungibleToken, len(*input.Tokens))
+		tokens := make([]entities.FungibleToken, len(*input.Tokens))
 
 		for i, t := range *input.Tokens {
 			wg.Add(1)
@@ -41,23 +41,23 @@ func NewGetAllFungibleTokens(
 				token, err := getFungibleToken(ctx, &tokenInput)
 
 				if err != nil {
-					logger.Errf(ctx, err, "invalid token: contract address %v chain %v interface %v", tokenInput.Token.Contract.Address, tokenInput.Token.Contract.Blockchain, tokenInput.Token.Contract.Interface)
-					return
+					tokens[i] = entities.FungibleToken{
+						Contract: &entities.Contract{
+							Blockchain: tokenInput.Token.Contract.Blockchain,
+							Address:    tokenInput.Token.Contract.Address,
+							Interface:  tokenInput.Token.Contract.Interface,
+						},
+						Balance: "0",
+					}
+				} else {
+					tokens[i] = *token
 				}
 
-				arr[i] = token
 			}(i, t)
 		}
 
 		wg.Wait()
 
-		trimmedTokens := []entities.FungibleToken{}
-		for _, token := range arr {
-			if token != nil {
-				trimmedTokens = append(trimmedTokens, *token)
-			}
-		}
-
-		return &trimmedTokens
+		return &tokens
 	}
 }
