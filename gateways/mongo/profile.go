@@ -74,6 +74,7 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 				Blockchain: interaction.Transaction.Blockchain,
 				Id:         interaction.Transaction.Id,
 			},
+			Timestamp: interaction.Timestamp,
 		})
 	}
 	return &entities.Profile{
@@ -126,6 +127,7 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 				Blockchain: interaction.Transaction.Blockchain,
 				Id:         interaction.Transaction.Id,
 			},
+			Timestamp: interaction.Timestamp,
 		})
 	}
 	return &profileBson{

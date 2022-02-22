@@ -93,16 +93,20 @@ func toFungibleJson(token *entities.FungibleToken) *fungibleTokenJson {
 }
 
 func toNonFungibleJson(nft *entities.NonFungibleToken) *nonFungibleTokenJson {
-	return &nonFungibleTokenJson{
-		Contract: toContractJson(nft.Contract),
-		TokenId:  nft.TokenId,
-		Balance:  nft.Balance,
-		Metadata: &nonFungibleMetadataJson{
+	var metadata *nonFungibleMetadataJson
+	if nft.Metadata != nil {
+		metadata = &nonFungibleMetadataJson{
 			Name:        nft.Metadata.Name,
 			Description: nft.Metadata.Description,
 			Image:       nft.Metadata.Image,
 			Attributes:  nft.Metadata.Attributes,
-		},
+		}
+	}
+	return &nonFungibleTokenJson{
+		Contract: toContractJson(nft.Contract),
+		TokenId:  nft.TokenId,
+		Balance:  nft.Balance,
+		Metadata: metadata,
 	}
 }
 

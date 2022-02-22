@@ -46,6 +46,15 @@ func (g *Gateway) SaveProfile(ctx context.Context, profile *entities.Profile) er
 func fromProfileJson(profileJson *profileJson) *entities.Profile {
 	nfts := []entities.NonFungibleToken{}
 	for _, nft := range *profileJson.NonFungibleTokens {
+		var metadata *entities.NonFungibleMetadata
+		if nft.Metadata != nil {
+			metadata = &entities.NonFungibleMetadata{
+				Name:        nft.Metadata.Name,
+				Description: nft.Metadata.Description,
+				Image:       nft.Metadata.Image,
+				Attributes:  nft.Metadata.Attributes,
+			}
+		}
 		nfts = append(nfts, entities.NonFungibleToken{
 			TokenId: nft.TokenId,
 			Contract: &entities.Contract{
@@ -53,13 +62,8 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 				Address:    nft.Contract.Address,
 				Interface:  nft.Contract.Interface,
 			},
-			Balance: nft.Balance,
-			Metadata: &entities.NonFungibleMetadata{
-				Name:        nft.Metadata.Name,
-				Description: nft.Metadata.Description,
-				Image:       nft.Metadata.Image,
-				Attributes:  nft.Metadata.Attributes,
-			},
+			Balance:  nft.Balance,
+			Metadata: metadata,
 		})
 	}
 	tokens := []entities.FungibleToken{}
@@ -114,6 +118,15 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 func toProfileJson(profile *entities.Profile) *profileJson {
 	nfts := []nonFungibleTokenJson{}
 	for _, nft := range *profile.NonFungibleTokens {
+		var metadata *nonFungibleMetadataJson
+		if nft.Metadata != nil {
+			metadata = &nonFungibleMetadataJson{
+				Name:        nft.Metadata.Name,
+				Description: nft.Metadata.Description,
+				Image:       nft.Metadata.Image,
+				Attributes:  nft.Metadata.Attributes,
+			}
+		}
 		nfts = append(nfts, nonFungibleTokenJson{
 			TokenId: nft.TokenId,
 			Contract: &contractJson{
@@ -121,13 +134,8 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 				Address:    nft.Contract.Address,
 				Interface:  nft.Contract.Interface,
 			},
-			Balance: nft.Balance,
-			Metadata: &nonFungibleMetadataJson{
-				Name:        nft.Metadata.Name,
-				Description: nft.Metadata.Description,
-				Image:       nft.Metadata.Image,
-				Attributes:  nft.Metadata.Attributes,
-			},
+			Balance:  nft.Balance,
+			Metadata: metadata,
 		})
 	}
 	tokens := []fungibleTokenJson{}

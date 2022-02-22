@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -119,23 +118,4 @@ func (hc *HttpController) Start() error {
 func (hc *HttpController) Exit() {
 	ctx := context.Background()
 	hc.logger.Error(ctx, "detected exit in http controller")
-}
-
-// response rendering
-type ErrBody struct {
-	Message string `json:"message"`
-}
-
-func RenderError(w http.ResponseWriter, statusCode int, msg string) {
-	Render(w, statusCode, ErrBody{Message: msg})
-}
-
-func RenderNoBody(w http.ResponseWriter, statusCode int) {
-	w.WriteHeader(statusCode)
-}
-
-func Render(w http.ResponseWriter, statusCode int, body interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(body)
 }
