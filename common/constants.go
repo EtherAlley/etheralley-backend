@@ -34,6 +34,20 @@ const (
 	SWAP StatisticType = "SWAP"
 )
 
+type BadgeType = string
+
+const (
+	NON_FUNGIBLE_TOKEN BadgeType = "non_fungible_tokens"
+	FUNGIBLE_TOKEN     BadgeType = "fungible_tokens"
+	STATISTICS                   = "statistics"
+)
+
+type AchievementType = string
+
+const (
+	INTERACTIONS AchievementType = "interactions"
+)
+
 type Address = string
 
 const (

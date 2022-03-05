@@ -66,6 +66,7 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 			Metadata: metadata,
 		})
 	}
+
 	tokens := []entities.FungibleToken{}
 	for _, token := range *profileJson.FungibleTokens {
 		tokens = append(tokens, entities.FungibleToken{
@@ -82,6 +83,7 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 			},
 		})
 	}
+
 	stats := []entities.Statistic{}
 	for _, stat := range *profileJson.Statistics {
 		stats = append(stats, entities.Statistic{
@@ -91,9 +93,10 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 				Address:    stat.Contract.Address,
 				Interface:  stat.Contract.Interface,
 			},
-			Data: &stat.Data,
+			Data: stat.Data,
 		})
 	}
+
 	interactions := []entities.Interaction{}
 	for _, interaction := range *profileJson.Interactions {
 		interactions = append(interactions, entities.Interaction{
@@ -105,9 +108,70 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 			Timestamp: interaction.Timestamp,
 		})
 	}
+
+	var config *entities.DisplayConfig
+	if profileJson.DisplayConfig != nil {
+		config = &entities.DisplayConfig{
+			Colors: &entities.DisplayColors{
+				Primary:       profileJson.DisplayConfig.Colors.Primary,
+				Secondary:     profileJson.DisplayConfig.Colors.Secondary,
+				PrimaryText:   profileJson.DisplayConfig.Colors.PrimaryText,
+				SecondaryText: profileJson.DisplayConfig.Colors.SecondaryText,
+			},
+			Text: &entities.DisplayText{
+				Title:       profileJson.DisplayConfig.Text.Title,
+				Description: profileJson.DisplayConfig.Text.Description,
+			},
+			Picture: &entities.DisplayPicture{},
+			Achievements: &entities.DisplayAchievements{
+				Text:  profileJson.DisplayConfig.Achievements.Text,
+				Items: &[]entities.DisplayAchievement{},
+			},
+			Groups: &[]entities.DisplayGroup{},
+		}
+
+		if profileJson.DisplayConfig.Picture.Item != nil {
+			config.Picture.Item = &entities.DisplayItem{
+				Id:    profileJson.DisplayConfig.Picture.Item.Id,
+				Index: profileJson.DisplayConfig.Picture.Item.Index,
+				Type:  profileJson.DisplayConfig.Picture.Item.Type,
+			}
+		}
+
+		for _, achievement := range *profileJson.DisplayConfig.Achievements.Items {
+			items := append(*config.Achievements.Items, entities.DisplayAchievement{
+				Id:    achievement.Id,
+				Index: achievement.Index,
+				Type:  achievement.Type,
+			})
+			config.Achievements.Items = &items
+		}
+
+		for _, groupJson := range *profileJson.DisplayConfig.Groups {
+			group := entities.DisplayGroup{
+				Id:    groupJson.Id,
+				Text:  groupJson.Text,
+				Items: &[]entities.DisplayItem{},
+			}
+
+			for _, item := range *groupJson.Items {
+				items := append(*group.Items, entities.DisplayItem{
+					Id:    item.Id,
+					Index: item.Index,
+					Type:  item.Type,
+				})
+				group.Items = &items
+			}
+
+			groups := append(*config.Groups, group)
+			config.Groups = &groups
+		}
+	}
+
 	return &entities.Profile{
 		Address:           profileJson.Address,
 		ENSName:           profileJson.ENSName,
+		DisplayConfig:     config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,
 		Statistics:        &stats,
@@ -138,6 +202,7 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 			Metadata: metadata,
 		})
 	}
+
 	tokens := []fungibleTokenJson{}
 	for _, token := range *profile.FungibleTokens {
 		tokens = append(tokens, fungibleTokenJson{
@@ -154,6 +219,7 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 			},
 		})
 	}
+
 	stats := []statisticJson{}
 	for _, stat := range *profile.Statistics {
 		stats = append(stats, statisticJson{
@@ -166,6 +232,7 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 			Data: stat.Data,
 		})
 	}
+
 	interactions := []interactionJson{}
 	for _, interaction := range *profile.Interactions {
 		interactions = append(interactions, interactionJson{
@@ -177,9 +244,70 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 			Timestamp: interaction.Timestamp,
 		})
 	}
+
+	var config *displayConfigJson
+	if profile.DisplayConfig != nil {
+		config = &displayConfigJson{
+			Colors: &displayColorsJson{
+				Primary:       profile.DisplayConfig.Colors.Primary,
+				Secondary:     profile.DisplayConfig.Colors.Secondary,
+				PrimaryText:   profile.DisplayConfig.Colors.PrimaryText,
+				SecondaryText: profile.DisplayConfig.Colors.SecondaryText,
+			},
+			Text: &displayTextJson{
+				Title:       profile.DisplayConfig.Text.Title,
+				Description: profile.DisplayConfig.Text.Description,
+			},
+			Picture: &displayPictureJson{},
+			Achievements: &displayAchievementsJson{
+				Text:  profile.DisplayConfig.Achievements.Text,
+				Items: &[]displayAchievementJson{},
+			},
+			Groups: &[]displayGroupJson{},
+		}
+
+		if profile.DisplayConfig.Picture.Item != nil {
+			config.Picture.Item = &displayItemJson{
+				Id:    profile.DisplayConfig.Picture.Item.Id,
+				Index: profile.DisplayConfig.Picture.Item.Index,
+				Type:  profile.DisplayConfig.Picture.Item.Type,
+			}
+		}
+
+		for _, achievement := range *profile.DisplayConfig.Achievements.Items {
+			items := append(*config.Achievements.Items, displayAchievementJson{
+				Id:    achievement.Id,
+				Index: achievement.Index,
+				Type:  achievement.Type,
+			})
+			config.Achievements.Items = &items
+		}
+
+		for _, group := range *profile.DisplayConfig.Groups {
+			groupJson := displayGroupJson{
+				Id:    group.Id,
+				Text:  group.Text,
+				Items: &[]displayItemJson{},
+			}
+
+			for _, item := range *group.Items {
+				items := append(*groupJson.Items, displayItemJson{
+					Id:    item.Id,
+					Index: item.Index,
+					Type:  item.Type,
+				})
+				groupJson.Items = &items
+			}
+
+			groups := append(*config.Groups, groupJson)
+			config.Groups = &groups
+		}
+	}
+
 	return &profileJson{
 		Address:           profile.Address,
 		ENSName:           profile.ENSName,
+		DisplayConfig:     config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,
 		Statistics:        &stats,

@@ -38,7 +38,8 @@ func NewSaveProfile(
 		}
 
 		profile := &entities.Profile{
-			Address: input.Profile.Address,
+			Address:       input.Profile.Address,
+			DisplayConfig: toDisplayConfig(input.Profile.DisplayConfig),
 		}
 
 		var wg sync.WaitGroup
@@ -46,102 +47,37 @@ func NewSaveProfile(
 
 		go func() {
 			defer wg.Done()
-
 			// Not all addresses have an ens name. We should not propigate an error for this
-			name, _ := resolveENSName(ctx, &ResolveENSNameInput{
+			profile.ENSName, _ = resolveENSName(ctx, &ResolveENSNameInput{
 				Address: input.Profile.Address,
 			})
-
-			profile.ENSName = name
 		}()
 
 		go func() {
 			defer wg.Done()
-
-			nfts := []GetNonFungibleTokenInput{}
-			for _, nft := range *input.Profile.NonFungibleTokens {
-				nfts = append(nfts, GetNonFungibleTokenInput{
-					Address: input.Profile.Address,
-					NonFungibleToken: &NonFungibleTokenInput{
-						TokenId: nft.TokenId,
-						Contract: &ContractInput{
-							Blockchain: nft.Contract.Blockchain,
-							Address:    nft.Contract.Address,
-							Interface:  nft.Contract.Interface,
-						},
-					},
-				})
-			}
-
 			profile.NonFungibleTokens = getAllNonFungibleTokens(ctx, &GetAllNonFungibleTokensInput{
-				NonFungibleTokens: &nfts,
+				NonFungibleTokens: toNonFungibleTokenInputs(input.Profile),
 			})
 		}()
 
 		go func() {
 			defer wg.Done()
-
-			tokens := []GetFungibleTokenInput{}
-			for _, token := range *input.Profile.FungibleTokens {
-				tokens = append(tokens, GetFungibleTokenInput{
-					Address: input.Profile.Address,
-					Token: &FungibleTokenInput{
-						Contract: &ContractInput{
-							Blockchain: token.Contract.Blockchain,
-							Address:    token.Contract.Address,
-							Interface:  token.Contract.Interface,
-						},
-					},
-				})
-			}
-
 			profile.FungibleTokens = getAllFungibleTokens(ctx, &GetAllFungibleTokensInput{
-				Tokens: &tokens,
+				Tokens: toFungibleTokenInputs(input.Profile),
 			})
 		}()
 
 		go func() {
 			defer wg.Done()
-
-			stats := []GetStatisticsInput{}
-			for _, stat := range *input.Profile.Statistics {
-				stats = append(stats, GetStatisticsInput{
-					Address: input.Profile.Address,
-					Statistic: &StatisticInput{
-						Type: stat.Type,
-						Contract: &ContractInput{
-							Blockchain: stat.Contract.Blockchain,
-							Address:    stat.Contract.Address,
-							Interface:  stat.Contract.Interface,
-						},
-					},
-				})
-			}
-
 			profile.Statistics = getAllStatistics(ctx, &GetAllStatisticsInput{
-				Stats: &stats,
+				Stats: toStatisticInputs(input.Profile),
 			})
 		}()
 
 		go func() {
 			defer wg.Done()
-
-			interactions := []GetInteractionInput{}
-			for _, interaction := range *input.Profile.Interactions {
-				interactions = append(interactions, GetInteractionInput{
-					Address: input.Profile.Address,
-					Interaction: &InteractionInput{
-						Type: interaction.Type,
-						Transaction: &TransactionInput{
-							Blockchain: interaction.Transaction.Blockchain,
-							Id:         interaction.Transaction.Id,
-						},
-					},
-				})
-			}
-
 			profile.Interactions = getAllInteractions(ctx, &GetAllInteractionsInput{
-				Interactions: &interactions,
+				Interactions: toInteractionInputs(input.Profile),
 			})
 		}()
 
@@ -151,4 +87,133 @@ func NewSaveProfile(
 
 		return databaseGateway.SaveProfile(ctx, profile)
 	}
+}
+
+func toNonFungibleTokenInputs(profile *ProfileInput) *[]GetNonFungibleTokenInput {
+	nfts := []GetNonFungibleTokenInput{}
+	for _, nft := range *profile.NonFungibleTokens {
+		nfts = append(nfts, GetNonFungibleTokenInput{
+			Address: profile.Address,
+			NonFungibleToken: &NonFungibleTokenInput{
+				TokenId: nft.TokenId,
+				Contract: &ContractInput{
+					Blockchain: nft.Contract.Blockchain,
+					Address:    nft.Contract.Address,
+					Interface:  nft.Contract.Interface,
+				},
+			},
+		})
+	}
+	return &nfts
+}
+
+func toFungibleTokenInputs(profile *ProfileInput) *[]GetFungibleTokenInput {
+	tokens := []GetFungibleTokenInput{}
+	for _, token := range *profile.FungibleTokens {
+		tokens = append(tokens, GetFungibleTokenInput{
+			Address: profile.Address,
+			Token: &FungibleTokenInput{
+				Contract: &ContractInput{
+					Blockchain: token.Contract.Blockchain,
+					Address:    token.Contract.Address,
+					Interface:  token.Contract.Interface,
+				},
+			},
+		})
+	}
+	return &tokens
+}
+
+func toStatisticInputs(profile *ProfileInput) *[]GetStatisticsInput {
+	stats := []GetStatisticsInput{}
+	for _, stat := range *profile.Statistics {
+		stats = append(stats, GetStatisticsInput{
+			Address: profile.Address,
+			Statistic: &StatisticInput{
+				Type: stat.Type,
+				Contract: &ContractInput{
+					Blockchain: stat.Contract.Blockchain,
+					Address:    stat.Contract.Address,
+					Interface:  stat.Contract.Interface,
+				},
+			},
+		})
+	}
+	return &stats
+}
+
+func toInteractionInputs(profile *ProfileInput) *[]GetInteractionInput {
+	interactions := []GetInteractionInput{}
+	for _, interaction := range *profile.Interactions {
+		interactions = append(interactions, GetInteractionInput{
+			Address: profile.Address,
+			Interaction: &InteractionInput{
+				Type: interaction.Type,
+				Transaction: &TransactionInput{
+					Blockchain: interaction.Transaction.Blockchain,
+					Id:         interaction.Transaction.Id,
+				},
+			},
+		})
+	}
+	return &interactions
+}
+
+func toDisplayConfig(input *DisplayConfigInput) *entities.DisplayConfig {
+	config := &entities.DisplayConfig{
+		Colors: &entities.DisplayColors{
+			Primary:       input.Colors.Primary,
+			Secondary:     input.Colors.Secondary,
+			PrimaryText:   input.Colors.PrimaryText,
+			SecondaryText: input.Colors.SecondaryText,
+		},
+		Text: &entities.DisplayText{
+			Title:       input.Text.Title,
+			Description: input.Text.Description,
+		},
+		Picture: &entities.DisplayPicture{},
+		Achievements: &entities.DisplayAchievements{
+			Text:  input.Achievements.Text,
+			Items: &[]entities.DisplayAchievement{},
+		},
+		Groups: &[]entities.DisplayGroup{},
+	}
+
+	if input.Picture.Item != nil {
+		config.Picture.Item = &entities.DisplayItem{
+			Id:    input.Picture.Item.Id,
+			Index: input.Picture.Item.Index,
+			Type:  input.Picture.Item.Type,
+		}
+	}
+
+	for _, achievement := range *input.Achievements.Items {
+		items := append(*config.Achievements.Items, entities.DisplayAchievement{
+			Id:    achievement.Id,
+			Index: achievement.Index,
+			Type:  achievement.Type,
+		})
+		config.Achievements.Items = &items
+	}
+
+	for _, inputGroup := range *input.Groups {
+		group := entities.DisplayGroup{
+			Id:    inputGroup.Id,
+			Text:  inputGroup.Text,
+			Items: &[]entities.DisplayItem{},
+		}
+
+		for _, inputItem := range *inputGroup.Items {
+			items := append(*group.Items, entities.DisplayItem{
+				Id:    inputItem.Id,
+				Index: inputItem.Index,
+				Type:  inputItem.Type,
+			})
+			group.Items = &items
+		}
+
+		groups := append(*config.Groups, group)
+		config.Groups = &groups
+	}
+	return config
 }

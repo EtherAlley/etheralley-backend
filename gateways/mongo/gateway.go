@@ -35,6 +35,7 @@ func NewGateway(settings common.ISettings, logger common.ILogger) gateways.IData
 
 type profileBson struct {
 	Address           string                  `bson:"_id"`
+	DisplayConfig     *displayConfigBson      `bson:"display_config"`
 	NonFungibleTokens *[]nonFungibleTokenBson `bson:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenBson    `bson:"fungible_tokens"`
 	Statistics        *[]statisticBson        `bson:"statistics"`
@@ -70,4 +71,51 @@ type interactionBson struct {
 	Transaction *transactionBson   `bson:"transaction"`
 	Type        common.Interaction `bson:"type"`
 	Timestamp   uint64             `bson:"timestamp"`
+}
+
+type displayConfigBson struct {
+	Colors       *displayColorsBson       `bson:"colors"`
+	Text         *displayTextBson         `bson:"text"`
+	Picture      *displayPictureBson      `bson:"picture"`
+	Achievements *displayAchievementsBson `bson:"achievements"`
+	Groups       *[]displayGroupBson      `bson:"groups"`
+}
+
+type displayColorsBson struct {
+	Primary       string `bson:"primary"`
+	Secondary     string `bson:"secondary"`
+	PrimaryText   string `bson:"primary_text"`
+	SecondaryText string `bson:"secondary_text"`
+}
+
+type displayTextBson struct {
+	Title       string `bson:"title"`
+	Description string `bson:"description"`
+}
+
+type displayPictureBson struct {
+	Item *displayItemBson `bson:"item,omitempty"` // Item can be nil
+}
+
+type displayAchievementsBson struct {
+	Text  string                    `bson:"text"`
+	Items *[]displayAchievementBson `bson:"items"`
+}
+
+type displayAchievementBson struct {
+	Id    string                 `bson:"id"`
+	Index uint64                 `bson:"index"`
+	Type  common.AchievementType `bson:"type"`
+}
+
+type displayGroupBson struct {
+	Id    string             `bson:"id"`
+	Text  string             `bson:"text"`
+	Items *[]displayItemBson `bson:"items"`
+}
+
+type displayItemBson struct {
+	Id    string           `bson:"id"`
+	Index uint64           `bson:"index"`
+	Type  common.BadgeType `bson:"type"`
 }

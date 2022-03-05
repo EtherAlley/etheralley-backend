@@ -32,6 +32,7 @@ func getFullKey(keys ...string) string {
 type profileJson struct {
 	Address           string                  `json:"address"`
 	ENSName           string                  `json:"ens_name"`
+	DisplayConfig     *displayConfigJson      `json:"display_config,omitempty"`
 	NonFungibleTokens *[]nonFungibleTokenJson `json:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`
 	Statistics        *[]statisticJson        `json:"statistics"`
@@ -85,4 +86,51 @@ type interactionJson struct {
 type transactionJson struct {
 	Id         string            `json:"id"`
 	Blockchain common.Blockchain `json:"blockchain"`
+}
+
+type displayConfigJson struct {
+	Colors       *displayColorsJson       `json:"colors"`
+	Text         *displayTextJson         `json:"text"`
+	Picture      *displayPictureJson      `json:"picture"`
+	Achievements *displayAchievementsJson `json:"achievements"`
+	Groups       *[]displayGroupJson      `json:"groups"`
+}
+
+type displayColorsJson struct {
+	Primary       string `json:"primary"`
+	Secondary     string `json:"secondary"`
+	PrimaryText   string `json:"primary_text"`
+	SecondaryText string `json:"secondary_text"`
+}
+
+type displayTextJson struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type displayPictureJson struct {
+	Item *displayItemJson `json:"item,omitempty"` // Item can be nil
+}
+
+type displayAchievementsJson struct {
+	Text  string                    `json:"text"`
+	Items *[]displayAchievementJson `json:"items"`
+}
+
+type displayAchievementJson struct {
+	Id    string                 `json:"id"`
+	Index uint64                 `json:"index"`
+	Type  common.AchievementType `json:"type"`
+}
+
+type displayGroupJson struct {
+	Id    string             `json:"id"`
+	Text  string             `json:"text"`
+	Items *[]displayItemJson `json:"items"`
+}
+
+type displayItemJson struct {
+	Id    string           `json:"id"`
+	Index uint64           `json:"index"`
+	Type  common.BadgeType `json:"type"`
 }

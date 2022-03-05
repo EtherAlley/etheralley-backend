@@ -4,7 +4,7 @@ type NonFungibleToken struct {
 	Contract *Contract
 	TokenId  string
 	Balance  string
-	Metadata *NonFungibleMetadata
+	Metadata *NonFungibleMetadata // Metadata can be nil
 }
 
 type NonFungibleMetadata struct {

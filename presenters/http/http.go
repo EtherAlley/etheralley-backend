@@ -33,6 +33,7 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 	return &profileJson{
 		Address:           profile.Address,
 		ENSName:           profile.ENSName,
+		DisplayConfig:     toDisplayConfigJson(profile.DisplayConfig),
 		NonFungibleTokens: toNonFungibleTokensJson(profile.NonFungibleTokens),
 		FungibleTokens:    toFungibleTokensJson(profile.FungibleTokens),
 		Statistics:        toStatisticsJson(profile.Statistics),
@@ -141,9 +142,73 @@ func toTransactionJson(transaction *entities.Transaction) *transactiontJson {
 	}
 }
 
+func toDisplayConfigJson(displayConfig *entities.DisplayConfig) *displayConfigJson {
+	if displayConfig == nil {
+		return nil
+	}
+
+	config := &displayConfigJson{
+		Colors: &displayColorsJson{
+			Primary:       displayConfig.Colors.Primary,
+			Secondary:     displayConfig.Colors.Secondary,
+			PrimaryText:   displayConfig.Colors.PrimaryText,
+			SecondaryText: displayConfig.Colors.SecondaryText,
+		},
+		Text: &displayTextJson{
+			Title:       displayConfig.Text.Title,
+			Description: displayConfig.Text.Description,
+		},
+		Picture: &displayPictureJson{},
+		Achievements: &displayAchievementsJson{
+			Text:  displayConfig.Achievements.Text,
+			Items: &[]displayAchievementJson{},
+		},
+		Groups: &[]displayGroupJson{},
+	}
+
+	if displayConfig.Picture.Item != nil {
+		config.Picture.Item = &displayItemJson{
+			Id:    displayConfig.Picture.Item.Id,
+			Index: displayConfig.Picture.Item.Index,
+			Type:  displayConfig.Picture.Item.Type,
+		}
+	}
+
+	for _, achievement := range *displayConfig.Achievements.Items {
+		items := append(*config.Achievements.Items, displayAchievementJson{
+			Id:    achievement.Id,
+			Index: achievement.Index,
+			Type:  achievement.Type,
+		})
+		config.Achievements.Items = &items
+	}
+
+	for _, group := range *displayConfig.Groups {
+		groupJson := displayGroupJson{
+			Id:    group.Id,
+			Text:  group.Text,
+			Items: &[]displayItemJson{},
+		}
+
+		for _, item := range *group.Items {
+			items := append(*groupJson.Items, displayItemJson{
+				Id:    item.Id,
+				Index: item.Index,
+				Type:  item.Type,
+			})
+			groupJson.Items = &items
+		}
+
+		groups := append(*config.Groups, groupJson)
+		config.Groups = &groups
+	}
+	return config
+}
+
 type profileJson struct {
 	Address           string                  `json:"address"`
 	ENSName           string                  `json:"ens_name"`
+	DisplayConfig     *displayConfigJson      `json:"display_config,omitempty"`
 	NonFungibleTokens *[]nonFungibleTokenJson `json:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`
 	Statistics        *[]statisticJson        `json:"statistics"`
@@ -197,4 +262,51 @@ type interactionJson struct {
 type transactiontJson struct {
 	Id         string            `json:"id"`
 	Blockchain common.Blockchain `json:"blockchain"`
+}
+
+type displayConfigJson struct {
+	Colors       *displayColorsJson       `json:"colors"`
+	Text         *displayTextJson         `json:"text"`
+	Picture      *displayPictureJson      `json:"picture"`
+	Achievements *displayAchievementsJson `json:"achievements"`
+	Groups       *[]displayGroupJson      `json:"groups"`
+}
+
+type displayColorsJson struct {
+	Primary       string `json:"primary"`
+	Secondary     string `json:"secondary"`
+	PrimaryText   string `json:"primary_text"`
+	SecondaryText string `json:"secondary_text"`
+}
+
+type displayTextJson struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type displayPictureJson struct {
+	Item *displayItemJson `json:"item"` // Item can be nil
+}
+
+type displayAchievementsJson struct {
+	Text  string                    `json:"text"`
+	Items *[]displayAchievementJson `json:"items"`
+}
+
+type displayAchievementJson struct {
+	Id    string                 `json:"id"`
+	Index uint64                 `json:"index"`
+	Type  common.AchievementType `json:"type"`
+}
+
+type displayGroupJson struct {
+	Id    string             `json:"id"`
+	Text  string             `json:"text"`
+	Items *[]displayItemJson `json:"items"`
+}
+
+type displayItemJson struct {
+	Id    string           `json:"id"`
+	Index uint64           `json:"index"`
+	Type  common.BadgeType `json:"type"`
 }

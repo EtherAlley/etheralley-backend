@@ -6,6 +6,7 @@ import (
 
 type ProfileInput struct {
 	Address           string                   `json:"-" validate:"required,eth_addr"`
+	DisplayConfig     *DisplayConfigInput      `json:"display_config" validate:"required,dive"`
 	NonFungibleTokens *[]NonFungibleTokenInput `json:"non_fungible_tokens" validate:"required,dive"`
 	FungibleTokens    *[]FungibleTokenInput    `json:"fungible_tokens" validate:"required,dive"`
 	Statistics        *[]StatisticInput        `json:"statistics" validate:"required,dive"`
@@ -15,7 +16,7 @@ type ProfileInput struct {
 type ContractInput struct {
 	Blockchain common.Blockchain `json:"blockchain" validate:"required,oneof=ethereum polygon arbitrum optimism"`
 	Address    string            `json:"address" validate:"required,eth_addr"`
-	Interface  common.Interface  `json:"interface" validate:"required,oneof=ERC721 ERC1155 ERC20 ENS_REGISTRAR SUSHISWAP_EXCHANGE UNISWAP_V2_EXCHANGE  UNISWAP_V3_EXCHANGE"`
+	Interface  common.Interface  `json:"interface" validate:"required,oneof=ERC721 ERC1155 ERC20 ENS_REGISTRAR SUSHISWAP_EXCHANGE UNISWAP_V2_EXCHANGE UNISWAP_V3_EXCHANGE"`
 }
 
 type TransactionInput struct {
@@ -40,4 +41,51 @@ type StatisticInput struct {
 type InteractionInput struct {
 	Transaction *TransactionInput  `json:"transaction" validate:"required,dive"`
 	Type        common.Interaction `json:"type" validate:"required,oneof=CONTRACT_CREATION SEND_ETHER"`
+}
+
+type DisplayConfigInput struct {
+	Colors       *DisplayColorsInput       `json:"colors" validate:"required,dive"`
+	Text         *DisplayTextInput         `json:"text" validate:"required,dive"`
+	Picture      *DisplayPictureInput      `json:"picture" validate:"required,dive"`
+	Achievements *DisplayAchievementsInput `json:"achievements" validate:"required,dive"`
+	Groups       *[]DisplayGroupInput      `json:"groups" validate:"required,dive"`
+}
+
+type DisplayColorsInput struct {
+	Primary       string `json:"primary" validate:"required,max=15"`
+	Secondary     string `json:"secondary" validate:"required,max=15"`
+	PrimaryText   string `json:"primary_text" validate:"required,max=15"`
+	SecondaryText string `json:"secondary_text" validate:"required,max=15"`
+}
+
+type DisplayTextInput struct {
+	Title       string `json:"title" validate:"max=40"`
+	Description string `json:"description" validate:"max=500"`
+}
+
+type DisplayPictureInput struct {
+	Item *DisplayItemInput `json:"item,omitempty" validate:""` // Item can be nil. TODO: figure out how to validate this properly. dive will not allow nil values
+}
+
+type DisplayAchievementsInput struct {
+	Text  string                     `json:"text" validate:"max=30"`
+	Items *[]DisplayAchievementInput `json:"items" validate:"required,dive"`
+}
+
+type DisplayAchievementInput struct {
+	Id    string                 `json:"id" validate:"required"`
+	Index uint64                 `json:"index" validate:"gte=0"`
+	Type  common.AchievementType `json:"type" validate:"required,oneof=interactions"`
+}
+
+type DisplayGroupInput struct {
+	Id    string              `json:"id" validate:"required,max=30"`
+	Text  string              `json:"text" validate:"max=30"`
+	Items *[]DisplayItemInput `json:"items" validate:"required,dive"`
+}
+
+type DisplayItemInput struct {
+	Id    string           `json:"id" validate:"required"`
+	Index uint64           `json:"index" validate:"gte=0"`
+	Type  common.BadgeType `json:"type" validate:"required,oneof=non_fungible_tokens fungible_tokens statistics"`
 }

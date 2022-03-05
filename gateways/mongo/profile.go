@@ -34,6 +34,7 @@ func (g *Gateway) SaveProfile(ctx context.Context, profile *entities.Profile) er
 }
 
 func fromProfileBson(profileBson *profileBson) *entities.Profile {
+
 	nfts := []entities.NonFungibleToken{}
 	for _, nft := range *profileBson.NonFungibleTokens {
 		nfts = append(nfts, entities.NonFungibleToken{
@@ -45,6 +46,7 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 			},
 		})
 	}
+
 	tokens := []entities.FungibleToken{}
 	for _, token := range *profileBson.FungibleTokens {
 		tokens = append(tokens, entities.FungibleToken{
@@ -55,6 +57,7 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 			},
 		})
 	}
+
 	stats := []entities.Statistic{}
 	for _, stat := range *profileBson.Statistics {
 		stats = append(stats, entities.Statistic{
@@ -66,6 +69,7 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 			},
 		})
 	}
+
 	interactions := []entities.Interaction{}
 	for _, interaction := range *profileBson.Interactions {
 		interactions = append(interactions, entities.Interaction{
@@ -77,8 +81,66 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 			Timestamp: interaction.Timestamp,
 		})
 	}
+
+	config := entities.DisplayConfig{
+		Colors: &entities.DisplayColors{
+			Primary:       profileBson.DisplayConfig.Colors.Primary,
+			Secondary:     profileBson.DisplayConfig.Colors.Secondary,
+			PrimaryText:   profileBson.DisplayConfig.Colors.PrimaryText,
+			SecondaryText: profileBson.DisplayConfig.Colors.SecondaryText,
+		},
+		Text: &entities.DisplayText{
+			Title:       profileBson.DisplayConfig.Text.Title,
+			Description: profileBson.DisplayConfig.Text.Description,
+		},
+		Picture: &entities.DisplayPicture{},
+		Achievements: &entities.DisplayAchievements{
+			Text:  profileBson.DisplayConfig.Achievements.Text,
+			Items: &[]entities.DisplayAchievement{},
+		},
+		Groups: &[]entities.DisplayGroup{},
+	}
+
+	if profileBson.DisplayConfig.Picture.Item != nil {
+		config.Picture.Item = &entities.DisplayItem{
+			Id:    profileBson.DisplayConfig.Picture.Item.Id,
+			Index: profileBson.DisplayConfig.Picture.Item.Index,
+			Type:  profileBson.DisplayConfig.Picture.Item.Type,
+		}
+	}
+
+	for _, achievement := range *profileBson.DisplayConfig.Achievements.Items {
+		items := append(*config.Achievements.Items, entities.DisplayAchievement{
+			Id:    achievement.Id,
+			Index: achievement.Index,
+			Type:  achievement.Type,
+		})
+		config.Achievements.Items = &items
+	}
+
+	for _, groupBson := range *profileBson.DisplayConfig.Groups {
+		group := entities.DisplayGroup{
+			Id:    groupBson.Id,
+			Text:  groupBson.Text,
+			Items: &[]entities.DisplayItem{},
+		}
+
+		for _, item := range *group.Items {
+			items := append(*group.Items, entities.DisplayItem{
+				Id:    item.Id,
+				Index: item.Index,
+				Type:  item.Type,
+			})
+			group.Items = &items
+		}
+
+		groups := append(*config.Groups, group)
+		config.Groups = &groups
+	}
+
 	return &entities.Profile{
 		Address:           profileBson.Address,
+		DisplayConfig:     &config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,
 		Statistics:        &stats,
@@ -98,6 +160,7 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 			},
 		})
 	}
+
 	tokens := []fungibleTokenBson{}
 	for _, token := range *profile.FungibleTokens {
 		tokens = append(tokens, fungibleTokenBson{
@@ -108,6 +171,7 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 			},
 		})
 	}
+
 	stats := []statisticBson{}
 	for _, stat := range *profile.Statistics {
 		stats = append(stats, statisticBson{
@@ -119,6 +183,7 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 			},
 		})
 	}
+
 	interactions := []interactionBson{}
 	for _, interaction := range *profile.Interactions {
 		interactions = append(interactions, interactionBson{
@@ -130,8 +195,66 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 			Timestamp: interaction.Timestamp,
 		})
 	}
+
+	config := displayConfigBson{
+		Colors: &displayColorsBson{
+			Primary:       profile.DisplayConfig.Colors.Primary,
+			Secondary:     profile.DisplayConfig.Colors.Secondary,
+			PrimaryText:   profile.DisplayConfig.Colors.PrimaryText,
+			SecondaryText: profile.DisplayConfig.Colors.SecondaryText,
+		},
+		Text: &displayTextBson{
+			Title:       profile.DisplayConfig.Text.Title,
+			Description: profile.DisplayConfig.Text.Description,
+		},
+		Picture: &displayPictureBson{},
+		Achievements: &displayAchievementsBson{
+			Text:  profile.DisplayConfig.Achievements.Text,
+			Items: &[]displayAchievementBson{},
+		},
+		Groups: &[]displayGroupBson{},
+	}
+
+	if profile.DisplayConfig.Picture.Item != nil {
+		config.Picture.Item = &displayItemBson{
+			Id:    profile.DisplayConfig.Picture.Item.Id,
+			Index: profile.DisplayConfig.Picture.Item.Index,
+			Type:  profile.DisplayConfig.Picture.Item.Type,
+		}
+	}
+
+	for _, achievement := range *profile.DisplayConfig.Achievements.Items {
+		items := append(*config.Achievements.Items, displayAchievementBson{
+			Id:    achievement.Id,
+			Index: achievement.Index,
+			Type:  achievement.Type,
+		})
+		config.Achievements.Items = &items
+	}
+
+	for _, group := range *profile.DisplayConfig.Groups {
+		groupBson := displayGroupBson{
+			Id:    group.Id,
+			Text:  group.Text,
+			Items: &[]displayItemBson{},
+		}
+
+		for _, item := range *group.Items {
+			items := append(*groupBson.Items, displayItemBson{
+				Id:    item.Id,
+				Index: item.Index,
+				Type:  item.Type,
+			})
+			groupBson.Items = &items
+		}
+
+		groups := append(*config.Groups, groupBson)
+		config.Groups = &groups
+	}
+
 	return &profileBson{
 		Address:           profile.Address,
+		DisplayConfig:     &config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,
 		Statistics:        &stats,
