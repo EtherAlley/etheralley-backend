@@ -8,7 +8,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type Gateway struct {
+type gateway struct {
 	client *redis.Client
 	logger common.ILogger
 }
@@ -19,7 +19,7 @@ func NewGateway(settings common.ISettings, logger common.ILogger) gateways.ICach
 		Password: settings.CachePassword(),
 		DB:       settings.CacheDB(),
 	})
-	return &Gateway{
+	return &gateway{
 		client,
 		logger,
 	}

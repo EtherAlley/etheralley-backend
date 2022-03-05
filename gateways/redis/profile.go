@@ -10,7 +10,7 @@ import (
 
 const ProfileNamespace = "profile"
 
-func (g *Gateway) GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error) {
+func (g *gateway) GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error) {
 	profileString, err := g.client.Get(ctx, getFullKey(ProfileNamespace, address)).Result()
 
 	if err != nil {
@@ -29,7 +29,7 @@ func (g *Gateway) GetProfileByAddress(ctx context.Context, address string) (*ent
 	return profile, nil
 }
 
-func (g *Gateway) SaveProfile(ctx context.Context, profile *entities.Profile) error {
+func (g *gateway) SaveProfile(ctx context.Context, profile *entities.Profile) error {
 	profJson := toProfileJson(profile)
 
 	bytes, err := json.Marshal(profJson)

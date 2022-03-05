@@ -46,8 +46,8 @@ type swapTokenJson = struct {
 	Symbol string `json:"symbol"`
 }
 
-func (gw *Gateway) GetSwaps(ctx context.Context, address string, contract *entities.Contract) (interface{}, error) {
-	url, err := gw.GetSubgraphUrl(contract.Blockchain, contract.Interface)
+func (gw *gateway) GetSwaps(ctx context.Context, address string, contract *entities.Contract) (interface{}, error) {
+	url, err := gw.getSubgraphUrl(contract.Blockchain, contract.Interface)
 
 	if err != nil {
 		gw.logger.Err(ctx, err, "error building subgraph url")

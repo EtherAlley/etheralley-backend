@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (g *Gateway) GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error) {
+func (g *gateway) GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error) {
 	profileBson := &profileBson{}
 
 	err := g.profiles.FindOne(ctx, bson.D{primitive.E{Key: "_id", Value: address}}).Decode(profileBson)
@@ -25,7 +25,7 @@ func (g *Gateway) GetProfileByAddress(ctx context.Context, address string) (*ent
 	return profile, err
 }
 
-func (g *Gateway) SaveProfile(ctx context.Context, profile *entities.Profile) error {
+func (g *gateway) SaveProfile(ctx context.Context, profile *entities.Profile) error {
 	profileBson := toProfileBson(profile)
 
 	_, err := g.profiles.UpdateOne(ctx, bson.D{primitive.E{Key: "_id", Value: profile.Address}}, bson.D{primitive.E{Key: "$set", Value: profileBson}}, options.Update().SetUpsert(true))

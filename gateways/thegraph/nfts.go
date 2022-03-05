@@ -27,10 +27,10 @@ type ERC721Query = struct {
 	Erc721Tokens []ERC721Token `graphql:"erc721Tokens(first: 12, where: { owner: $owner, uri_contains: \"://\" })"`
 }
 
-func (gw *Gateway) GetNonFungibleTokens(ctx context.Context, address string) *[]entities.NonFungibleToken {
+func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) *[]entities.NonFungibleToken {
 	nfts := []entities.NonFungibleToken{}
 
-	url, err := gw.GetSubgraphUrl(common.ETHEREUM, common.ERC721)
+	url, err := gw.getSubgraphUrl(common.ETHEREUM, common.ERC721)
 
 	if err != nil {
 		gw.logger.Errf(ctx, err, "error building subgraph url for address: %v", address)
@@ -99,7 +99,7 @@ type NFTMetadataRespBody struct {
 	Properties  *map[string]interface{}   `bson:"properties" json:"properties"`
 }
 
-func (gw *Gateway) getNFTMetadataFromURI(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error) {
+func (gw *gateway) getNFTMetadataFromURI(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error) {
 	uri = gw.replaceIPFSScheme(uri)
 
 	resp, err := gw.httpClient.Do(ctx, "GET", uri, nil)
@@ -133,6 +133,6 @@ func (gw *Gateway) getNFTMetadataFromURI(ctx context.Context, uri string) (*enti
 	}, nil
 }
 
-func (gw *Gateway) replaceIPFSScheme(url string) string {
+func (gw *gateway) replaceIPFSScheme(url string) string {
 	return strings.Replace(url, "ipfs://", gw.settings.IPFSURI(), 1)
 }

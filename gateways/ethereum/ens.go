@@ -8,7 +8,7 @@ import (
 	"github.com/wealdtech/go-ens/v3"
 )
 
-func (gw *Gateway) GetENSAddressFromName(ctx context.Context, name string) (address string, err error) {
+func (gw *gateway) GetENSAddressFromName(ctx context.Context, name string) (address string, err error) {
 	client, err := gw.getClient(ctx, cmn.ETHEREUM) // awlays use layer 1 for ens resolution
 
 	if err != nil {
@@ -26,7 +26,7 @@ func (gw *Gateway) GetENSAddressFromName(ctx context.Context, name string) (addr
 	return
 }
 
-func (gw *Gateway) GetENSNameFromAddress(ctx context.Context, address string) (name string, err error) {
+func (gw *gateway) GetENSNameFromAddress(ctx context.Context, address string) (name string, err error) {
 	client, err := gw.getClient(ctx, cmn.ETHEREUM) // awlays use layer 1 for ens resolution
 
 	if err != nil {

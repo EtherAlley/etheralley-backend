@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-func (gw *Gateway) GetFungibleBalance(ctx context.Context, address string, contract *entities.Contract) (string, error) {
+func (gw *gateway) GetFungibleBalance(ctx context.Context, address string, contract *entities.Contract) (string, error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
@@ -34,7 +34,7 @@ func (gw *Gateway) GetFungibleBalance(ctx context.Context, address string, contr
 	return balance.String(), err
 }
 
-func (gw *Gateway) GetFungibleName(ctx context.Context, contract *entities.Contract) (name string, err error) {
+func (gw *gateway) GetFungibleName(ctx context.Context, contract *entities.Contract) (name string, err error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
@@ -54,7 +54,7 @@ func (gw *Gateway) GetFungibleName(ctx context.Context, contract *entities.Contr
 	return
 }
 
-func (gw *Gateway) GetFungibleSymbol(ctx context.Context, contract *entities.Contract) (symbol string, err error) {
+func (gw *gateway) GetFungibleSymbol(ctx context.Context, contract *entities.Contract) (symbol string, err error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
@@ -74,7 +74,7 @@ func (gw *Gateway) GetFungibleSymbol(ctx context.Context, contract *entities.Con
 	return
 }
 
-func (gw *Gateway) GetFungibleDecimals(ctx context.Context, contract *entities.Contract) (decimals uint8, err error) {
+func (gw *gateway) GetFungibleDecimals(ctx context.Context, contract *entities.Contract) (decimals uint8, err error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {

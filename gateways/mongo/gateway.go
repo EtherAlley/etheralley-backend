@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Gateway struct {
+type gateway struct {
 	logger   common.ILogger
 	profiles *mongo.Collection
 }
@@ -27,7 +27,7 @@ func NewGateway(settings common.ISettings, logger common.ILogger) gateways.IData
 	db := client.Database(settings.Database())
 	profiles := db.Collection("profiles")
 
-	return &Gateway{
+	return &gateway{
 		logger,
 		profiles,
 	}

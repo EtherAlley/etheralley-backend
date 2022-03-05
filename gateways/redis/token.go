@@ -10,7 +10,7 @@ import (
 
 const TokenNamespace = "fungible_token"
 
-func (g *Gateway) GetFungibleMetadata(ctx context.Context, contract *entities.Contract) (*entities.FungibleMetadata, error) {
+func (g *gateway) GetFungibleMetadata(ctx context.Context, contract *entities.Contract) (*entities.FungibleMetadata, error) {
 
 	metadataString, err := g.client.Get(ctx, getFullKey(TokenNamespace, contract.Address, contract.Blockchain)).Result()
 
@@ -30,7 +30,7 @@ func (g *Gateway) GetFungibleMetadata(ctx context.Context, contract *entities.Co
 	return metadata, nil
 }
 
-func (g *Gateway) SaveFungibleMetadata(ctx context.Context, contract *entities.Contract, metadata *entities.FungibleMetadata) error {
+func (g *gateway) SaveFungibleMetadata(ctx context.Context, contract *entities.Contract, metadata *entities.FungibleMetadata) error {
 	metadataJson := toFungibleMetadataJson(metadata)
 	bytes, err := json.Marshal(metadataJson)
 

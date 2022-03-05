@@ -10,7 +10,7 @@ import (
 
 const NFTNamespace = "non_fungible_token"
 
-func (g *Gateway) GetNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error) {
+func (g *gateway) GetNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error) {
 
 	metadataString, err := g.client.Get(ctx, getFullKey(NFTNamespace, contract.Address, tokenId, contract.Blockchain)).Result()
 
@@ -30,7 +30,7 @@ func (g *Gateway) GetNonFungibleMetadata(ctx context.Context, contract *entities
 	return metadata, nil
 }
 
-func (g *Gateway) SaveNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string, metadata *entities.NonFungibleMetadata) error {
+func (g *gateway) SaveNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string, metadata *entities.NonFungibleMetadata) error {
 	metadataJson := toNonFungibleMetadataJson(metadata)
 	bytes, err := json.Marshal(metadataJson)
 

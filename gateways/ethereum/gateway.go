@@ -9,21 +9,21 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-type Gateway struct {
+type gateway struct {
 	settings cmn.ISettings
 	logger   cmn.ILogger
 	http     cmn.IHttpClient
 }
 
 func NewGateway(logger cmn.ILogger, settings cmn.ISettings, http cmn.IHttpClient) gateways.IBlockchainGateway {
-	return &Gateway{
+	return &gateway{
 		settings,
 		logger,
 		http,
 	}
 }
 
-func (gw *Gateway) getClient(ctx context.Context, blockchain cmn.Blockchain) (*ethclient.Client, error) {
+func (gw *gateway) getClient(ctx context.Context, blockchain cmn.Blockchain) (*ethclient.Client, error) {
 	switch blockchain {
 	case cmn.ETHEREUM:
 		return ethclient.DialContext(ctx, gw.settings.EthereumURI())

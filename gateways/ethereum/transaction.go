@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
-func (gw *Gateway) GetTransactionData(ctx context.Context, transaction *entities.Transaction) (*entities.TransactionData, error) {
+func (gw *gateway) GetTransactionData(ctx context.Context, transaction *entities.Transaction) (*entities.TransactionData, error) {
 	client, err := gw.getClient(ctx, transaction.Blockchain)
 
 	if err != nil {

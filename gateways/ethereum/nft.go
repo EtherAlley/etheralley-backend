@@ -17,7 +17,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func (gw *Gateway) GetNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error) {
+func (gw *gateway) GetNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
@@ -53,7 +53,7 @@ func (gw *Gateway) GetNonFungibleMetadata(ctx context.Context, contract *entitie
 	return gw.getNFTMetadataFromURI(ctx, uri)
 }
 
-func (gw *Gateway) GetNonFungibleBalance(ctx context.Context, address string, contract *entities.Contract, tokenId string) (string, error) {
+func (gw *gateway) GetNonFungibleBalance(ctx context.Context, address string, contract *entities.Contract, tokenId string) (string, error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
@@ -79,7 +79,7 @@ func (gw *Gateway) GetNonFungibleBalance(ctx context.Context, address string, co
 	}
 }
 
-func (gw *Gateway) getErc1155Balance(client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (string, error) {
+func (gw *gateway) getErc1155Balance(client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (string, error) {
 	instance, err := contracts.NewErc1155(contractAddress, client)
 
 	if err != nil {
@@ -95,7 +95,7 @@ func (gw *Gateway) getErc1155Balance(client *ethclient.Client, contractAddress c
 	return balance.String(), err
 }
 
-func (gw *Gateway) getErc721Balance(client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (string, error) {
+func (gw *gateway) getErc721Balance(client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (string, error) {
 	instance, err := contracts.NewErc721(contractAddress, client)
 
 	if err != nil {
@@ -115,7 +115,7 @@ func (gw *Gateway) getErc721Balance(client *ethclient.Client, contractAddress co
 	}
 }
 
-func (gw *Gateway) getErc1155URI(client *ethclient.Client, address common.Address, id *big.Int) (string, error) {
+func (gw *gateway) getErc1155URI(client *ethclient.Client, address common.Address, id *big.Int) (string, error) {
 	instance, err := contracts.NewErc1155(address, client)
 
 	if err != nil {
@@ -134,7 +134,7 @@ func (gw *Gateway) getErc1155URI(client *ethclient.Client, address common.Addres
 	return uri, nil
 }
 
-func (gw *Gateway) getErc721URI(client *ethclient.Client, address common.Address, id *big.Int) (string, error) {
+func (gw *gateway) getErc721URI(client *ethclient.Client, address common.Address, id *big.Int) (string, error) {
 	instance, err := contracts.NewErc721(address, client)
 
 	if err != nil {
@@ -144,7 +144,7 @@ func (gw *Gateway) getErc721URI(client *ethclient.Client, address common.Address
 	return instance.TokenURI(&bind.CallOpts{}, id)
 }
 
-func (gw *Gateway) getENSURI(client *ethclient.Client, address string, id string) string {
+func (gw *gateway) getENSURI(client *ethclient.Client, address string, id string) string {
 	return fmt.Sprintf("%v/%v/%v", gw.settings.ENSMetadataURI(), address, id)
 }
 
@@ -157,7 +157,7 @@ type NFTMetadataRespBody struct {
 	Properties  *map[string]interface{}   `bson:"properties" json:"properties"`
 }
 
-func (gw *Gateway) getNFTMetadataFromURI(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error) {
+func (gw *gateway) getNFTMetadataFromURI(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error) {
 	uri = gw.replaceIPFSScheme(uri)
 
 	resp, err := gw.http.Do(ctx, "GET", uri, nil)
@@ -191,6 +191,6 @@ func (gw *Gateway) getNFTMetadataFromURI(ctx context.Context, uri string) (*enti
 	}, nil
 }
 
-func (gw *Gateway) replaceIPFSScheme(url string) string {
+func (gw *gateway) replaceIPFSScheme(url string) string {
 	return strings.Replace(url, "ipfs://", gw.settings.IPFSURI(), 1)
 }
