@@ -26,6 +26,8 @@ type HttpController struct {
 	getFungibleToken    usecases.IGetFungibleTokenUseCase
 	getStatistic        usecases.IGetStatisticUseCase
 	getInteraction      usecases.IGetInteractionUseCase
+	recordProfileView   usecases.IRecordProfileViewUseCase
+	getTopProfiles      usecases.IGetTopProfilesUseCase
 }
 
 func NewHttpController(
@@ -41,6 +43,8 @@ func NewHttpController(
 	getFungibleToken usecases.IGetFungibleTokenUseCase,
 	getStatistic usecases.IGetStatisticUseCase,
 	getInteraction usecases.IGetInteractionUseCase,
+	recordProfileView usecases.IRecordProfileViewUseCase,
+	getTopProfiles usecases.IGetTopProfilesUseCase,
 ) *HttpController {
 	return &HttpController{
 		settings,
@@ -55,6 +59,8 @@ func NewHttpController(
 		getFungibleToken,
 		getStatistic,
 		getInteraction,
+		recordProfileView,
+		getTopProfiles,
 	}
 }
 
@@ -73,7 +79,7 @@ func (hc *HttpController) Start() error {
 		MaxAge:           300,
 	}))
 	r.Use(middleware.NoCache)
-	r.Use(middleware.RealIP)
+	r.Use(middleware.RealIP) // TODO: check if all three headers in hear can be trusted based on the cloud provider we settle on
 	r.Use(hc.requestId)
 	r.Use(hc.logEvent)
 	r.Use(hc.recoverer)
@@ -81,10 +87,14 @@ func (hc *HttpController) Start() error {
 
 	r.Get("/", hc.healthRoute)
 
-	r.Route("/profiles/{address}", func(r chi.Router) {
-		r.Use(hc.resolveAddr)
-		r.Get("/", hc.getProfileByAddressRoute)
-		r.With(hc.authenticate).Put("/", hc.saveProfileRoute)
+	r.Route("/profiles", func(r chi.Router) {
+		r.Get("/top", hc.getTopProfilesRoute)
+
+		r.Route("/{address}", func(r chi.Router) {
+			r.Use(hc.resolveAddr)
+			r.With(hc.recordProfileViewMiddleware).Get("/", hc.getProfileByAddressRoute)
+			r.With(hc.authenticate).Put("/", hc.saveProfileRoute)
+		})
 	})
 
 	r.Route("/challenges/{address}", func(r chi.Router) {

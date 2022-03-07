@@ -54,6 +54,8 @@ func main() {
 	container.Provide(usecases.NewGetAllStatistics)
 	container.Provide(usecases.NewGetInteractionUseCase)
 	container.Provide(usecases.NewGetAllInteractionsUseCase)
+	container.Provide(usecases.NewRecordProfileViewUseCase)
+	container.Provide(usecases.NewGetTopProfilesUseCase)
 	container.Provide(httpPresenters.NewPresenter)
 	container.Provide(httpControllers.NewHttpController)
 

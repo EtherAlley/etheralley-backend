@@ -24,6 +24,8 @@ type ICacheGateway interface {
 	SaveENSName(ctx context.Context, address string, name string) error
 	GetFungibleMetadata(ctx context.Context, contract *entities.Contract) (*entities.FungibleMetadata, error)
 	SaveFungibleMetadata(ctx context.Context, contract *entities.Contract, metadata *entities.FungibleMetadata) error
+	RecordAddressView(ctx context.Context, address string, ipAddress string) error
+	GetTopAddresses(ctx context.Context) (*[]string, error)
 }
 
 type IBlockchainGateway interface {

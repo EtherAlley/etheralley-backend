@@ -18,4 +18,5 @@ type IPresenter interface {
 	PresentInteraction(context.Context, http.ResponseWriter, *entities.Interaction)
 	PresentProfile(context.Context, http.ResponseWriter, *entities.Profile)
 	PresentSavedProfile(context.Context, http.ResponseWriter)
+	PresentTopProfiles(ctx context.Context, w http.ResponseWriter, profiles *[]entities.Profile)
 }

@@ -16,3 +16,9 @@ func (p *httpPresenter) PresentProfile(ctx context.Context, w http.ResponseWrite
 func (p *httpPresenter) PresentSavedProfile(ctx context.Context, w http.ResponseWriter) {
 	renderNoBody(w, http.StatusCreated)
 }
+
+func (p *httpPresenter) PresentTopProfiles(ctx context.Context, w http.ResponseWriter, profiles *[]entities.Profile) {
+	p.logger.Info(ctx, "present top profiles")
+
+	renderNoBody(w, http.StatusOK)
+}
