@@ -16,9 +16,6 @@ type IRecordProfileViewUseCase func(ctx context.Context, input *RecordProfileVie
 
 func NewRecordProfileViewUseCase(logger common.ILogger, cacheGateway gateways.ICacheGateway) IRecordProfileViewUseCase {
 	return func(ctx context.Context, input *RecordProfileViewInput) error {
-
-		cacheGateway.RecordAddressView(ctx, input.Address, input.IpAddress)
-
-		return nil
+		return cacheGateway.RecordAddressView(ctx, input.Address, input.IpAddress)
 	}
 }

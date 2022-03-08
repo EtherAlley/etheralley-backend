@@ -39,6 +39,10 @@ func NewResolveENSName(
 
 		logger.Debugf(ctx, "cache miss getting ens name from address %v", address)
 
-		return blockchainGateway.GetENSNameFromAddress(ctx, address)
+		name, err = blockchainGateway.GetENSNameFromAddress(ctx, address)
+
+		cacheGateway.SaveENSName(ctx, address, name) // We should cache the result no matter what. Even the fact that they don't have an ens name
+
+		return name, err
 	}
 }

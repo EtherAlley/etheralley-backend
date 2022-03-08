@@ -19,7 +19,7 @@ func (g *gateway) GetFungibleMetadata(ctx context.Context, contract *entities.Co
 	}
 
 	metadataJson := &fungibleMetadataJson{}
-	err = json.Unmarshal([]byte(metadataString), &metadataJson)
+	err = json.Unmarshal([]byte(metadataString), metadataJson)
 
 	if err != nil {
 		return nil, err
@@ -41,20 +41,4 @@ func (g *gateway) SaveFungibleMetadata(ctx context.Context, contract *entities.C
 	_, err = g.client.Set(ctx, getFullKey(TokenNamespace, contract.Address, contract.Blockchain), bytes, time.Hour*24).Result()
 
 	return err
-}
-
-func fromFungibleMetadataJson(metadata *fungibleMetadataJson) *entities.FungibleMetadata {
-	return &entities.FungibleMetadata{
-		Name:     metadata.Name,
-		Symbol:   metadata.Symbol,
-		Decimals: metadata.Decimals,
-	}
-}
-
-func toFungibleMetadataJson(metadata *entities.FungibleMetadata) *fungibleMetadataJson {
-	return &fungibleMetadataJson{
-		Name:     metadata.Name,
-		Symbol:   metadata.Symbol,
-		Decimals: metadata.Decimals,
-	}
 }
