@@ -16,3 +16,13 @@ func (p *httpPresenter) PresentProfile(ctx context.Context, w http.ResponseWrite
 func (p *httpPresenter) PresentSavedProfile(ctx context.Context, w http.ResponseWriter) {
 	renderNoBody(w, http.StatusCreated)
 }
+
+func (p *httpPresenter) PresentTopProfiles(ctx context.Context, w http.ResponseWriter, profiles *[]entities.Profile) {
+	json := []profileJson{}
+
+	for _, profile := range *profiles {
+		json = append(json, *toProfileJson(&profile))
+	}
+
+	render(w, http.StatusOK, json)
+}

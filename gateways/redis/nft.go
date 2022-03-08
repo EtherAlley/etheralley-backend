@@ -19,7 +19,7 @@ func (g *gateway) GetNonFungibleMetadata(ctx context.Context, contract *entities
 	}
 
 	metadataJson := &nonFungibleMetadataJson{}
-	err = json.Unmarshal([]byte(metadataString), &metadataJson)
+	err = json.Unmarshal([]byte(metadataString), metadataJson)
 
 	if err != nil {
 		return nil, err
@@ -41,22 +41,4 @@ func (g *gateway) SaveNonFungibleMetadata(ctx context.Context, contract *entitie
 	_, err = g.client.Set(ctx, getFullKey(NFTNamespace, contract.Address, tokenId, contract.Blockchain), bytes, time.Hour*24).Result()
 
 	return err
-}
-
-func fromNonFungibleMetadataJson(metadata *nonFungibleMetadataJson) *entities.NonFungibleMetadata {
-	return &entities.NonFungibleMetadata{
-		Name:        metadata.Name,
-		Description: metadata.Description,
-		Image:       metadata.Image,
-		Attributes:  metadata.Attributes,
-	}
-}
-
-func toNonFungibleMetadataJson(metadata *entities.NonFungibleMetadata) *nonFungibleMetadataJson {
-	return &nonFungibleMetadataJson{
-		Name:        metadata.Name,
-		Description: metadata.Description,
-		Image:       metadata.Image,
-		Attributes:  metadata.Attributes,
-	}
 }
