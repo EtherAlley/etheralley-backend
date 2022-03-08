@@ -56,6 +56,7 @@ func (hc *HttpController) recordProfileViewMiddleware(next http.Handler) http.Ha
 		// we don't need to block for this.
 		done := make(chan bool)
 		go func() {
+			// we also don't care about the results, they will not affect the results of the request
 			hc.recordProfileView(ctx, &usecases.RecordProfileViewInput{
 				Address:   ctx.Value(common.ContextKeyAddress).(string),
 				IpAddress: r.RemoteAddr,
