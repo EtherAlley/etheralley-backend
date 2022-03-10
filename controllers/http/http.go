@@ -79,7 +79,7 @@ func (hc *HttpController) Start() error {
 		MaxAge:           300,
 	}))
 	r.Use(middleware.NoCache)
-	r.Use(middleware.RealIP) // TODO: check if all three headers in hear can be trusted based on the cloud provider we settle on
+	r.Use(middleware.RealIP) // TODO: check if all three headers in here can be trusted based on the cloud provider we settle on
 	r.Use(hc.requestId)
 	r.Use(hc.logEvent)
 	r.Use(hc.recoverer)

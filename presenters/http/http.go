@@ -44,10 +44,6 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 func toNonFungibleTokensJson(nfts *[]entities.NonFungibleToken) *[]nonFungibleTokenJson {
 	nftsJson := []nonFungibleTokenJson{}
 
-	if nfts == nil {
-		return &nftsJson
-	}
-
 	for _, nft := range *nfts {
 		nftsJson = append(nftsJson, *toNonFungibleJson(&nft))
 	}
@@ -57,10 +53,6 @@ func toNonFungibleTokensJson(nfts *[]entities.NonFungibleToken) *[]nonFungibleTo
 
 func toFungibleTokensJson(tokens *[]entities.FungibleToken) *[]fungibleTokenJson {
 	tokensJson := []fungibleTokenJson{}
-
-	if tokens == nil {
-		return &tokensJson
-	}
 
 	for _, token := range *tokens {
 		tokensJson = append(tokensJson, *toFungibleJson(&token))
@@ -72,10 +64,6 @@ func toFungibleTokensJson(tokens *[]entities.FungibleToken) *[]fungibleTokenJson
 func toStatisticsJson(stats *[]entities.Statistic) *[]statisticJson {
 	statsJson := []statisticJson{}
 
-	if stats == nil {
-		return &statsJson
-	}
-
 	for _, stat := range *stats {
 		statsJson = append(statsJson, *toStatisticJson(&stat))
 	}
@@ -85,10 +73,6 @@ func toStatisticsJson(stats *[]entities.Statistic) *[]statisticJson {
 
 func toInteractionsJson(interactions *[]entities.Interaction) *[]interactionJson {
 	interactionsJson := []interactionJson{}
-
-	if interactions == nil {
-		return &interactionsJson
-	}
 
 	for _, interaction := range *interactions {
 		interactionsJson = append(interactionsJson, *toInteractionJson(&interaction))

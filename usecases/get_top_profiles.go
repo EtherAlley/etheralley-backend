@@ -17,7 +17,7 @@ type IGetTopProfilesUseCase func(ctx context.Context, input *GetTopProfilesInput
 func NewGetTopProfilesUseCase(
 	logger common.ILogger,
 	cacheGateway gateways.ICacheGateway,
-	resolveENSName IResolveENSNameUseCase,
+	getProfile IGetProfileUseCase,
 ) IGetTopProfilesUseCase {
 	return func(ctx context.Context, input *GetTopProfilesInput) *[]entities.Profile {
 		if profiles, err := cacheGateway.GetTopViewedProfiles(ctx); err == nil {
@@ -31,7 +31,7 @@ func NewGetTopProfilesUseCase(
 		}
 
 		var wg sync.WaitGroup
-		profiles := make([]entities.Profile, len(*addresses))
+		profiles := make([]*entities.Profile, len(*addresses))
 
 		for i, address := range *addresses {
 			wg.Add(1)
@@ -39,21 +39,31 @@ func NewGetTopProfilesUseCase(
 			go func(i int, address string) {
 				defer wg.Done()
 
-				ensName, _ := resolveENSName(ctx, &ResolveENSNameInput{
+				profile, err := getProfile(ctx, &GetProfileInput{
 					Address: address,
 				})
 
-				profiles[i] = entities.Profile{
-					Address: address,
-					ENSName: ensName,
+				if err != nil {
+					logger.Errf(ctx, err, "err hydrating top profiles %v")
+					return
 				}
+
+				profiles[i] = profile
 			}(i, address)
 		}
 
 		wg.Wait()
 
-		cacheGateway.SaveTopViewedProfiles(ctx, &profiles)
+		// trim any profiles that had an error fetching
+		trimmedProfiles := []entities.Profile{}
+		for _, profile := range profiles {
+			if profile != nil {
+				trimmedProfiles = append(trimmedProfiles, *profile)
+			}
+		}
 
-		return &profiles
+		cacheGateway.SaveTopViewedProfiles(ctx, &trimmedProfiles)
+
+		return &trimmedProfiles
 	}
 }

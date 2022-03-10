@@ -65,7 +65,7 @@ func (gw *gateway) GetTopViewedAddresses(ctx context.Context) (*[]string, error)
 
 	// take top 10 scores sorted in desc order
 	// TODO: can parameterize this in the future
-	results, err := gw.client.ZRevRangeWithScores(ctx, MergedAddressViews, 0, 19).Result()
+	results, err := gw.client.ZRevRangeWithScores(ctx, MergedAddressViews, 0, 9).Result()
 
 	if err != nil {
 		return nil, err
