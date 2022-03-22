@@ -16,9 +16,9 @@ func (hc *HttpController) getChallengeRoute(w http.ResponseWriter, r *http.Reque
 	})
 
 	if err != nil {
-		hc.presenter.PresentBadRequest(ctx, w, err)
+		hc.presenter.PresentBadRequest(w, r, err)
 		return
 	}
 
-	hc.presenter.PresentChallenge(ctx, w, challenge)
+	hc.presenter.PresentChallenge(w, r, challenge)
 }

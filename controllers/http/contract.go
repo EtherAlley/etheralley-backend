@@ -37,11 +37,11 @@ func (hc *HttpController) getTokenRoute(w http.ResponseWriter, r *http.Request) 
 	})
 
 	if err != nil {
-		hc.presenter.PresentBadRequest(ctx, w, err)
+		hc.presenter.PresentBadRequest(w, r, err)
 		return
 	}
 
-	hc.presenter.PresentFungibleToken(ctx, w, token)
+	hc.presenter.PresentFungibleToken(w, r, token)
 }
 
 func (hc *HttpController) getNFTRoute(w http.ResponseWriter, r *http.Request) {
@@ -57,11 +57,11 @@ func (hc *HttpController) getNFTRoute(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		hc.presenter.PresentBadRequest(ctx, w, err)
+		hc.presenter.PresentBadRequest(w, r, err)
 		return
 	}
 
-	hc.presenter.PresentNonFungibleToken(ctx, w, nft)
+	hc.presenter.PresentNonFungibleToken(w, r, nft)
 }
 
 func (hc *HttpController) getStatisticRoute(w http.ResponseWriter, r *http.Request) {
@@ -77,9 +77,9 @@ func (hc *HttpController) getStatisticRoute(w http.ResponseWriter, r *http.Reque
 	})
 
 	if err != nil {
-		hc.presenter.PresentBadRequest(ctx, w, err)
+		hc.presenter.PresentBadRequest(w, r, err)
 		return
 	}
 
-	hc.presenter.PresentStatistic(ctx, w, statistic)
+	hc.presenter.PresentStatistic(w, r, statistic)
 }

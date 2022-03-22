@@ -19,7 +19,7 @@ func (hc *HttpController) resolveAddr(next http.Handler) http.Handler {
 		})
 
 		if err != nil {
-			hc.presenter.PresentBadRequest(ctx, w, err)
+			hc.presenter.PresentBadRequest(w, r, err)
 			return
 		}
 

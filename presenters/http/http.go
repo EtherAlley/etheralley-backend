@@ -2,7 +2,9 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -10,23 +12,56 @@ import (
 )
 
 type httpPresenter struct {
-	logger common.ILogger
+	logger   common.ILogger
+	settings common.ISettings
 }
 
-func NewPresenter(logger common.ILogger) presenters.IPresenter {
+func NewPresenter(logger common.ILogger, settings common.ISettings) presenters.IPresenter {
 	return &httpPresenter{
 		logger,
+		settings,
 	}
 }
 
-func render(w http.ResponseWriter, statusCode int, body interface{}) {
+func (p *httpPresenter) presentJSON(w http.ResponseWriter, r *http.Request, statusCode int, body interface{}) {
+	p.presentStatus(w, r, statusCode)
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(body)
 }
 
-func renderNoBody(w http.ResponseWriter, statusCode int) {
+func (p *httpPresenter) presentText(w http.ResponseWriter, r *http.Request, statusCode int, text string) {
+	p.presentStatus(w, r, statusCode)
+	w.Header().Set("Content-Type", "text/plain")
+	w.Write([]byte(text))
+}
+
+func (p *httpPresenter) presentStatus(w http.ResponseWriter, r *http.Request, statusCode int) {
 	w.WriteHeader(statusCode)
+	p.logEvent(w, r, statusCode)
+}
+
+// log details of the request/response
+func (p *httpPresenter) logEvent(w http.ResponseWriter, r *http.Request, statusCode int) {
+	ctx := r.Context()
+	t1 := ctx.Value(common.ContextKeyRequestStartTime).(time.Time)
+	p.logger.Event(r.Context(), []struct {
+		Key   string
+		Value string
+	}{
+		{Key: "method", Value: r.Method},
+		{Key: "path", Value: r.URL.Path},
+		{Key: "resptime", Value: time.Since(t1).String()},
+		{Key: "statuscode", Value: fmt.Sprint(statusCode)},
+		{Key: "remoteaddr", Value: r.RemoteAddr},
+		{Key: "hostname", Value: p.settings.Hostname()},
+		{Key: "instanceid", Value: p.settings.InstanceID()},
+	})
+}
+
+func toChallengeJson(challenge *entities.Challenge) *challengeJson {
+	return &challengeJson{
+		Message: challenge.Message,
+	}
 }
 
 func toProfileJson(profile *entities.Profile) *profileJson {
@@ -203,6 +238,10 @@ func toDisplayConfigJson(displayConfig *entities.DisplayConfig) *displayConfigJs
 		config.Groups = &groups
 	}
 	return config
+}
+
+type challengeJson struct {
+	Message string `json:"message"`
 }
 
 type profileJson struct {

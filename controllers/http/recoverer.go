@@ -14,7 +14,7 @@ func (hc *HttpController) recoverer(next http.Handler) http.Handler {
 
 				hc.logger.Errorf(r.Context(), "Caught panic in recoverer: %+v", rvr)
 
-				hc.presenter.PresentBadRequest(r.Context(), w, errors.New("caught panic in recoverer"))
+				hc.presenter.PresentBadRequest(w, r, errors.New("caught panic in recoverer"))
 			}
 		}()
 

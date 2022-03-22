@@ -15,7 +15,7 @@ func (hc *HttpController) authenticate(next http.Handler) http.Handler {
 		token := strings.Split(r.Header.Get("Authorization"), " ")
 
 		if len(token) != 2 || token[0] != "Bearer" {
-			hc.presenter.PresentUnathorized(ctx, w)
+			hc.presenter.PresentUnathorized(w, r)
 			return
 		}
 
@@ -25,7 +25,7 @@ func (hc *HttpController) authenticate(next http.Handler) http.Handler {
 		})
 
 		if err != nil {
-			hc.presenter.PresentUnathorized(ctx, w)
+			hc.presenter.PresentUnathorized(w, r)
 			return
 		}
 

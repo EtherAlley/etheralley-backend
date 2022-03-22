@@ -1,14 +1,13 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-func (p *httpPresenter) PresentInteraction(ctx context.Context, w http.ResponseWriter, interaction *entities.Interaction) {
+func (p *httpPresenter) PresentInteraction(w http.ResponseWriter, r *http.Request, interaction *entities.Interaction) {
 	json := toInteractionJson(interaction)
 
-	render(w, http.StatusOK, json)
+	p.presentJSON(w, r, http.StatusOK, json)
 }

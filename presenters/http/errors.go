@@ -1,18 +1,17 @@
 package http
 
 import (
-	"context"
 	"net/http"
 )
 
-func (p *httpPresenter) PresentBadRequest(ctx context.Context, w http.ResponseWriter, err error) {
-	p.logger.Err(ctx, err, "bad request err")
-	render(w, http.StatusBadRequest, toErrJson("bad request"))
+func (p *httpPresenter) PresentBadRequest(w http.ResponseWriter, r *http.Request, err error) {
+	p.logger.Err(r.Context(), err, "bad request err")
+	p.presentJSON(w, r, http.StatusBadRequest, toErrJson("bad request"))
 }
 
-func (p *httpPresenter) PresentUnathorized(ctx context.Context, w http.ResponseWriter) {
-	p.logger.Error(ctx, "unauthorized err")
-	render(w, http.StatusUnauthorized, toErrJson("unathorized"))
+func (p *httpPresenter) PresentUnathorized(w http.ResponseWriter, r *http.Request) {
+	p.logger.Error(r.Context(), "unauthorized err")
+	p.presentJSON(w, r, http.StatusUnauthorized, toErrJson("unathorized"))
 }
 
 func toErrJson(msg string) *errJson {

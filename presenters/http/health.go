@@ -1,12 +1,9 @@
 package http
 
 import (
-	"context"
 	"net/http"
 )
 
-func (p *httpPresenter) PresentHealth(ctx context.Context, w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("."))
+func (p *httpPresenter) PresentHealth(w http.ResponseWriter, r *http.Request) {
+	p.presentText(w, r, http.StatusOK, "OK")
 }

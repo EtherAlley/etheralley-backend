@@ -17,11 +17,11 @@ func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *htt
 	})
 
 	if err != nil {
-		hc.presenter.PresentBadRequest(ctx, w, err)
+		hc.presenter.PresentBadRequest(w, r, err)
 		return
 	}
 
-	hc.presenter.PresentProfile(ctx, w, profile)
+	hc.presenter.PresentProfile(w, r, profile)
 }
 
 func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Reques
 	err := json.NewDecoder(r.Body).Decode(profile)
 
 	if err != nil {
-		hc.presenter.PresentBadRequest(ctx, w, err)
+		hc.presenter.PresentBadRequest(w, r, err)
 		return
 	}
 
@@ -42,11 +42,11 @@ func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Reques
 	})
 
 	if err != nil {
-		hc.presenter.PresentBadRequest(ctx, w, err)
+		hc.presenter.PresentBadRequest(w, r, err)
 		return
 	}
 
-	hc.presenter.PresentSavedProfile(ctx, w)
+	hc.presenter.PresentSavedProfile(w, r)
 }
 
 func (hc *HttpController) recordProfileViewMiddleware(next http.Handler) http.Handler {
@@ -75,5 +75,5 @@ func (hc *HttpController) getTopProfilesRoute(w http.ResponseWriter, r *http.Req
 
 	profiles := hc.getTopProfiles(ctx, &usecases.GetTopProfilesInput{})
 
-	hc.presenter.PresentTopProfiles(ctx, w, profiles)
+	hc.presenter.PresentTopProfiles(w, r, profiles)
 }

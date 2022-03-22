@@ -79,9 +79,9 @@ func (hc *HttpController) Start() error {
 		MaxAge:           300,
 	}))
 	r.Use(middleware.NoCache)
+	r.Use(hc.timer)
 	r.Use(hc.realIP)
 	r.Use(hc.requestId)
-	r.Use(hc.logEvent)
 	r.Use(hc.recoverer)
 	r.Use(hc.timeout)
 

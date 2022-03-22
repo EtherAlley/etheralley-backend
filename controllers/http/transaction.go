@@ -36,9 +36,9 @@ func (hc *HttpController) getInteractionRoute(w http.ResponseWriter, r *http.Req
 	})
 
 	if err != nil {
-		hc.presenter.PresentBadRequest(ctx, w, err)
+		hc.presenter.PresentBadRequest(w, r, err)
 		return
 	}
 
-	hc.presenter.PresentInteraction(ctx, w, interaction)
+	hc.presenter.PresentInteraction(w, r, interaction)
 }

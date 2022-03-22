@@ -5,5 +5,5 @@ import (
 )
 
 func (hc *HttpController) healthRoute(w http.ResponseWriter, r *http.Request) {
-	hc.presenter.PresentHealth(r.Context(), w)
+	hc.presenter.PresentHealth(w, r)
 }
