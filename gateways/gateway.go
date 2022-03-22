@@ -52,6 +52,9 @@ type IBlockchainGateway interface {
 }
 
 type IBlockchainIndexGateway interface {
-	GetNonFungibleTokens(ctx context.Context, address string) *[]entities.NonFungibleToken
 	GetSwaps(ctx context.Context, address string, contract *entities.Contract) (interface{}, error)
+}
+
+type INFTAPIGateway interface {
+	GetNonFungibleTokens(ctx context.Context, address string) *[]entities.NonFungibleToken
 }

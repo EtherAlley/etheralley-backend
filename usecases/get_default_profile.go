@@ -23,6 +23,7 @@ func NewGetDefaultProfile(
 	logger common.ILogger,
 	settings common.ISettings,
 	blochchainIndexGateway gateways.IBlockchainIndexGateway,
+	nftApiGateway gateways.INFTAPIGateway,
 	getAllFungibleTokens IGetAllFungibleTokensUseCase,
 	getAllStatistics IGetAllStatisticsUseCase,
 	resolveENSName IResolveENSNameUseCase,
@@ -52,7 +53,7 @@ func NewGetDefaultProfile(
 
 		go func() {
 			defer wg.Done()
-			profile.NonFungibleTokens = blochchainIndexGateway.GetNonFungibleTokens(ctx, input.Address)
+			profile.NonFungibleTokens = nftApiGateway.GetNonFungibleTokens(ctx, input.Address)
 		}()
 
 		go func() {

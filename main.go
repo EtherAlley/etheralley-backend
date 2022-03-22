@@ -9,6 +9,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/controllers"
 	httpControllers "github.com/etheralley/etheralley-core-api/controllers/http"
+	"github.com/etheralley/etheralley-core-api/gateways/alchemy"
 	"github.com/etheralley/etheralley-core-api/gateways/ethereum"
 	"github.com/etheralley/etheralley-core-api/gateways/mongo"
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
@@ -39,6 +40,7 @@ func main() {
 	container.Provide(mongo.NewGateway)
 	container.Provide(ethereum.NewGateway)
 	container.Provide(thegraph.NewGateway)
+	container.Provide(alchemy.NewGateway)
 	container.Provide(usecases.NewGetChallenge)
 	container.Provide(usecases.NewGetProfile)
 	container.Provide(usecases.NewGetDefaultProfile)
