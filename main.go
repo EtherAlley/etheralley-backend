@@ -58,6 +58,8 @@ func main() {
 	container.Provide(usecases.NewGetAllInteractionsUseCase)
 	container.Provide(usecases.NewRecordProfileViewUseCase)
 	container.Provide(usecases.NewGetTopProfilesUseCase)
+	container.Provide(usecases.NewGetListingMetadata)
+	container.Provide(usecases.NewGetListings)
 	container.Provide(httpPresenters.NewPresenter)
 	container.Provide(httpControllers.NewHttpController)
 

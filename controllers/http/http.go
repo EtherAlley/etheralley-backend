@@ -28,6 +28,8 @@ type HttpController struct {
 	getInteraction      usecases.IGetInteractionUseCase
 	recordProfileView   usecases.IRecordProfileViewUseCase
 	getTopProfiles      usecases.IGetTopProfilesUseCase
+	getListingMetadata  usecases.IGetListingMetadataUseCase
+	getListings         usecases.IGetListingsUseCase
 }
 
 func NewHttpController(
@@ -45,6 +47,8 @@ func NewHttpController(
 	getInteraction usecases.IGetInteractionUseCase,
 	recordProfileView usecases.IRecordProfileViewUseCase,
 	getTopProfiles usecases.IGetTopProfilesUseCase,
+	getListingMetadata usecases.IGetListingMetadataUseCase,
+	getListings usecases.IGetListingsUseCase,
 ) *HttpController {
 	return &HttpController{
 		settings,
@@ -61,6 +65,8 @@ func NewHttpController(
 		getInteraction,
 		recordProfileView,
 		getTopProfiles,
+		getListingMetadata,
+		getListings,
 	}
 }
 
@@ -112,6 +118,11 @@ func (hc *HttpController) Start() error {
 	r.Route("/transactions", func(r chi.Router) {
 		r.Use(hc.parseTransaction)
 		r.Get("/interaction", hc.getInteractionRoute)
+	})
+
+	r.Route("/listings", func(r chi.Router) {
+		r.Get("/", hc.getListingsRoute)
+		r.Get("/metadata/{tokenid}", hc.getMetadataByIdRoute)
 	})
 
 	port := hc.settings.Port()

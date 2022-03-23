@@ -18,4 +18,6 @@ type IPresenter interface {
 	PresentProfile(http.ResponseWriter, *http.Request, *entities.Profile)
 	PresentSavedProfile(http.ResponseWriter, *http.Request)
 	PresentTopProfiles(http.ResponseWriter, *http.Request, *[]entities.Profile)
+	PresentListingMetadata(http.ResponseWriter, *http.Request, *entities.NonFungibleMetadata)
+	PresentListings(http.ResponseWriter, *http.Request, *[]entities.Listing)
 }

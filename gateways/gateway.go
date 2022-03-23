@@ -49,6 +49,9 @@ type IBlockchainGateway interface {
 	GetENSNameFromAddress(ctx context.Context, address string) (name string, err error)
 
 	GetTransactionData(ctx context.Context, tx *entities.Transaction) (*entities.TransactionData, error)
+
+	GetStoreListingInfo(ctx context.Context, ids *[]string) (*[]entities.ListingInfo, error)
+	GetStoreBalanceBatch(ctx context.Context, address string, ids *[]string) (*[]string, error)
 }
 
 type IBlockchainIndexGateway interface {

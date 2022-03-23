@@ -21,6 +21,9 @@ type ISettings interface {
 	CachePassword() string
 	DatabaseURI() string
 	Database() string
+	StoreBlockchain() string
+	StoreAddress() string
+	StoreImageURI() string
 	EthereumURI() string
 	PolygonURI() string
 	ArbitrumURI() string
@@ -41,6 +44,9 @@ type settings struct {
 	redisPassword     string
 	mongoURI          string
 	mongoDB           string
+	storeBlockchain   string
+	storeAddress      string
+	storeImageURI     string
 	ethereumURI       string
 	polygonURI        string
 	arbitrumURI       string
@@ -82,6 +88,9 @@ func NewSettings() ISettings {
 		redisDB:           os.Getenv("REDIS_DB"),
 		mongoURI:          os.Getenv("MONGO_URI"),
 		mongoDB:           os.Getenv("MONGO_DB"),
+		storeBlockchain:   os.Getenv("STORE_BLOCKCHAIN"),
+		storeAddress:      os.Getenv("STORE_ADDRESS"),
+		storeImageURI:     os.Getenv("STORE_IMAGE_URI"),
 		ethereumURI:       os.Getenv("ETHEREUM_URI"),
 		polygonURI:        os.Getenv("POLYGON_URI"),
 		arbitrumURI:       os.Getenv("ARBITRUM_URI"),
@@ -137,6 +146,18 @@ func (s *settings) DatabaseURI() string {
 
 func (s *settings) Database() string {
 	return s.mongoDB
+}
+
+func (s *settings) StoreBlockchain() string {
+	return s.storeBlockchain
+}
+
+func (s *settings) StoreAddress() string {
+	return s.storeAddress
+}
+
+func (s *settings) StoreImageURI() string {
+	return s.storeImageURI
 }
 
 func (s *settings) EthereumURI() string {
