@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"math/big"
 	"sync"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -22,6 +23,7 @@ type IGetProfileUseCase func(ctx context.Context, input *GetProfileInput) (*enti
 // if database hit, re-fetch transient info
 func NewGetProfile(
 	logger common.ILogger,
+	blockchainGateway gateways.IBlockchainGateway,
 	cacheGateway gateways.ICacheGateway,
 	databaseGateway gateways.IDatabaseGateway,
 	getDefaultProfile IGetDefaultProfileUseCase,
@@ -71,7 +73,7 @@ func NewGetProfile(
 		logger.Debugf(ctx, "db hit for profile %v", input.Address)
 
 		var wg sync.WaitGroup
-		wg.Add(4)
+		wg.Add(5)
 
 		go func() {
 			defer wg.Done()
@@ -150,6 +152,17 @@ func NewGetProfile(
 			profile.Statistics = getAllStatistics(ctx, &GetAllStatisticsInput{
 				Stats: &stats,
 			})
+		}()
+
+		go func() {
+			defer wg.Done()
+
+			profile.StoreAssets = &entities.StoreAssets{}
+
+			if balances, err := blockchainGateway.GetStoreBalanceBatch(ctx, input.Address, &[]string{common.STORE_PREMIUM, common.STORE_BETA_TESTER}); err == nil {
+				profile.StoreAssets.Premium = balances[0].Cmp(big.NewInt(0)) == 1
+				profile.StoreAssets.BetaTester = balances[1].Cmp(big.NewInt(0)) == 1
+			}
 		}()
 
 		wg.Wait()

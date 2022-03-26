@@ -77,3 +77,19 @@ func (hc *HttpController) getTopProfilesRoute(w http.ResponseWriter, r *http.Req
 
 	hc.presenter.PresentTopProfiles(w, r, profiles)
 }
+
+func (hc *HttpController) refreshProfileRoute(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	address := ctx.Value(common.ContextKeyAddress).(string)
+
+	err := hc.refreshProfile(ctx, &usecases.RefreshProfileInput{
+		Address: address,
+	})
+
+	if err != nil {
+		hc.presenter.PresentBadRequest(w, r, err)
+		return
+	}
+
+	hc.presenter.PresentRefreshedProfile(w, r)
+}

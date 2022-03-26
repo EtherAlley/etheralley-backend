@@ -128,6 +128,7 @@ func (gw *gateway) getErc1155URI(client *ethclient.Client, address common.Addres
 		return "", err
 	}
 
+	// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexidecimal form
 	hexId := hex.EncodeToString(id.Bytes())
 	uri = strings.Replace(uri, "{id}", hexId, 1)
 

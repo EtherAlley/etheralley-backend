@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -24,8 +25,15 @@ func NewGetListingMetadata(
 			return nil, err
 		}
 
-		switch input.TokenId {
-		case "01":
+		// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexidecimal form
+		tokenId, err := strconv.ParseInt(input.TokenId, 16, 64)
+
+		if err != nil {
+			return nil, err
+		}
+
+		switch fmt.Sprint(tokenId) {
+		case common.STORE_PREMIUM:
 			return &entities.NonFungibleMetadata{
 				Name:        "Ether Alley Premium Membership",
 				Description: "This token gives the holder access to premium features on EtherAlley.io",
@@ -34,7 +42,7 @@ func NewGetListingMetadata(
 					{"atr1": "val1", "atr2": "val2"},
 				},
 			}, nil
-		case "02":
+		case common.STORE_BETA_TESTER:
 			return &entities.NonFungibleMetadata{
 				Name:        "Ether Alley Beta Tester",
 				Description: "The holder of this token participated in the Ether Alley beta. This token is non transferable",

@@ -2,6 +2,7 @@ package gateways
 
 import (
 	"context"
+	"math/big"
 
 	"github.com/etheralley/etheralley-core-api/entities"
 )
@@ -51,7 +52,7 @@ type IBlockchainGateway interface {
 	GetTransactionData(ctx context.Context, tx *entities.Transaction) (*entities.TransactionData, error)
 
 	GetStoreListingInfo(ctx context.Context, ids *[]string) (*[]entities.ListingInfo, error)
-	GetStoreBalanceBatch(ctx context.Context, address string, ids *[]string) (*[]string, error)
+	GetStoreBalanceBatch(ctx context.Context, address string, ids *[]string) ([]*big.Int, error)
 }
 
 type IBlockchainIndexGateway interface {

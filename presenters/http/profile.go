@@ -25,3 +25,7 @@ func (p *httpPresenter) PresentTopProfiles(w http.ResponseWriter, r *http.Reques
 
 	p.presentJSON(w, r, http.StatusOK, json)
 }
+
+func (p *httpPresenter) PresentRefreshedProfile(w http.ResponseWriter, r *http.Request) {
+	p.presentStatus(w, r, http.StatusOK)
+}

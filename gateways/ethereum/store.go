@@ -59,7 +59,7 @@ func (gw *gateway) GetStoreListingInfo(ctx context.Context, ids *[]string) (*[]e
 	return &listings, err
 }
 
-func (gw *gateway) GetStoreBalanceBatch(ctx context.Context, address string, ids *[]string) (*[]string, error) {
+func (gw *gateway) GetStoreBalanceBatch(ctx context.Context, address string, ids *[]string) ([]*big.Int, error) {
 	client, err := gw.getClient(ctx, gw.settings.StoreBlockchain())
 
 	if err != nil {
@@ -91,16 +91,16 @@ func (gw *gateway) GetStoreBalanceBatch(ctx context.Context, address string, ids
 		accountsArr[i] = common.HexToAddress(address)
 	}
 
-	balancesArr, err := instance.BalanceOfBatch(&bind.CallOpts{}, accountsArr, idsArr)
+	return instance.BalanceOfBatch(&bind.CallOpts{}, accountsArr, idsArr)
 
-	if err != nil {
-		return nil, err
-	}
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	balences := make([]string, len(*ids))
-	for i := 0; i < len(*ids); i++ {
-		balences[i] = balancesArr[i].String()
-	}
+	// balences := make([]string, len(*ids))
+	// for i := 0; i < len(*ids); i++ {
+	// 	balences[i] = balancesArr[i].String()
+	// }
 
-	return &balences, err
+	// return &balences, err
 }

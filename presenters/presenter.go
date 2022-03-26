@@ -20,4 +20,5 @@ type IPresenter interface {
 	PresentTopProfiles(http.ResponseWriter, *http.Request, *[]entities.Profile)
 	PresentListingMetadata(http.ResponseWriter, *http.Request, *entities.NonFungibleMetadata)
 	PresentListings(http.ResponseWriter, *http.Request, *[]entities.Listing)
+	PresentRefreshedProfile(w http.ResponseWriter, r *http.Request)
 }

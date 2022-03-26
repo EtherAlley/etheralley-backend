@@ -12,7 +12,7 @@ type ResolveENSNameInput struct {
 	Address string `validate:"required,eth_addr"`
 }
 
-// resolve an ens name for an address
+// Resolve an ens name for an address
 type IResolveENSNameUseCase func(ctx context.Context, input *ResolveENSNameInput) (name string, err error)
 
 // Provided address is normalized to avoid user error

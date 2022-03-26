@@ -66,8 +66,12 @@ func toChallengeJson(challenge *entities.Challenge) *challengeJson {
 
 func toProfileJson(profile *entities.Profile) *profileJson {
 	return &profileJson{
-		Address:           profile.Address,
-		ENSName:           profile.ENSName,
+		Address: profile.Address,
+		ENSName: profile.ENSName,
+		StoreAssets: &storeAssetsJson{
+			Premium:    profile.StoreAssets.Premium,
+			BetaTester: profile.StoreAssets.BetaTester,
+		},
 		DisplayConfig:     toDisplayConfigJson(profile.DisplayConfig),
 		NonFungibleTokens: toNonFungibleTokensJson(profile.NonFungibleTokens),
 		FungibleTokens:    toFungibleTokensJson(profile.FungibleTokens),
@@ -276,6 +280,7 @@ type challengeJson struct {
 type profileJson struct {
 	Address           string                  `json:"address"`
 	ENSName           string                  `json:"ens_name"`
+	StoreAssets       *storeAssetsJson        `json:"store_assets"`
 	DisplayConfig     *displayConfigJson      `json:"display_config,omitempty"`
 	NonFungibleTokens *[]nonFungibleTokenJson `json:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`
@@ -330,6 +335,11 @@ type interactionJson struct {
 type transactiontJson struct {
 	Id         string            `json:"id"`
 	Blockchain common.Blockchain `json:"blockchain"`
+}
+
+type storeAssetsJson struct {
+	Premium    bool `json:"premium"`
+	BetaTester bool `json:"beta_tester"`
 }
 
 type displayConfigJson struct {

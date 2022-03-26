@@ -30,6 +30,7 @@ type HttpController struct {
 	getTopProfiles      usecases.IGetTopProfilesUseCase
 	getListingMetadata  usecases.IGetListingMetadataUseCase
 	getListings         usecases.IGetListingsUseCase
+	refreshProfile      usecases.IRefreshProfileUseCase
 }
 
 func NewHttpController(
@@ -49,6 +50,7 @@ func NewHttpController(
 	getTopProfiles usecases.IGetTopProfilesUseCase,
 	getListingMetadata usecases.IGetListingMetadataUseCase,
 	getListings usecases.IGetListingsUseCase,
+	refreshProfile usecases.IRefreshProfileUseCase,
 ) *HttpController {
 	return &HttpController{
 		settings,
@@ -67,6 +69,7 @@ func NewHttpController(
 		getTopProfiles,
 		getListingMetadata,
 		getListings,
+		refreshProfile,
 	}
 }
 
@@ -97,14 +100,15 @@ func (hc *HttpController) Start() error {
 		r.Get("/top", hc.getTopProfilesRoute)
 
 		r.Route("/{address}", func(r chi.Router) {
-			r.Use(hc.resolveAddr)
+			r.Use(hc.resolveAddressRoute)
 			r.With(hc.recordProfileViewMiddleware).Get("/", hc.getProfileByAddressRoute)
 			r.With(hc.authenticate).Put("/", hc.saveProfileRoute)
+			r.Get("/refresh", hc.refreshProfileRoute)
 		})
 	})
 
 	r.Route("/challenges/{address}", func(r chi.Router) {
-		r.Use(hc.resolveAddr)
+		r.Use(hc.resolveAddressRoute)
 		r.Get("/", hc.getChallengeRoute)
 	})
 
