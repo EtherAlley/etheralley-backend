@@ -34,6 +34,7 @@ type profileJson struct {
 	Address           string                  `json:"address"`
 	ENSName           string                  `json:"ens_name"`
 	DisplayConfig     *displayConfigJson      `json:"display_config,omitempty"`
+	StoreAssets       *storeAssetsJson        `json:"store_assets"`
 	NonFungibleTokens *[]nonFungibleTokenJson `json:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`
 	Statistics        *[]statisticJson        `json:"statistics"`
@@ -87,6 +88,11 @@ type interactionJson struct {
 type transactionJson struct {
 	Id         string            `json:"id"`
 	Blockchain common.Blockchain `json:"blockchain"`
+}
+
+type storeAssetsJson struct {
+	Premium    bool `json:"premium"`
+	BetaTester bool `json:"beta_tester"`
 }
 
 type displayConfigJson struct {
@@ -262,8 +268,12 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 	}
 
 	return &entities.Profile{
-		Address:           profileJson.Address,
-		ENSName:           profileJson.ENSName,
+		Address: profileJson.Address,
+		ENSName: profileJson.ENSName,
+		StoreAssets: &entities.StoreAssets{
+			Premium:    profileJson.StoreAssets.Premium,
+			BetaTester: profileJson.StoreAssets.BetaTester,
+		},
 		DisplayConfig:     config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,
@@ -415,8 +425,12 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 	}
 
 	return &profileJson{
-		Address:           profile.Address,
-		ENSName:           profile.ENSName,
+		Address: profile.Address,
+		ENSName: profile.ENSName,
+		StoreAssets: &storeAssetsJson{
+			Premium:    profile.StoreAssets.Premium,
+			BetaTester: profile.StoreAssets.BetaTester,
+		},
 		DisplayConfig:     config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,

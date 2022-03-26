@@ -12,7 +12,7 @@ type ResolveAddressInput struct {
 	Value string `validate:"required"`
 }
 
-// resolve an address from an ens name
+// Resolve an address from an ens name
 type IResolveAddressUseCase func(ctx context.Context, input *ResolveAddressInput) (address string, err error)
 
 // Attempts to detect provided input format and resolve ens address

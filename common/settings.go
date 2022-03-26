@@ -21,6 +21,9 @@ type ISettings interface {
 	CachePassword() string
 	DatabaseURI() string
 	Database() string
+	StoreBlockchain() string
+	StoreAddress() string
+	StoreImageURI() string
 	EthereumURI() string
 	PolygonURI() string
 	ArbitrumURI() string
@@ -29,26 +32,31 @@ type ISettings interface {
 	IPFSURI() string
 	TheGraphURI() string
 	TheGraphHostedURI() string
+	DefaultTokenAddresses() []string
 }
 
 type settings struct {
-	hostname          string
-	instanceID        string
-	env               string
-	port              string
-	redisAddr         string
-	redisDB           string
-	redisPassword     string
-	mongoURI          string
-	mongoDB           string
-	ethereumURI       string
-	polygonURI        string
-	arbitrumURI       string
-	optimismURI       string
-	ensMetadataURI    string
-	ipfsURI           string
-	theGraphURI       string
-	theGraphHostedURI string
+	hostname              string
+	instanceID            string
+	env                   string
+	port                  string
+	redisAddr             string
+	redisDB               string
+	redisPassword         string
+	mongoURI              string
+	mongoDB               string
+	storeBlockchain       string
+	storeAddress          string
+	storeImageURI         string
+	ethereumURI           string
+	polygonURI            string
+	arbitrumURI           string
+	optimismURI           string
+	ensMetadataURI        string
+	ipfsURI               string
+	theGraphURI           string
+	theGraphHostedURI     string
+	defaultTokenAddresses string
 }
 
 func NewSettings() ISettings {
@@ -73,23 +81,27 @@ func NewSettings() ISettings {
 	instanceID = instanceID[0:10]
 
 	return &settings{
-		hostname:          hostname,
-		instanceID:        instanceID,
-		env:               os.Getenv("ENV"),
-		port:              os.Getenv("PORT"),
-		redisAddr:         os.Getenv("REDIS_ADDR"),
-		redisPassword:     os.Getenv("REDIS_PASSWORD"),
-		redisDB:           os.Getenv("REDIS_DB"),
-		mongoURI:          os.Getenv("MONGO_URI"),
-		mongoDB:           os.Getenv("MONGO_DB"),
-		ethereumURI:       os.Getenv("ETHEREUM_URI"),
-		polygonURI:        os.Getenv("POLYGON_URI"),
-		arbitrumURI:       os.Getenv("ARBITRUM_URI"),
-		optimismURI:       os.Getenv("OPTIMISM_URI"),
-		ensMetadataURI:    os.Getenv("ENS_METADATA_URI"),
-		ipfsURI:           os.Getenv("IPFS_URI"),
-		theGraphURI:       os.Getenv("THE_GRAPH_URI"),
-		theGraphHostedURI: os.Getenv("THE_GRAPH_HOSTED_URI"),
+		hostname:              hostname,
+		instanceID:            instanceID,
+		env:                   os.Getenv("ENV"),
+		port:                  os.Getenv("PORT"),
+		redisAddr:             os.Getenv("REDIS_ADDR"),
+		redisPassword:         os.Getenv("REDIS_PASSWORD"),
+		redisDB:               os.Getenv("REDIS_DB"),
+		mongoURI:              os.Getenv("MONGO_URI"),
+		mongoDB:               os.Getenv("MONGO_DB"),
+		storeBlockchain:       os.Getenv("STORE_BLOCKCHAIN"),
+		storeAddress:          os.Getenv("STORE_ADDRESS"),
+		storeImageURI:         os.Getenv("STORE_IMAGE_URI"),
+		ethereumURI:           os.Getenv("ETHEREUM_URI"),
+		polygonURI:            os.Getenv("POLYGON_URI"),
+		arbitrumURI:           os.Getenv("ARBITRUM_URI"),
+		optimismURI:           os.Getenv("OPTIMISM_URI"),
+		ensMetadataURI:        os.Getenv("ENS_METADATA_URI"),
+		ipfsURI:               os.Getenv("IPFS_URI"),
+		theGraphURI:           os.Getenv("THE_GRAPH_URI"),
+		theGraphHostedURI:     os.Getenv("THE_GRAPH_HOSTED_URI"),
+		defaultTokenAddresses: os.Getenv("DEFAULT_TOKEN_ADDRESSES"),
 	}
 }
 
@@ -139,6 +151,18 @@ func (s *settings) Database() string {
 	return s.mongoDB
 }
 
+func (s *settings) StoreBlockchain() string {
+	return s.storeBlockchain
+}
+
+func (s *settings) StoreAddress() string {
+	return s.storeAddress
+}
+
+func (s *settings) StoreImageURI() string {
+	return s.storeImageURI
+}
+
 func (s *settings) EthereumURI() string {
 	return s.ethereumURI
 }
@@ -169,4 +193,8 @@ func (s *settings) TheGraphURI() string {
 
 func (s *settings) TheGraphHostedURI() string {
 	return s.theGraphHostedURI
+}
+
+func (s *settings) DefaultTokenAddresses() []string {
+	return strings.Split(s.defaultTokenAddresses, ",")
 }

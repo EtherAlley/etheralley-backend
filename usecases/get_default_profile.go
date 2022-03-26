@@ -13,12 +13,14 @@ type GetDefaultProfileInput struct {
 	Address string `validate:"required,eth_addr"`
 }
 
-// get a default profile for the provided address
+// Get a default profile for the provided address
 type IGetDefaultProfileUseCase func(ctx context.Context, input *GetDefaultProfileInput) (*entities.Profile, error)
 
-// attempt to provide a pleasent default profile when none has been configured.
-// fetch nfts and stats from the graph and fetch tokens from a fixed list.
-// fetch primary ens name for address if configured
+// Attempt to provide a pleasent default profile when none has been configured.
+//
+// Fetch nfts and stats from the graph and fetch tokens from a fixed list.
+//
+// Fetch primary ens name for address if configured
 func NewGetDefaultProfile(
 	logger common.ILogger,
 	settings common.ISettings,
@@ -34,7 +36,11 @@ func NewGetDefaultProfile(
 		}
 
 		profile := &entities.Profile{
-			Address:      input.Address,
+			Address: input.Address,
+			StoreAssets: &entities.StoreAssets{
+				Premium:    false,
+				BetaTester: false,
+			},
 			Interactions: &[]entities.Interaction{},
 		}
 		var wg sync.WaitGroup
@@ -59,29 +65,8 @@ func NewGetDefaultProfile(
 		go func() {
 			defer wg.Done()
 
-			var knownContracts []string
-			if settings.IsDev() {
-				knownContracts = []string{
-					common.UNI_GOERLI,
-					common.LINK_GOERLI,
-					common.HEX_GOERLI,
-					common.SHIB_GOERLI,
-					common.DAI_GOERLI,
-					common.CRO_GOERLI,
-				}
-			} else {
-				knownContracts = []string{
-					common.UNI_MAINNET,
-					common.LINK_MAINNET,
-					common.HEX_MAINNET,
-					common.SHIB_MAINNET,
-					common.DAI_MAINNET,
-					common.CRO_MAINNET,
-				}
-			}
-
 			tokens := []GetFungibleTokenInput{}
-			for _, address := range knownContracts {
+			for _, address := range settings.DefaultTokenAddresses() {
 				tokens = append(tokens, GetFungibleTokenInput{
 					Address: input.Address,
 					Token: &FungibleTokenInput{
@@ -101,33 +86,24 @@ func NewGetDefaultProfile(
 
 		go func() {
 			defer wg.Done()
-			input := GetAllStatisticsInput{
-				Stats: &[]GetStatisticsInput{
-					{
-						Address: input.Address,
-						Statistic: &StatisticInput{
-							Type: common.SWAP,
-							Contract: &ContractInput{
-								Address:    common.ZERO_ADDRESS,
-								Interface:  common.UNISWAP_V2_EXCHANGE,
-								Blockchain: common.ETHEREUM,
-							},
+
+			stats := []GetStatisticsInput{}
+			for _, intf := range []string{common.UNISWAP_V2_EXCHANGE, common.SUSHISWAP_EXCHANGE} {
+				stats = append(stats, GetStatisticsInput{
+					Address: input.Address,
+					Statistic: &StatisticInput{
+						Type: common.SWAP,
+						Contract: &ContractInput{
+							Address:    common.ZERO_ADDRESS,
+							Interface:  intf,
+							Blockchain: common.ETHEREUM,
 						},
 					},
-					{
-						Address: input.Address,
-						Statistic: &StatisticInput{
-							Type: common.SWAP,
-							Contract: &ContractInput{
-								Address:    common.ZERO_ADDRESS,
-								Interface:  common.SUSHISWAP_EXCHANGE,
-								Blockchain: common.ETHEREUM,
-							},
-						},
-					},
-				},
+				})
 			}
-			profile.Statistics = getAllStatistics(ctx, &input)
+			profile.Statistics = getAllStatistics(ctx, &GetAllStatisticsInput{
+				Stats: &stats,
+			})
 		}()
 
 		wg.Wait()

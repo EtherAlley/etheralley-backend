@@ -24,20 +24,20 @@ func NewPresenter(logger common.ILogger, settings common.ISettings) presenters.I
 }
 
 func (p *httpPresenter) presentJSON(w http.ResponseWriter, r *http.Request, statusCode int, body interface{}) {
-	p.presentStatus(w, r, statusCode)
 	w.Header().Set("Content-Type", "application/json")
+	p.presentStatus(w, r, statusCode)
 	json.NewEncoder(w).Encode(body)
 }
 
 func (p *httpPresenter) presentText(w http.ResponseWriter, r *http.Request, statusCode int, text string) {
-	p.presentStatus(w, r, statusCode)
 	w.Header().Set("Content-Type", "text/plain")
+	p.presentStatus(w, r, statusCode)
 	w.Write([]byte(text))
 }
 
 func (p *httpPresenter) presentStatus(w http.ResponseWriter, r *http.Request, statusCode int) {
-	w.WriteHeader(statusCode)
 	p.logEvent(w, r, statusCode)
+	w.WriteHeader(statusCode)
 }
 
 // log details of the request/response
@@ -66,8 +66,12 @@ func toChallengeJson(challenge *entities.Challenge) *challengeJson {
 
 func toProfileJson(profile *entities.Profile) *profileJson {
 	return &profileJson{
-		Address:           profile.Address,
-		ENSName:           profile.ENSName,
+		Address: profile.Address,
+		ENSName: profile.ENSName,
+		StoreAssets: &storeAssetsJson{
+			Premium:    profile.StoreAssets.Premium,
+			BetaTester: profile.StoreAssets.BetaTester,
+		},
 		DisplayConfig:     toDisplayConfigJson(profile.DisplayConfig),
 		NonFungibleTokens: toNonFungibleTokensJson(profile.NonFungibleTokens),
 		FungibleTokens:    toFungibleTokensJson(profile.FungibleTokens),
@@ -129,20 +133,24 @@ func toFungibleJson(token *entities.FungibleToken) *fungibleTokenJson {
 }
 
 func toNonFungibleJson(nft *entities.NonFungibleToken) *nonFungibleTokenJson {
-	var metadata *nonFungibleMetadataJson
-	if nft.Metadata != nil {
-		metadata = &nonFungibleMetadataJson{
-			Name:        nft.Metadata.Name,
-			Description: nft.Metadata.Description,
-			Image:       nft.Metadata.Image,
-			Attributes:  nft.Metadata.Attributes,
-		}
-	}
 	return &nonFungibleTokenJson{
 		Contract: toContractJson(nft.Contract),
 		TokenId:  nft.TokenId,
 		Balance:  nft.Balance,
-		Metadata: metadata,
+		Metadata: toNonFungibleMetadataJson(nft.Metadata),
+	}
+}
+
+func toNonFungibleMetadataJson(metadata *entities.NonFungibleMetadata) *nonFungibleMetadataJson {
+	if metadata == nil {
+		return nil
+	}
+
+	return &nonFungibleMetadataJson{
+		Name:        metadata.Name,
+		Description: metadata.Description,
+		Image:       metadata.Image,
+		Attributes:  metadata.Attributes,
 	}
 }
 
@@ -240,6 +248,31 @@ func toDisplayConfigJson(displayConfig *entities.DisplayConfig) *displayConfigJs
 	return config
 }
 
+func toListingsJson(listings *[]entities.Listing) *[]listingJson {
+	listingJson := []listingJson{}
+
+	for _, listing := range *listings {
+		listingJson = append(listingJson, *toListingJson(&listing))
+	}
+
+	return &listingJson
+}
+
+func toListingJson(listing *entities.Listing) *listingJson {
+	return &listingJson{
+		Contract: toContractJson(listing.Contract),
+		TokenId:  listing.TokenId,
+		Info: &listingInfoJson{
+			Purchasable:  listing.Info.Purchasable,
+			Transferable: listing.Info.Transferable,
+			Price:        listing.Info.Price,
+			SupplyLimit:  listing.Info.SupplyLimit,
+			BalanceLimit: listing.Info.BalanceLimit,
+		},
+		Metadata: toNonFungibleMetadataJson(listing.Metadata),
+	}
+}
+
 type challengeJson struct {
 	Message string `json:"message"`
 }
@@ -247,6 +280,7 @@ type challengeJson struct {
 type profileJson struct {
 	Address           string                  `json:"address"`
 	ENSName           string                  `json:"ens_name"`
+	StoreAssets       *storeAssetsJson        `json:"store_assets"`
 	DisplayConfig     *displayConfigJson      `json:"display_config,omitempty"`
 	NonFungibleTokens *[]nonFungibleTokenJson `json:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`
@@ -303,6 +337,11 @@ type transactiontJson struct {
 	Blockchain common.Blockchain `json:"blockchain"`
 }
 
+type storeAssetsJson struct {
+	Premium    bool `json:"premium"`
+	BetaTester bool `json:"beta_tester"`
+}
+
 type displayConfigJson struct {
 	Colors       *displayColorsJson       `json:"colors"`
 	Text         *displayTextJson         `json:"text"`
@@ -348,4 +387,19 @@ type displayItemJson struct {
 	Id    string           `json:"id"`
 	Index uint64           `json:"index"`
 	Type  common.BadgeType `json:"type"`
+}
+
+type listingJson struct {
+	Contract *contractJson            `json:"contract"`
+	TokenId  string                   `json:"token_id"`
+	Info     *listingInfoJson         `json:"info"`
+	Metadata *nonFungibleMetadataJson `json:"metadata"`
+}
+
+type listingInfoJson struct {
+	Purchasable  bool   `json:"purchasable"`
+	Transferable bool   `json:"transferable"`
+	Price        string `json:"price"`
+	BalanceLimit string `json:"balance_limit"`
+	SupplyLimit  string `json:"supply_limit"`
 }
