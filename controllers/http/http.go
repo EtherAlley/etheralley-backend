@@ -125,7 +125,7 @@ func (hc *HttpController) Start() error {
 	})
 
 	r.Route("/listings", func(r chi.Router) {
-		r.Get("/", hc.getListingsRoute)
+		r.Post("/", hc.getListingsRoute)
 		r.Get("/metadata/{tokenid}", hc.getMetadataByIdRoute)
 	})
 

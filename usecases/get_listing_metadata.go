@@ -14,6 +14,7 @@ type GetListingMetadataInput struct {
 	TokenId string `validate:"required,numeric"`
 }
 
+// Get the metadata for a provided token id for the Ether Alley store
 type IGetListingMetadataUseCase func(ctx context.Context, input *GetListingMetadataInput) (metadata *entities.NonFungibleMetadata, err error)
 
 func NewGetListingMetadata(
@@ -32,24 +33,33 @@ func NewGetListingMetadata(
 			return nil, err
 		}
 
-		switch fmt.Sprint(tokenId) {
+		tokenString := fmt.Sprint(tokenId)
+
+		url := getImageUrl(settings.StoreImageURI(), tokenString)
+
+		switch tokenString {
 		case common.STORE_PREMIUM:
 			return &entities.NonFungibleMetadata{
-				Name:        "Ether Alley Premium Membership",
+				Name:        "Ether Alley Premium",
 				Description: "This token gives the holder access to premium features on EtherAlley.io",
-				Image:       getImageUrl(settings.StoreImageURI(), "01"),
-				Attributes: &[]map[string]interface{}{
-					{"atr1": "val1", "atr2": "val2"},
-				},
+				Image:       url,
+				Attributes: getAttribute([][2]interface{}{
+					{"Status", "Verified"},
+					{"Fungibility", "Semi-Fungible"},
+					{"Transferable", "True"},
+				}),
 			}, nil
 		case common.STORE_BETA_TESTER:
 			return &entities.NonFungibleMetadata{
 				Name:        "Ether Alley Beta Tester",
 				Description: "The holder of this token participated in the Ether Alley beta. This token is non transferable",
-				Image:       getImageUrl(settings.StoreImageURI(), "01"),
-				Attributes: &[]map[string]interface{}{
-					{"atr1": "val1", "atr2": "val2"},
-				},
+				Image:       url,
+				Attributes: getAttribute([][2]interface{}{
+					{"Achievement", "Beta Tester"},
+					{"Fungibility", "Semi-Fungible"},
+					{"Transferable", "False"},
+					{"Maximum balance per address", "1"},
+				}),
 			}, nil
 		}
 
@@ -59,4 +69,16 @@ func NewGetListingMetadata(
 
 func getImageUrl(baseUrl string, tokenId string) string {
 	return fmt.Sprintf("%v/store/%v.png", baseUrl, tokenId)
+}
+
+func getAttribute(attrs [][2]interface{}) *[]map[string]interface{} {
+	attributes := []map[string]interface{}{}
+
+	for _, attribute := range attrs {
+		attributes = append(attributes, map[string]interface{}{
+			"trait_type": attribute[0], "value": attribute[1],
+		})
+	}
+
+	return &attributes
 }

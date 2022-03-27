@@ -12,6 +12,7 @@ type GetListingsInput struct {
 	TokenIds *[]string `json:"token_ids" validate:"required,dive,numeric"`
 }
 
+// Get the Ether Alley store listings for the provided array of token ids
 type IGetListingsUseCase func(ctx context.Context, input *GetListingsInput) (listings *[]entities.Listing, err error)
 
 func NewGetListings(

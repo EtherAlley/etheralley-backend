@@ -92,15 +92,4 @@ func (gw *gateway) GetStoreBalanceBatch(ctx context.Context, address string, ids
 	}
 
 	return instance.BalanceOfBatch(&bind.CallOpts{}, accountsArr, idsArr)
-
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// balences := make([]string, len(*ids))
-	// for i := 0; i < len(*ids); i++ {
-	// 	balences[i] = balancesArr[i].String()
-	// }
-
-	// return &balences, err
 }

@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"math/big"
 	"sync"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -24,6 +25,7 @@ type ISaveProfileUseCase func(ctx context.Context, input *SaveProfileInput) erro
 
 func NewSaveProfile(
 	logger common.ILogger,
+	blockchainGateway gateways.IBlockchainGateway,
 	cacheGateway gateways.ICacheGateway,
 	databaseGateway gateways.IDatabaseGateway,
 	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
@@ -43,7 +45,7 @@ func NewSaveProfile(
 		}
 
 		var wg sync.WaitGroup
-		wg.Add(5)
+		wg.Add(6)
 
 		go func() {
 			defer wg.Done()
@@ -79,6 +81,17 @@ func NewSaveProfile(
 			profile.Interactions = getAllInteractions(ctx, &GetAllInteractionsInput{
 				Interactions: toInteractionInputs(input.Profile),
 			})
+		}()
+
+		go func() {
+			defer wg.Done()
+
+			profile.StoreAssets = &entities.StoreAssets{}
+
+			if balances, err := blockchainGateway.GetStoreBalanceBatch(ctx, input.Profile.Address, &[]string{common.STORE_PREMIUM, common.STORE_BETA_TESTER}); err == nil {
+				profile.StoreAssets.Premium = balances[0].Cmp(big.NewInt(0)) == 1
+				profile.StoreAssets.BetaTester = balances[1].Cmp(big.NewInt(0)) == 1
+			}
 		}()
 
 		wg.Wait()
