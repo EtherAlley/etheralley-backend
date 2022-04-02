@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"math/big"
 	"sync"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -24,6 +25,7 @@ type IGetDefaultProfileUseCase func(ctx context.Context, input *GetDefaultProfil
 func NewGetDefaultProfile(
 	logger common.ILogger,
 	settings common.ISettings,
+	blockchainGateway gateways.IBlockchainGateway,
 	blochchainIndexGateway gateways.IBlockchainIndexGateway,
 	nftApiGateway gateways.INFTAPIGateway,
 	getAllFungibleTokens IGetAllFungibleTokensUseCase,
@@ -44,7 +46,7 @@ func NewGetDefaultProfile(
 			Interactions: &[]entities.Interaction{},
 		}
 		var wg sync.WaitGroup
-		wg.Add(4)
+		wg.Add(5)
 
 		go func() {
 			defer wg.Done()
@@ -104,6 +106,17 @@ func NewGetDefaultProfile(
 			profile.Statistics = getAllStatistics(ctx, &GetAllStatisticsInput{
 				Stats: &stats,
 			})
+		}()
+
+		go func() {
+			defer wg.Done()
+
+			profile.StoreAssets = &entities.StoreAssets{}
+
+			if balances, err := blockchainGateway.GetStoreBalanceBatch(ctx, input.Address, &[]string{common.STORE_PREMIUM, common.STORE_BETA_TESTER}); err == nil {
+				profile.StoreAssets.Premium = balances[0].Cmp(big.NewInt(0)) == 1
+				profile.StoreAssets.BetaTester = balances[1].Cmp(big.NewInt(0)) == 1
+			}
 		}()
 
 		wg.Wait()

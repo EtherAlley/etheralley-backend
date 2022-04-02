@@ -19,6 +19,7 @@ func NewGetListings(
 	logger common.ILogger,
 	settings common.ISettings,
 	blockchainGateway gateways.IBlockchainGateway,
+	cacheGateway gateways.ICacheGateway,
 	getListingMetadata IGetListingMetadataUseCase,
 ) IGetListingsUseCase {
 	return func(ctx context.Context, input *GetListingsInput) (*[]entities.Listing, error) {
@@ -27,6 +28,15 @@ func NewGetListings(
 		}
 
 		ids := *input.TokenIds
+
+		cachedListings, err := cacheGateway.GetStoreListings(ctx, &ids)
+
+		if err == nil {
+			logger.Debugf(ctx, "cache hit for store listings %+v", ids)
+			return cachedListings, nil
+		}
+
+		logger.Debugf(ctx, "cache miss for store listings %+v", ids)
 
 		listingInfo, err := blockchainGateway.GetStoreListingInfo(ctx, &ids)
 
@@ -55,6 +65,8 @@ func NewGetListings(
 				Metadata: metadata,
 			}
 		}
+
+		cacheGateway.SaveStoreListings(ctx, &listings)
 
 		return &listings, err
 	}

@@ -142,6 +142,21 @@ type displayItemJson struct {
 	Type  common.BadgeType `json:"type"`
 }
 
+type listingJson struct {
+	Contract *contractJson            `json:"contract"`
+	TokenId  string                   `json:"token_id"`
+	Info     *listingInfoJson         `json:"info"`
+	Metadata *nonFungibleMetadataJson `json:"metadata"`
+}
+
+type listingInfoJson struct {
+	Purchasable  bool   `json:"purchasable"`
+	Transferable bool   `json:"transferable"`
+	Price        string `json:"price"`
+	BalanceLimit string `json:"balance_limit"`
+	SupplyLimit  string `json:"supply_limit"`
+}
+
 func fromProfileJson(profileJson *profileJson) *entities.Profile {
 	nfts := []entities.NonFungibleToken{}
 	for _, nft := range *profileJson.NonFungibleTokens {
@@ -299,6 +314,35 @@ func fromFungibleMetadataJson(metadata *fungibleMetadataJson) *entities.Fungible
 	}
 }
 
+func fromListingsJson(listingsJson *[]listingJson) *[]entities.Listing {
+	listings := []entities.Listing{}
+	for _, listingJson := range *listingsJson {
+		listing := entities.Listing{
+			Contract: &entities.Contract{
+				Blockchain: listingJson.Contract.Blockchain,
+				Address:    listingJson.Contract.Address,
+				Interface:  listingJson.Contract.Interface,
+			},
+			TokenId: listingJson.TokenId,
+			Info: &entities.ListingInfo{
+				Purchasable:  listingJson.Info.Purchasable,
+				Transferable: listingJson.Info.Transferable,
+				Price:        listingJson.Info.Price,
+				BalanceLimit: listingJson.Info.BalanceLimit,
+				SupplyLimit:  listingJson.Info.SupplyLimit,
+			},
+			Metadata: &entities.NonFungibleMetadata{
+				Name:        listingJson.Metadata.Name,
+				Description: listingJson.Metadata.Description,
+				Image:       listingJson.Metadata.Image,
+				Attributes:  listingJson.Metadata.Attributes,
+			},
+		}
+		listings = append(listings, listing)
+	}
+	return &listings
+}
+
 func toProfileJson(profile *entities.Profile) *profileJson {
 	nfts := []nonFungibleTokenJson{}
 	for _, nft := range *profile.NonFungibleTokens {
@@ -454,4 +498,33 @@ func toFungibleMetadataJson(metadata *entities.FungibleMetadata) *fungibleMetada
 		Symbol:   metadata.Symbol,
 		Decimals: metadata.Decimals,
 	}
+}
+
+func toListingsJson(listings *[]entities.Listing) *[]listingJson {
+	listingsJson := []listingJson{}
+	for _, listing := range *listings {
+		listingJson := listingJson{
+			Contract: &contractJson{
+				Blockchain: listing.Contract.Blockchain,
+				Address:    listing.Contract.Address,
+				Interface:  listing.Contract.Interface,
+			},
+			TokenId: listing.TokenId,
+			Info: &listingInfoJson{
+				Purchasable:  listing.Info.Purchasable,
+				Transferable: listing.Info.Transferable,
+				Price:        listing.Info.Price,
+				BalanceLimit: listing.Info.BalanceLimit,
+				SupplyLimit:  listing.Info.SupplyLimit,
+			},
+			Metadata: &nonFungibleMetadataJson{
+				Name:        listing.Metadata.Name,
+				Description: listing.Metadata.Description,
+				Image:       listing.Metadata.Image,
+				Attributes:  listing.Metadata.Attributes,
+			},
+		}
+		listingsJson = append(listingsJson, listingJson)
+	}
+	return &listingsJson
 }

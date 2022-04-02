@@ -20,6 +20,10 @@ func (g *gateway) GetProfileByAddress(ctx context.Context, address string) (*ent
 		return nil, common.ErrNotFound
 	}
 
+	if err != nil {
+		return nil, err
+	}
+
 	profile := fromProfileBson(profileBson)
 
 	return profile, err

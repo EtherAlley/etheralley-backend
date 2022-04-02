@@ -19,7 +19,7 @@ type IGetFungibleTokenUseCase func(ctx context.Context, input *GetFungibleTokenI
 
 // fetch balance, name, symbol and decimals concurrently
 // cache metadata
-// name, symbol and decimals are optional implementations
+// name, symbol and decimals are optional implementations and thus we do not bubble an err if we fail to resolve any of them
 func NewGetFungibleToken(
 	logger common.ILogger,
 	blockchainGateway gateways.IBlockchainGateway,
@@ -69,22 +69,30 @@ func NewGetFungibleToken(
 			var innerWg sync.WaitGroup
 			innerWg.Add(3)
 
+			var nameErr error
+			var symbolErr error
+			var decimalsErr error
+
 			go func() {
 				defer innerWg.Done()
-				name, _ = blockchainGateway.GetFungibleName(ctx, contract)
+				name, nameErr = blockchainGateway.GetFungibleName(ctx, contract)
 			}()
 
 			go func() {
 				defer innerWg.Done()
-				symbol, _ = blockchainGateway.GetFungibleSymbol(ctx, contract)
+				symbol, symbolErr = blockchainGateway.GetFungibleSymbol(ctx, contract)
 			}()
 
 			go func() {
 				defer innerWg.Done()
-				decimals, _ = blockchainGateway.GetFungibleDecimals(ctx, contract)
+				decimals, decimalsErr = blockchainGateway.GetFungibleDecimals(ctx, contract)
 			}()
 
 			innerWg.Wait()
+
+			if nameErr != nil || symbolErr != nil || decimalsErr != nil {
+				return
+			}
 
 			cacheGateway.SaveFungibleMetadata(ctx, contract, &entities.FungibleMetadata{
 				Name:     name,

@@ -35,6 +35,9 @@ type ICacheGateway interface {
 	GetTopViewedAddresses(ctx context.Context) (*[]string, error)
 	GetTopViewedProfiles(ctx context.Context) (*[]entities.Profile, error)
 	SaveTopViewedProfiles(ctx context.Context, profiles *[]entities.Profile) error
+
+	GetStoreListings(ctx context.Context, tokenIds *[]string) (*[]entities.Listing, error)
+	SaveStoreListings(ctx context.Context, listings *[]entities.Listing) error
 }
 
 type IBlockchainGateway interface {

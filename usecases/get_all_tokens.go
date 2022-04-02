@@ -47,7 +47,8 @@ func NewGetAllFungibleTokens(
 							Address:    tokenInput.Token.Contract.Address,
 							Interface:  tokenInput.Token.Contract.Interface,
 						},
-						Balance: "0",
+						Balance:  "0",
+						Metadata: &entities.FungibleMetadata{},
 					}
 				} else {
 					tokens[i] = *token
