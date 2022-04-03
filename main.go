@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/controllers"
@@ -63,6 +65,9 @@ func main() {
 	container.Provide(usecases.NewRefreshProfileUseCase)
 	container.Provide(httpPresenters.NewPresenter)
 	container.Provide(httpControllers.NewHttpController)
+
+	// seed the random number generator based on app start time
+	rand.Seed(time.Now().UnixNano())
 
 	// start controllers in concurrent go routines
 	err := container.Invoke(func(controller *httpControllers.HttpController) {

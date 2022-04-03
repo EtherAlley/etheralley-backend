@@ -2,7 +2,9 @@ package ethereum
 
 import (
 	"context"
+	"math/big"
 
+	cmn "github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/gateways/ethereum/contracts"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -25,7 +27,7 @@ func (gw *gateway) GetFungibleBalance(ctx context.Context, address string, contr
 		return "", err
 	}
 
-	balance, err := instance.BalanceOf(&bind.CallOpts{}, adr)
+	balance, err := cmn.FunctionRetrier[*big.Int](ctx, gw.logger, instance.BalanceOf, &bind.CallOpts{}, adr)
 
 	if err != nil {
 		return "", err
@@ -49,7 +51,7 @@ func (gw *gateway) GetFungibleName(ctx context.Context, contract *entities.Contr
 		return
 	}
 
-	name, err = instance.Name(&bind.CallOpts{})
+	name, err = cmn.FunctionRetrier[string](ctx, gw.logger, instance.Name, &bind.CallOpts{})
 
 	return
 }
@@ -69,7 +71,7 @@ func (gw *gateway) GetFungibleSymbol(ctx context.Context, contract *entities.Con
 		return
 	}
 
-	symbol, err = instance.Symbol(&bind.CallOpts{})
+	symbol, err = cmn.FunctionRetrier[string](ctx, gw.logger, instance.Symbol, &bind.CallOpts{})
 
 	return
 }
@@ -89,7 +91,7 @@ func (gw *gateway) GetFungibleDecimals(ctx context.Context, contract *entities.C
 		return
 	}
 
-	decimals, err = instance.Decimals(&bind.CallOpts{})
+	decimals, err = cmn.FunctionRetrier[uint8](ctx, gw.logger, instance.Decimals, &bind.CallOpts{})
 
 	return
 }

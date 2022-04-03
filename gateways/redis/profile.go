@@ -44,7 +44,7 @@ func (g *gateway) SaveProfile(ctx context.Context, profile *entities.Profile) er
 		return err
 	}
 
-	_, err = g.client.Set(ctx, getFullKey(ProfileNamespace, profile.Address), bytes, time.Hour*24).Result()
+	_, err = g.client.Set(ctx, getFullKey(ProfileNamespace, profile.Address), bytes, time.Hour).Result()
 
 	return err
 }
