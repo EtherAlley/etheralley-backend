@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -21,7 +22,6 @@ type responseJson struct {
 				TokenType string `json:"tokenType"`
 			} `json:"tokenMetadata"`
 		} `json:"id"`
-		Balance  string `json:"balance"`
 		Metadata struct {
 			Name        string                    `json:"name"`
 			Description string                    `json:"description"`
@@ -37,7 +37,7 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) *[]
 
 	url := fmt.Sprintf("%v/getNFTs?owner=%v", gw.settings.EthereumURI(), address)
 
-	resp, err := gw.httpClient.Do(ctx, "GET", url, nil)
+	resp, err := common.FunctionRetrier[*http.Response](ctx, gw.logger, gw.httpClient.Do, ctx, "GET", url, &common.HttpOptions{})
 
 	if err != nil {
 		gw.logger.Errf(ctx, err, "err fetching nfts from alchemy for %v, err: ", address)
@@ -56,7 +56,7 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) *[]
 	for _, nftJson := range respJson.OwnedNFTs[:cutoff] {
 		nft := entities.NonFungibleToken{
 			TokenId: nftJson.Id.TokenId,
-			Balance: nftJson.Balance,
+			Balance: "1", // TODO: Doesn't appear that a balance is provided by alchemy
 			Contract: &entities.Contract{
 				Blockchain: common.ETHEREUM,
 				Address:    nftJson.Contract.Address,

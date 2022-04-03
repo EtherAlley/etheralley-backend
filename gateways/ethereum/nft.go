@@ -35,9 +35,9 @@ func (gw *gateway) GetNonFungibleMetadata(ctx context.Context, contract *entitie
 	var uri string
 	switch contract.Interface {
 	case cmn.ERC721:
-		uri, err = gw.getErc721URI(client, address, id)
+		uri, err = gw.getErc721URI(ctx, client, address, id)
 	case cmn.ERC1155:
-		uri, err = gw.getErc1155URI(client, address, id)
+		uri, err = gw.getErc1155URI(ctx, client, address, id)
 	case cmn.ENS_REGISTRAR:
 		uri = gw.getENSURI(client, contract.Address, tokenId)
 		err = nil
@@ -71,22 +71,22 @@ func (gw *gateway) GetNonFungibleBalance(ctx context.Context, address string, co
 
 	switch contract.Interface {
 	case cmn.ERC1155:
-		return gw.getErc1155Balance(client, contractAddress, adr, id)
+		return gw.getErc1155Balance(ctx, client, contractAddress, adr, id)
 	case cmn.ERC721, cmn.ENS_REGISTRAR:
-		return gw.getErc721Balance(client, contractAddress, adr, id)
+		return gw.getErc721Balance(ctx, client, contractAddress, adr, id)
 	default:
 		return "", errors.New("invalida schema name")
 	}
 }
 
-func (gw *gateway) getErc1155Balance(client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (string, error) {
+func (gw *gateway) getErc1155Balance(ctx context.Context, client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (string, error) {
 	instance, err := contracts.NewErc1155(contractAddress, client)
 
 	if err != nil {
 		return "", err
 	}
 
-	balance, err := instance.BalanceOf(&bind.CallOpts{}, address, tokenId)
+	balance, err := cmn.FunctionRetrier[*big.Int](ctx, gw.logger, instance.BalanceOf, &bind.CallOpts{}, address, tokenId)
 
 	if err != nil {
 		return "", err
@@ -95,14 +95,14 @@ func (gw *gateway) getErc1155Balance(client *ethclient.Client, contractAddress c
 	return balance.String(), err
 }
 
-func (gw *gateway) getErc721Balance(client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (string, error) {
+func (gw *gateway) getErc721Balance(ctx context.Context, client *ethclient.Client, contractAddress common.Address, address common.Address, tokenId *big.Int) (string, error) {
 	instance, err := contracts.NewErc721(contractAddress, client)
 
 	if err != nil {
 		return "", err
 	}
 
-	owner, err := instance.OwnerOf(&bind.CallOpts{}, tokenId)
+	owner, err := cmn.FunctionRetrier[common.Address](ctx, gw.logger, instance.BalanceOf, &bind.CallOpts{}, tokenId)
 
 	if err != nil {
 		return "", err
@@ -115,14 +115,14 @@ func (gw *gateway) getErc721Balance(client *ethclient.Client, contractAddress co
 	}
 }
 
-func (gw *gateway) getErc1155URI(client *ethclient.Client, address common.Address, id *big.Int) (string, error) {
+func (gw *gateway) getErc1155URI(ctx context.Context, client *ethclient.Client, address common.Address, id *big.Int) (string, error) {
 	instance, err := contracts.NewErc1155(address, client)
 
 	if err != nil {
 		return "", err
 	}
 
-	uri, err := instance.Uri(&bind.CallOpts{}, id)
+	uri, err := cmn.FunctionRetrier[string](ctx, gw.logger, instance.Uri, &bind.CallOpts{}, id)
 
 	if err != nil {
 		return "", err
@@ -135,14 +135,14 @@ func (gw *gateway) getErc1155URI(client *ethclient.Client, address common.Addres
 	return uri, nil
 }
 
-func (gw *gateway) getErc721URI(client *ethclient.Client, address common.Address, id *big.Int) (string, error) {
+func (gw *gateway) getErc721URI(ctx context.Context, client *ethclient.Client, address common.Address, id *big.Int) (string, error) {
 	instance, err := contracts.NewErc721(address, client)
 
 	if err != nil {
 		return "", err
 	}
 
-	return instance.TokenURI(&bind.CallOpts{}, id)
+	return cmn.FunctionRetrier[string](ctx, gw.logger, instance.TokenURI, &bind.CallOpts{}, id)
 }
 
 func (gw *gateway) getENSURI(client *ethclient.Client, address string, id string) string {

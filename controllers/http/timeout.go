@@ -14,7 +14,7 @@ import (
 // see https://github.com/go-chi/chi/blob/master/middleware/timeout.go#L33
 func (hc *HttpController) timeout(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+		ctx, cancel := context.WithTimeout(r.Context(), time.Second*30)
 
 		defer cancel()
 
