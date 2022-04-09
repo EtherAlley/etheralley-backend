@@ -1,3 +1,3 @@
 # etheralley-core-api
 
-The initial core api for ether alley
+The initial core api for EtherAlley

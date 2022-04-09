@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -37,8 +36,9 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) *[]
 
 	url := fmt.Sprintf("%v/getNFTs?owner=%v", gw.settings.EthereumURI(), address)
 
-	resp, err := common.FunctionRetrier[*http.Response](ctx, gw.logger, gw.httpClient.Do, ctx, "GET", url, &common.HttpOptions{})
+	resp, err := gw.httpClient.Do(ctx, "GET", url, &common.HttpOptions{})
 
+	// TODO: It should not be the gateways decision to obfuscate errors and return an empty arr. This should be decided in the usecase
 	if err != nil {
 		gw.logger.Errf(ctx, err, "err fetching nfts from alchemy for %v, err: ", address)
 		return &nfts

@@ -38,7 +38,7 @@ func (g *gateway) SaveNonFungibleMetadata(ctx context.Context, contract *entitie
 		return err
 	}
 
-	_, err = g.client.Set(ctx, getFullKey(NFTNamespace, contract.Address, tokenId, contract.Blockchain), bytes, time.Hour*24).Result()
+	_, err = g.client.Set(ctx, getFullKey(NFTNamespace, contract.Address, tokenId, contract.Blockchain), bytes, time.Hour).Result()
 
 	return err
 }

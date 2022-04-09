@@ -14,7 +14,7 @@ type GetListingMetadataInput struct {
 	TokenId string `validate:"required,numeric"`
 }
 
-// Get the metadata for a provided token id for the Ether Alley store
+// Get the metadata for a provided token id for the EtherAlley store
 type IGetListingMetadataUseCase func(ctx context.Context, input *GetListingMetadataInput) (metadata *entities.NonFungibleMetadata, err error)
 
 func NewGetListingMetadata(
@@ -40,7 +40,7 @@ func NewGetListingMetadata(
 		switch tokenString {
 		case common.STORE_PREMIUM:
 			return &entities.NonFungibleMetadata{
-				Name:        "Ether Alley Premium",
+				Name:        "EtherAlley Premium",
 				Description: "This token gives the holder access to premium features on EtherAlley.io",
 				Image:       url,
 				Attributes: getAttribute([][2]interface{}{
@@ -51,8 +51,8 @@ func NewGetListingMetadata(
 			}, nil
 		case common.STORE_BETA_TESTER:
 			return &entities.NonFungibleMetadata{
-				Name:        "Ether Alley Beta Tester",
-				Description: "The holder of this token participated in the Ether Alley beta. This token is non transferable",
+				Name:        "EtherAlley Beta Tester",
+				Description: "The holder of this token participated in the EtherAlley beta. This token is non transferable",
 				Image:       url,
 				Attributes: getAttribute([][2]interface{}{
 					{"Achievement", "Beta Tester"},

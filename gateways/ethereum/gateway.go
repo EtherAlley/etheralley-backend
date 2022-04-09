@@ -3,10 +3,12 @@ package ethereum
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	cmn "github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/gateways"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/rpc"
 )
 
 type gateway struct {
@@ -35,4 +37,20 @@ func (gw *gateway) getClient(ctx context.Context, blockchain cmn.Blockchain) (*e
 		return ethclient.DialContext(ctx, gw.settings.ArbitrumURI())
 	}
 	return nil, errors.New("invalid blockchain provided")
+}
+
+// Parse for go-ethereum http error to determine if its retryable.
+// Wrap in common.ErrRetryable if status code is 429
+// and add context
+func tryWrapRetryable(context string, err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var e rpc.HTTPError
+	if errors.As(err, &e) && e.StatusCode == 429 {
+		return fmt.Errorf("%v %v %w", context, err, cmn.ErrRetryable)
+	}
+
+	return err
 }

@@ -11,7 +11,7 @@ var xRealIP = http.CanonicalHeaderKey("X-Real-IP")
 
 const localhost = "127.0.0.1"
 
-// TODO: Ideally these headers can be trusted from the load balancer of the cloud provider we settle on
+// TODO: Ideally these headers can be trusted from the load balancer of the cloud provider we settle on. Need to investigate if this is true once deployed
 //
 // See https://github.com/go-chi/chi/blob/master/middleware/realip.go
 func (hc *HttpController) realIP(h http.Handler) http.Handler {

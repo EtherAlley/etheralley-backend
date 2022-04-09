@@ -2,9 +2,10 @@ package ethereum
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"sync"
 
+	cmn "github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -30,15 +31,18 @@ func (gw *gateway) GetTransactionData(ctx context.Context, transaction *entities
 	go func() {
 		defer wg.Done()
 
-		transaction, isPending, err := client.TransactionByHash(ctx, hash)
+		transaction, err := cmn.FunctionRetrier(ctx, func() (*types.Transaction, error) {
+			tx, isPending, err := client.TransactionByHash(ctx, hash)
+
+			if isPending {
+				return nil, fmt.Errorf("get transaction transaction is pending %w", cmn.ErrRetryable)
+			}
+
+			return tx, tryWrapRetryable("get transaction", err)
+		})
 
 		if err != nil {
 			txErr = err
-			return
-		}
-
-		if isPending {
-			txErr = errors.New("pending transaction")
 			return
 		}
 		tx = transaction
@@ -47,7 +51,10 @@ func (gw *gateway) GetTransactionData(ctx context.Context, transaction *entities
 	go func() {
 		defer wg.Done()
 
-		txRct, err := client.TransactionReceipt(ctx, hash)
+		txRct, err := cmn.FunctionRetrier(ctx, func() (*types.Receipt, error) {
+			txRct, err := client.TransactionReceipt(ctx, hash)
+			return txRct, tryWrapRetryable("get transaction receipt", err)
+		})
 
 		if err != nil {
 			headerErr = err

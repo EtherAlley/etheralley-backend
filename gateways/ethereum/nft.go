@@ -86,7 +86,10 @@ func (gw *gateway) getErc1155Balance(ctx context.Context, client *ethclient.Clie
 		return "", err
 	}
 
-	balance, err := cmn.FunctionRetrier[*big.Int](ctx, gw.logger, instance.BalanceOf, &bind.CallOpts{}, address, tokenId)
+	balance, err := cmn.FunctionRetrier(ctx, func() (*big.Int, error) {
+		balance, err := instance.BalanceOf(&bind.CallOpts{}, address, tokenId)
+		return balance, tryWrapRetryable("get nft erc1155 balance", err)
+	})
 
 	if err != nil {
 		return "", err
@@ -102,7 +105,10 @@ func (gw *gateway) getErc721Balance(ctx context.Context, client *ethclient.Clien
 		return "", err
 	}
 
-	owner, err := cmn.FunctionRetrier[common.Address](ctx, gw.logger, instance.BalanceOf, &bind.CallOpts{}, tokenId)
+	owner, err := cmn.FunctionRetrier(ctx, func() (common.Address, error) {
+		owner, err := instance.OwnerOf(&bind.CallOpts{}, tokenId)
+		return owner, tryWrapRetryable("get nft erc721 balance", err)
+	})
 
 	if err != nil {
 		return "", err
@@ -122,7 +128,10 @@ func (gw *gateway) getErc1155URI(ctx context.Context, client *ethclient.Client, 
 		return "", err
 	}
 
-	uri, err := cmn.FunctionRetrier[string](ctx, gw.logger, instance.Uri, &bind.CallOpts{}, id)
+	uri, err := cmn.FunctionRetrier(ctx, func() (string, error) {
+		uri, err := instance.Uri(&bind.CallOpts{}, id)
+		return uri, tryWrapRetryable("get nft 1155 uri", err)
+	})
 
 	if err != nil {
 		return "", err
@@ -142,7 +151,10 @@ func (gw *gateway) getErc721URI(ctx context.Context, client *ethclient.Client, a
 		return "", err
 	}
 
-	return cmn.FunctionRetrier[string](ctx, gw.logger, instance.TokenURI, &bind.CallOpts{}, id)
+	return cmn.FunctionRetrier(ctx, func() (string, error) {
+		uri, err := instance.TokenURI(&bind.CallOpts{}, id)
+		return uri, tryWrapRetryable("get nft erc721 uri", err)
+	})
 }
 
 func (gw *gateway) getENSURI(client *ethclient.Client, address string, id string) string {
@@ -165,7 +177,7 @@ func (gw *gateway) getNFTMetadataFromURI(ctx context.Context, uri string) (*enti
 
 	if err != nil {
 		gw.logger.Errf(ctx, err, "nft metadata url follow http err: ")
-		return nil, errors.New("could not fetch metadata url")
+		return nil, fmt.Errorf("could not fetch metadata url %w", err)
 	}
 
 	metadata := &NFTMetadataRespBody{}
