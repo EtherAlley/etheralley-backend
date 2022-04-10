@@ -26,6 +26,7 @@ type IGetNonFungibleTokenUseCase func(ctx context.Context, input *GetNonFungible
 func NewGetNonFungibleToken(
 	logger common.ILogger,
 	blockchainGateway gateways.IBlockchainGateway,
+	nftAPIGateway gateways.INFTAPIGateway,
 	cacheGateway gateways.ICacheGateway,
 ) IGetNonFungibleTokenUseCase {
 	return func(ctx context.Context, input *GetNonFungibleTokenInput) (*entities.NonFungibleToken, error) {
@@ -60,10 +61,18 @@ func NewGetNonFungibleToken(
 
 			logger.Debugf(ctx, "cache miss for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 
-			metadata, metadataErr = blockchainGateway.GetNonFungibleMetadata(ctx, contract, tokenId)
+			var uri string
+			uri, metadataErr = blockchainGateway.GetNonFungibleURI(ctx, contract, tokenId)
 
 			if metadataErr != nil {
-				logger.Debugf(ctx, "err finding nft metadata: contract address %v token id %v chain %v err %v", contract.Address, tokenId, contract.Blockchain, metadataErr)
+				logger.Debugf(ctx, "err getting nft uri: contract address %v token id %v chain %v err %v", contract.Address, tokenId, contract.Blockchain, metadataErr)
+				return
+			}
+
+			metadata, metadataErr = nftAPIGateway.GetNonFungibleMetadata(ctx, uri)
+
+			if metadataErr != nil {
+				logger.Debugf(ctx, "err getting nft metadata: contract address %v token id %v chain %v err %v", contract.Address, tokenId, contract.Blockchain, metadataErr)
 				return
 			}
 
@@ -77,7 +86,7 @@ func NewGetNonFungibleToken(
 			balance, balanceErr = blockchainGateway.GetNonFungibleBalance(ctx, address, contract, tokenId)
 
 			if balanceErr != nil {
-				logger.Errf(ctx, balanceErr, "err verifying nft ownership: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+				logger.Errf(ctx, balanceErr, "err getting nft balance: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 			}
 		}()
 

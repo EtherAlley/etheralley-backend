@@ -6,17 +6,15 @@ import (
 )
 
 type gateway struct {
-	settings    common.ISettings
-	logger      common.ILogger
-	graphClient common.IGraphQLClient
-	httpClient  common.IHttpClient
+	settings   common.ISettings
+	logger     common.ILogger
+	httpClient common.IHttpClient
 }
 
-func NewGateway(logger common.ILogger, settings common.ISettings, graphClient common.IGraphQLClient, httpClient common.IHttpClient) gateways.INFTAPIGateway {
+func NewGateway(logger common.ILogger, settings common.ISettings, httpClient common.IHttpClient) gateways.INFTAPIGateway {
 	return &gateway{
 		settings,
 		logger,
-		graphClient,
 		httpClient,
 	}
 }

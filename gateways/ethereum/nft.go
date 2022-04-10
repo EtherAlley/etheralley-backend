@@ -3,7 +3,6 @@ package ethereum
 import (
 	"context"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
@@ -17,11 +16,11 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func (gw *gateway) GetNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error) {
+func (gw *gateway) GetNonFungibleURI(ctx context.Context, contract *entities.Contract, tokenId string) (string, error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
-		return nil, err
+		return "", fmt.Errorf("nft metadata client %w", err)
 	}
 
 	address := common.HexToAddress(contract.Address)
@@ -29,35 +28,26 @@ func (gw *gateway) GetNonFungibleMetadata(ctx context.Context, contract *entitie
 	id, ok := id.SetString(tokenId, 10)
 
 	if !ok {
-		return nil, errors.New("invalid token id")
+		return "", errors.New("invalid token id")
 	}
 
-	var uri string
 	switch contract.Interface {
 	case cmn.ERC721:
-		uri, err = gw.getErc721URI(ctx, client, address, id)
+		return gw.getErc721URI(ctx, client, address, id)
 	case cmn.ERC1155:
-		uri, err = gw.getErc1155URI(ctx, client, address, id)
+		return gw.getErc1155URI(ctx, client, address, id)
 	case cmn.ENS_REGISTRAR:
-		uri = gw.getENSURI(client, contract.Address, tokenId)
-		err = nil
+		return gw.getENSURI(contract.Address, tokenId), nil
 	default:
-		uri = ""
-		err = errors.New("invalida schema name")
+		return "", errors.New("invalida schema name")
 	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return gw.getNFTMetadataFromURI(ctx, uri)
 }
 
 func (gw *gateway) GetNonFungibleBalance(ctx context.Context, address string, contract *entities.Contract, tokenId string) (string, error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("balance client %w", err)
 	}
 
 	contractAddress := common.HexToAddress(contract.Address)
@@ -83,16 +73,16 @@ func (gw *gateway) getErc1155Balance(ctx context.Context, client *ethclient.Clie
 	instance, err := contracts.NewErc1155(contractAddress, client)
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("erc1155 balanceOf contract %w", err)
 	}
 
 	balance, err := cmn.FunctionRetrier(ctx, func() (*big.Int, error) {
 		balance, err := instance.BalanceOf(&bind.CallOpts{}, address, tokenId)
-		return balance, tryWrapRetryable("get nft erc1155 balance", err)
+		return balance, tryWrapRetryable("erc1155 balanceOf retry", err)
 	})
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("erc1155 balanceOf %w", err)
 	}
 
 	return balance.String(), err
@@ -102,16 +92,16 @@ func (gw *gateway) getErc721Balance(ctx context.Context, client *ethclient.Clien
 	instance, err := contracts.NewErc721(contractAddress, client)
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("erc721 balanceOf contract %w", err)
 	}
 
 	owner, err := cmn.FunctionRetrier(ctx, func() (common.Address, error) {
 		owner, err := instance.OwnerOf(&bind.CallOpts{}, tokenId)
-		return owner, tryWrapRetryable("get nft erc721 balance", err)
+		return owner, tryWrapRetryable("erc721 balanceOf retry", err)
 	})
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("erc721 balanceOf %w", err)
 	}
 
 	if address.Hex() == owner.Hex() {
@@ -125,16 +115,16 @@ func (gw *gateway) getErc1155URI(ctx context.Context, client *ethclient.Client, 
 	instance, err := contracts.NewErc1155(address, client)
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("erc1155 uri contract %w", err)
 	}
 
 	uri, err := cmn.FunctionRetrier(ctx, func() (string, error) {
 		uri, err := instance.Uri(&bind.CallOpts{}, id)
-		return uri, tryWrapRetryable("get nft 1155 uri", err)
+		return uri, tryWrapRetryable("erc1155 uri retry", err)
 	})
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("erc1155 uri %w", err)
 	}
 
 	// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexidecimal form
@@ -148,62 +138,15 @@ func (gw *gateway) getErc721URI(ctx context.Context, client *ethclient.Client, a
 	instance, err := contracts.NewErc721(address, client)
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("erc721 uri contract %w", err)
 	}
 
 	return cmn.FunctionRetrier(ctx, func() (string, error) {
 		uri, err := instance.TokenURI(&bind.CallOpts{}, id)
-		return uri, tryWrapRetryable("get nft erc721 uri", err)
+		return uri, tryWrapRetryable("erc721 uri retry", err)
 	})
 }
 
-func (gw *gateway) getENSURI(client *ethclient.Client, address string, id string) string {
+func (gw *gateway) getENSURI(address string, id string) string {
 	return fmt.Sprintf("%v/%v/%v", gw.settings.ENSMetadataURI(), address, id)
-}
-
-type NFTMetadataRespBody struct {
-	Name        string                    `bson:"name" json:"name"`
-	Description string                    `bson:"description" json:"description"`
-	Image       string                    `bson:"image" json:"image"`
-	ImageURL    string                    `bson:"image_url" json:"image_url"`
-	Attributes  *[]map[string]interface{} `bson:"attributes" json:"attributes"`
-	Properties  *map[string]interface{}   `bson:"properties" json:"properties"`
-}
-
-func (gw *gateway) getNFTMetadataFromURI(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error) {
-	uri = gw.replaceIPFSScheme(uri)
-
-	resp, err := gw.http.Do(ctx, "GET", uri, nil)
-
-	if err != nil {
-		gw.logger.Errf(ctx, err, "nft metadata url follow http err: ")
-		return nil, fmt.Errorf("could not fetch metadata url %w", err)
-	}
-
-	metadata := &NFTMetadataRespBody{}
-	defer resp.Body.Close()
-	err = json.NewDecoder(resp.Body).Decode(&metadata)
-
-	if err != nil {
-		return nil, err
-	}
-
-	image := ""
-	if metadata.Image != "" {
-		image = metadata.Image
-	} else if metadata.ImageURL != "" {
-		image = metadata.ImageURL
-	}
-	image = gw.replaceIPFSScheme(image)
-
-	return &entities.NonFungibleMetadata{
-		Name:        metadata.Name,
-		Description: metadata.Description,
-		Image:       image,
-		Attributes:  metadata.Attributes,
-	}, nil
-}
-
-func (gw *gateway) replaceIPFSScheme(url string) string {
-	return strings.Replace(url, "ipfs://", gw.settings.IPFSURI(), 1)
 }

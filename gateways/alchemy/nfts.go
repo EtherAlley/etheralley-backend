@@ -31,22 +31,24 @@ type responseJson struct {
 }
 
 // TODO: Polygon is also supported if we want to fetch from both in the future
-func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) *[]entities.NonFungibleToken {
+func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[]entities.NonFungibleToken, error) {
 	nfts := []entities.NonFungibleToken{}
 
 	url := fmt.Sprintf("%v/getNFTs?owner=%v", gw.settings.EthereumURI(), address)
 
 	resp, err := gw.httpClient.Do(ctx, "GET", url, &common.HttpOptions{})
 
-	// TODO: It should not be the gateways decision to obfuscate errors and return an empty arr. This should be decided in the usecase
 	if err != nil {
-		gw.logger.Errf(ctx, err, "err fetching nfts from alchemy for %v, err: ", address)
-		return &nfts
+		return nil, fmt.Errorf("get all nfts %w", err)
 	}
 
 	respJson := &responseJson{}
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(respJson)
+
+	if err != nil {
+		return nil, fmt.Errorf("decode all nfts response %w", err)
+	}
 
 	// TODO: Taking the first 12 for now
 	cutoff := len(respJson.OwnedNFTs)
@@ -72,7 +74,49 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) *[]
 		nfts = append(nfts, nft)
 	}
 
-	return &nfts
+	return &nfts, nil
+}
+
+type nftMetadataRespBody struct {
+	Name        string                    `bson:"name" json:"name"`
+	Description string                    `bson:"description" json:"description"`
+	Image       string                    `bson:"image" json:"image"`
+	ImageURL    string                    `bson:"image_url" json:"image_url"`
+	Attributes  *[]map[string]interface{} `bson:"attributes" json:"attributes"`
+	Properties  *map[string]interface{}   `bson:"properties" json:"properties"`
+}
+
+func (gw *gateway) GetNonFungibleMetadata(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error) {
+	uri = gw.replaceIPFSScheme(uri)
+
+	resp, err := gw.httpClient.Do(ctx, "GET", uri, nil)
+
+	if err != nil {
+		return nil, fmt.Errorf("metadata follow url %w", err)
+	}
+
+	metadata := &nftMetadataRespBody{}
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&metadata)
+
+	if err != nil {
+		return nil, fmt.Errorf("metadata decode response %w", err)
+	}
+
+	image := ""
+	if metadata.Image != "" {
+		image = metadata.Image
+	} else if metadata.ImageURL != "" {
+		image = metadata.ImageURL
+	}
+	image = gw.replaceIPFSScheme(image)
+
+	return &entities.NonFungibleMetadata{
+		Name:        metadata.Name,
+		Description: metadata.Description,
+		Image:       image,
+		Attributes:  metadata.Attributes,
+	}, nil
 }
 
 func (gw *gateway) replaceIPFSScheme(url string) string {

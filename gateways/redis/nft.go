@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -15,14 +16,14 @@ func (g *gateway) GetNonFungibleMetadata(ctx context.Context, contract *entities
 	metadataString, err := g.client.Get(ctx, getFullKey(NFTNamespace, contract.Address, tokenId, contract.Blockchain)).Result()
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get nft metadata %w", err)
 	}
 
 	metadataJson := &nonFungibleMetadataJson{}
 	err = json.Unmarshal([]byte(metadataString), metadataJson)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("decode nft metadata %w", err)
 	}
 
 	metadata := fromNonFungibleMetadataJson(metadataJson)
@@ -35,10 +36,14 @@ func (g *gateway) SaveNonFungibleMetadata(ctx context.Context, contract *entitie
 	bytes, err := json.Marshal(metadataJson)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("encode nft metadata %w", err)
 	}
 
 	_, err = g.client.Set(ctx, getFullKey(NFTNamespace, contract.Address, tokenId, contract.Blockchain), bytes, time.Hour).Result()
 
-	return err
+	if err != nil {
+		return fmt.Errorf("save nft metadata  %w", err)
+	}
+
+	return nil
 }

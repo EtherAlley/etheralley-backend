@@ -9,8 +9,8 @@ func (p *httpPresenter) PresentBadRequest(w http.ResponseWriter, r *http.Request
 	p.presentJSON(w, r, http.StatusBadRequest, toErrJson("bad request"))
 }
 
-func (p *httpPresenter) PresentUnathorized(w http.ResponseWriter, r *http.Request) {
-	p.logger.Error(r.Context(), "unauthorized err")
+func (p *httpPresenter) PresentUnathorized(w http.ResponseWriter, r *http.Request, err error) {
+	p.logger.Err(r.Context(), err, "unauthorized err")
 	p.presentJSON(w, r, http.StatusUnauthorized, toErrJson("unathorized"))
 }
 

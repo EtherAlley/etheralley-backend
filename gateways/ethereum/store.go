@@ -2,9 +2,10 @@ package ethereum
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"math/big"
 
+	cmn "github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/gateways/ethereum/contracts"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -15,7 +16,7 @@ func (gw *gateway) GetStoreListingInfo(ctx context.Context, ids *[]string) (*[]e
 	client, err := gw.getClient(ctx, gw.settings.StoreBlockchain())
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("listing info client %w", err)
 	}
 
 	contractAddress := common.HexToAddress(gw.settings.StoreAddress())
@@ -23,7 +24,7 @@ func (gw *gateway) GetStoreListingInfo(ctx context.Context, ids *[]string) (*[]e
 	instance, err := contracts.NewEtherAlleyStore(contractAddress, client)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("listing info contract %w", err)
 	}
 
 	idsArr := []*big.Int{}
@@ -33,16 +34,19 @@ func (gw *gateway) GetStoreListingInfo(ctx context.Context, ids *[]string) (*[]e
 		n, ok := n.SetString(id, 10)
 
 		if !ok {
-			return nil, errors.New("err parsing id into big int")
+			return nil, fmt.Errorf("listing info parsing id %v", id)
 		}
 
 		idsArr = append(idsArr, n)
 	}
 
-	listingsArr, err := instance.GetListingBatch(&bind.CallOpts{}, idsArr)
+	listingsArr, err := cmn.FunctionRetrier(ctx, func() ([]contracts.IEtherAlleyStoreTokenListing, error) {
+		listingsArr, err := instance.GetListingBatch(&bind.CallOpts{}, idsArr)
+		return listingsArr, tryWrapRetryable("listing info retry", err)
+	})
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("listing info %w", err)
 	}
 
 	listings := []entities.ListingInfo{}
@@ -56,14 +60,14 @@ func (gw *gateway) GetStoreListingInfo(ctx context.Context, ids *[]string) (*[]e
 		})
 	}
 
-	return &listings, err
+	return &listings, nil
 }
 
 func (gw *gateway) GetStoreBalanceBatch(ctx context.Context, address string, ids *[]string) ([]*big.Int, error) {
 	client, err := gw.getClient(ctx, gw.settings.StoreBlockchain())
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("balance batch client %w", err)
 	}
 
 	contractAddress := common.HexToAddress(gw.settings.StoreAddress())
@@ -71,7 +75,7 @@ func (gw *gateway) GetStoreBalanceBatch(ctx context.Context, address string, ids
 	instance, err := contracts.NewEtherAlleyStore(contractAddress, client)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("balance batch contract %w", err)
 	}
 
 	idsArr := []*big.Int{}
@@ -80,7 +84,7 @@ func (gw *gateway) GetStoreBalanceBatch(ctx context.Context, address string, ids
 		n, ok := n.SetString(id, 10)
 
 		if !ok {
-			return nil, errors.New("err parsing id into big int")
+			return nil, fmt.Errorf("balance batch parsing id %v", id)
 		}
 
 		idsArr = append(idsArr, n)
@@ -91,5 +95,8 @@ func (gw *gateway) GetStoreBalanceBatch(ctx context.Context, address string, ids
 		accountsArr[i] = common.HexToAddress(address)
 	}
 
-	return instance.BalanceOfBatch(&bind.CallOpts{}, accountsArr, idsArr)
+	return cmn.FunctionRetrier(ctx, func() ([]*big.Int, error) {
+		balences, err := instance.BalanceOfBatch(&bind.CallOpts{}, accountsArr, idsArr)
+		return balences, tryWrapRetryable("balance batch retry", err)
+	})
 }

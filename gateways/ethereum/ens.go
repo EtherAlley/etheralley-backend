@@ -2,17 +2,18 @@ package ethereum
 
 import (
 	"context"
+	"fmt"
 
 	cmn "github.com/etheralley/etheralley-core-api/common"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/wealdtech/go-ens/v3"
 )
 
-func (gw *gateway) GetENSAddressFromName(ctx context.Context, name string) (address string, err error) {
+func (gw *gateway) GetENSAddressFromName(ctx context.Context, name string) (string, error) {
 	client, err := gw.getClient(ctx, cmn.ETHEREUM) // awlays use layer 1 for ens resolution
 
 	if err != nil {
-		return
+		return "", fmt.Errorf("ens building client %w", err)
 	}
 
 	adr, err := cmn.FunctionRetrier(ctx, func() (common.Address, error) {
@@ -21,19 +22,17 @@ func (gw *gateway) GetENSAddressFromName(ctx context.Context, name string) (addr
 	})
 
 	if err != nil {
-		return
+		return "", fmt.Errorf("get address from ens name %w", err)
 	}
 
-	address = adr.Hex()
-
-	return
+	return adr.Hex(), nil
 }
 
-func (gw *gateway) GetENSNameFromAddress(ctx context.Context, address string) (name string, err error) {
+func (gw *gateway) GetENSNameFromAddress(ctx context.Context, address string) (string, error) {
 	client, err := gw.getClient(ctx, cmn.ETHEREUM) // awlays use layer 1 for ens resolution
 
 	if err != nil {
-		return
+		return "", fmt.Errorf("ens building client %w", err)
 	}
 
 	return cmn.FunctionRetrier(ctx, func() (string, error) {

@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"errors"
 	"math/big"
 	"sync"
 
@@ -48,7 +49,7 @@ func NewGetProfile(
 
 		profile, err = databaseGateway.GetProfileByAddress(ctx, input.Address)
 
-		if err == common.ErrNotFound {
+		if errors.Is(err, common.ErrNotFound) {
 			logger.Debugf(ctx, "db miss for profile %v", input.Address)
 
 			profile, err := getDefaultProfile(ctx, &GetDefaultProfileInput{

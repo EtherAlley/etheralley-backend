@@ -2,6 +2,7 @@ package thegraph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/etheralley/etheralley-core-api/entities"
 )
@@ -50,8 +51,7 @@ func (gw *gateway) GetSwaps(ctx context.Context, address string, contract *entit
 	url, err := gw.getSubgraphUrl(contract.Blockchain, contract.Interface)
 
 	if err != nil {
-		gw.logger.Err(ctx, err, "error building subgraph url")
-		return nil, err
+		return nil, fmt.Errorf("swaps url %w", err)
 	}
 
 	query := &swapsQuery{}
@@ -61,8 +61,7 @@ func (gw *gateway) GetSwaps(ctx context.Context, address string, contract *entit
 	err = gw.graphClient.Query(ctx, url, query, variables)
 
 	if err != nil {
-		gw.logger.Err(ctx, err, "error calling subgraph")
-		return nil, err
+		return nil, fmt.Errorf("swaps query %w", err)
 	}
 
 	swaps := []swapJson{}

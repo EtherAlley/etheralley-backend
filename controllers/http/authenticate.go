@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -15,7 +16,7 @@ func (hc *HttpController) authenticate(next http.Handler) http.Handler {
 		token := strings.Split(r.Header.Get("Authorization"), " ")
 
 		if len(token) != 2 || token[0] != "Bearer" {
-			hc.presenter.PresentUnathorized(w, r)
+			hc.presenter.PresentUnathorized(w, r, errors.New("invalid header format"))
 			return
 		}
 
@@ -25,7 +26,7 @@ func (hc *HttpController) authenticate(next http.Handler) http.Handler {
 		})
 
 		if err != nil {
-			hc.presenter.PresentUnathorized(w, r)
+			hc.presenter.PresentUnathorized(w, r, err)
 			return
 		}
 

@@ -51,17 +51,27 @@ func NewGetDefaultProfile(
 		go func() {
 			defer wg.Done()
 
-			// Not all addresses have an ens name. We should not propigate an error for this
-			name, _ := resolveENSName(ctx, &ResolveENSNameInput{
+			name, err := resolveENSName(ctx, &ResolveENSNameInput{
 				Address: input.Address,
 			})
 
-			profile.ENSName = name
+			if err == nil {
+				profile.ENSName = name
+			}
 		}()
 
 		go func() {
 			defer wg.Done()
-			profile.NonFungibleTokens = nftApiGateway.GetNonFungibleTokens(ctx, input.Address)
+
+			nfts, err := nftApiGateway.GetNonFungibleTokens(ctx, input.Address)
+
+			if err != nil {
+				logger.Errf(ctx, err, "err fetching default nfts for address %v", input.Address)
+				profile.NonFungibleTokens = &[]entities.NonFungibleToken{}
+				return
+			}
+
+			profile.NonFungibleTokens = nfts
 		}()
 
 		go func() {
@@ -110,12 +120,20 @@ func NewGetDefaultProfile(
 
 		go func() {
 			defer wg.Done()
+			balances, err := blockchainGateway.GetStoreBalanceBatch(ctx, input.Address, &[]string{common.STORE_PREMIUM, common.STORE_BETA_TESTER})
 
-			profile.StoreAssets = &entities.StoreAssets{}
+			if err != nil {
+				logger.Errf(ctx, err, "err fetching store asset balance for %v", input.Address)
+				profile.StoreAssets = &entities.StoreAssets{
+					Premium:    false,
+					BetaTester: false,
+				}
+				return
+			}
 
-			if balances, err := blockchainGateway.GetStoreBalanceBatch(ctx, input.Address, &[]string{common.STORE_PREMIUM, common.STORE_BETA_TESTER}); err == nil {
-				profile.StoreAssets.Premium = balances[0].Cmp(big.NewInt(0)) == 1
-				profile.StoreAssets.BetaTester = balances[1].Cmp(big.NewInt(0)) == 1
+			profile.StoreAssets = &entities.StoreAssets{
+				Premium:    balances[0].Cmp(big.NewInt(0)) == 1,
+				BetaTester: balances[1].Cmp(big.NewInt(0)) == 1,
 			}
 		}()
 

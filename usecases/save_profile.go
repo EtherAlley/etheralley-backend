@@ -2,8 +2,6 @@ package usecases
 
 import (
 	"context"
-	"math/big"
-	"sync"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -14,24 +12,17 @@ type SaveProfileInput struct {
 	Profile *ProfileInput `validate:"required,dive"`
 }
 
-// save the provided profile
+// validate the non transient info being submitted (interactions)
 //
-// fetch transient info for nfts/tokens/stats/etc being submitted
+// save the profile to the database
 //
-// try to save the profile to the cache
-//
-// regardless of error, save the profile to the database
+// remove the cached profile
 type ISaveProfileUseCase func(ctx context.Context, input *SaveProfileInput) error
 
 func NewSaveProfile(
 	logger common.ILogger,
-	blockchainGateway gateways.IBlockchainGateway,
-	cacheGateway gateways.ICacheGateway,
 	databaseGateway gateways.IDatabaseGateway,
-	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
-	getAllFungibleTokens IGetAllFungibleTokensUseCase,
-	getAllStatistics IGetAllStatisticsUseCase,
-	resolveENSName IResolveENSNameUseCase,
+	cacheGateway gateways.ICacheGateway,
 	getAllInteractions IGetAllInteractionsUseCase,
 ) ISaveProfileUseCase {
 	return func(ctx context.Context, input *SaveProfileInput) error {
@@ -39,120 +30,37 @@ func NewSaveProfile(
 			return err
 		}
 
-		profile := &entities.Profile{
-			Address:       input.Profile.Address,
-			DisplayConfig: toDisplayConfig(input.Profile.DisplayConfig),
+		// interactions are not transient, so we must validate them on save
+		interactions, err := getAllInteractions(ctx, &GetAllInteractionsInput{
+			Interactions: toInteractionInputs(input.Profile),
+		})
+
+		if err != nil {
+			logger.Errf(ctx, err, "failed to validate interactions for profile %v", input.Profile.Address)
+			return err
 		}
 
-		var wg sync.WaitGroup
-		wg.Add(6)
+		profile := &entities.Profile{
+			Address:           input.Profile.Address,
+			Interactions:      interactions,
+			NonFungibleTokens: toNonFungibleTokens(input.Profile.NonFungibleTokens),
+			FungibleTokens:    toFungibleTokens(input.Profile.FungibleTokens),
+			Statistics:        toStatistics(input.Profile.Statistics),
+			DisplayConfig:     toDisplayConfig(input.Profile.DisplayConfig),
+		}
 
-		go func() {
-			defer wg.Done()
-			// Not all addresses have an ens name. We should not propigate an error for this
-			profile.ENSName, _ = resolveENSName(ctx, &ResolveENSNameInput{
-				Address: input.Profile.Address,
-			})
-		}()
+		err = databaseGateway.SaveProfile(ctx, profile)
 
-		go func() {
-			defer wg.Done()
-			profile.NonFungibleTokens = getAllNonFungibleTokens(ctx, &GetAllNonFungibleTokensInput{
-				NonFungibleTokens: toNonFungibleTokenInputs(input.Profile),
-			})
-		}()
+		if err != nil {
+			logger.Errf(ctx, err, "failed to save profile %v", input.Profile.Address)
+			return err
+		}
 
-		go func() {
-			defer wg.Done()
-			profile.FungibleTokens = getAllFungibleTokens(ctx, &GetAllFungibleTokensInput{
-				Tokens: toFungibleTokenInputs(input.Profile),
-			})
-		}()
+		// users will expect to see there saved changes the next time they visit their profile
+		cacheGateway.DeleteProfile(ctx, input.Profile.Address)
 
-		go func() {
-			defer wg.Done()
-			profile.Statistics = getAllStatistics(ctx, &GetAllStatisticsInput{
-				Stats: toStatisticInputs(input.Profile),
-			})
-		}()
-
-		go func() {
-			defer wg.Done()
-			profile.Interactions = getAllInteractions(ctx, &GetAllInteractionsInput{
-				Interactions: toInteractionInputs(input.Profile),
-			})
-		}()
-
-		go func() {
-			defer wg.Done()
-
-			profile.StoreAssets = &entities.StoreAssets{}
-
-			if balances, err := blockchainGateway.GetStoreBalanceBatch(ctx, input.Profile.Address, &[]string{common.STORE_PREMIUM, common.STORE_BETA_TESTER}); err == nil {
-				profile.StoreAssets.Premium = balances[0].Cmp(big.NewInt(0)) == 1
-				profile.StoreAssets.BetaTester = balances[1].Cmp(big.NewInt(0)) == 1
-			}
-		}()
-
-		wg.Wait()
-
-		cacheGateway.SaveProfile(ctx, profile)
-
-		return databaseGateway.SaveProfile(ctx, profile)
+		return nil
 	}
-}
-
-func toNonFungibleTokenInputs(profile *ProfileInput) *[]GetNonFungibleTokenInput {
-	nfts := []GetNonFungibleTokenInput{}
-	for _, nft := range *profile.NonFungibleTokens {
-		nfts = append(nfts, GetNonFungibleTokenInput{
-			Address: profile.Address,
-			NonFungibleToken: &NonFungibleTokenInput{
-				TokenId: nft.TokenId,
-				Contract: &ContractInput{
-					Blockchain: nft.Contract.Blockchain,
-					Address:    nft.Contract.Address,
-					Interface:  nft.Contract.Interface,
-				},
-			},
-		})
-	}
-	return &nfts
-}
-
-func toFungibleTokenInputs(profile *ProfileInput) *[]GetFungibleTokenInput {
-	tokens := []GetFungibleTokenInput{}
-	for _, token := range *profile.FungibleTokens {
-		tokens = append(tokens, GetFungibleTokenInput{
-			Address: profile.Address,
-			Token: &FungibleTokenInput{
-				Contract: &ContractInput{
-					Blockchain: token.Contract.Blockchain,
-					Address:    token.Contract.Address,
-					Interface:  token.Contract.Interface,
-				},
-			},
-		})
-	}
-	return &tokens
-}
-
-func toStatisticInputs(profile *ProfileInput) *[]GetStatisticsInput {
-	stats := []GetStatisticsInput{}
-	for _, stat := range *profile.Statistics {
-		stats = append(stats, GetStatisticsInput{
-			Address: profile.Address,
-			Statistic: &StatisticInput{
-				Type: stat.Type,
-				Contract: &ContractInput{
-					Blockchain: stat.Contract.Blockchain,
-					Address:    stat.Contract.Address,
-					Interface:  stat.Contract.Interface,
-				},
-			},
-		})
-	}
-	return &stats
 }
 
 func toInteractionInputs(profile *ProfileInput) *[]GetInteractionInput {
@@ -170,6 +78,50 @@ func toInteractionInputs(profile *ProfileInput) *[]GetInteractionInput {
 		})
 	}
 	return &interactions
+}
+
+func toNonFungibleTokens(nftInputs *[]NonFungibleTokenInput) *[]entities.NonFungibleToken {
+	nfts := []entities.NonFungibleToken{}
+	for _, nft := range *nftInputs {
+		nfts = append(nfts, entities.NonFungibleToken{
+			TokenId: nft.TokenId,
+			Contract: &entities.Contract{
+				Blockchain: nft.Contract.Blockchain,
+				Address:    nft.Contract.Address,
+				Interface:  nft.Contract.Interface,
+			},
+		})
+	}
+	return &nfts
+}
+
+func toFungibleTokens(tokenInputs *[]FungibleTokenInput) *[]entities.FungibleToken {
+	tokens := []entities.FungibleToken{}
+	for _, token := range *tokenInputs {
+		tokens = append(tokens, entities.FungibleToken{
+			Contract: &entities.Contract{
+				Blockchain: token.Contract.Blockchain,
+				Address:    token.Contract.Address,
+				Interface:  token.Contract.Interface,
+			},
+		})
+	}
+	return &tokens
+}
+
+func toStatistics(statisticInputs *[]StatisticInput) *[]entities.Statistic {
+	stats := []entities.Statistic{}
+	for _, stat := range *statisticInputs {
+		stats = append(stats, entities.Statistic{
+			Type: stat.Type,
+			Contract: &entities.Contract{
+				Blockchain: stat.Contract.Blockchain,
+				Address:    stat.Contract.Address,
+				Interface:  stat.Contract.Interface,
+			},
+		})
+	}
+	return &stats
 }
 
 func toDisplayConfig(input *DisplayConfigInput) *entities.DisplayConfig {

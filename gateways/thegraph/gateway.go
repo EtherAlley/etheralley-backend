@@ -1,7 +1,6 @@
 package thegraph
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -55,5 +54,5 @@ func (gw gateway) getSubgraphUrl(b common.Blockchain, i common.Interface) (strin
 		}
 	}
 
-	return "", errors.New("unsupported interface blockchain combination")
+	return "", fmt.Errorf("subgraph url %v %v", b, i)
 }
