@@ -15,6 +15,7 @@ type IDatabaseGateway interface {
 type ICacheGateway interface {
 	GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error)
 	SaveProfile(ctx context.Context, profile *entities.Profile) error
+	DeleteProfile(ctx context.Context, address string) error
 
 	GetChallengeByAddress(ctx context.Context, address string) (*entities.Challenge, error)
 	SaveChallenge(ctx context.Context, challenge *entities.Challenge) error
@@ -41,7 +42,7 @@ type ICacheGateway interface {
 }
 
 type IBlockchainGateway interface {
-	GetNonFungibleMetadata(ctx context.Context, contract *entities.Contract, tokenId string) (*entities.NonFungibleMetadata, error)
+	GetNonFungibleURI(ctx context.Context, contract *entities.Contract, tokenId string) (string, error)
 	GetNonFungibleBalance(ctx context.Context, address string, contract *entities.Contract, tokenId string) (string, error)
 
 	GetFungibleBalance(ctx context.Context, address string, contract *entities.Contract) (string, error)
@@ -63,5 +64,6 @@ type IBlockchainIndexGateway interface {
 }
 
 type INFTAPIGateway interface {
-	GetNonFungibleTokens(ctx context.Context, address string) *[]entities.NonFungibleToken
+	GetNonFungibleMetadata(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error)
+	GetNonFungibleTokens(ctx context.Context, address string) (*[]entities.NonFungibleToken, error)
 }

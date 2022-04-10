@@ -15,7 +15,7 @@ func (gw *gateway) GetTransactionData(ctx context.Context, transaction *entities
 	client, err := gw.getClient(ctx, transaction.Blockchain)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("tx client %w", err)
 	}
 
 	hash := common.HexToHash(transaction.Id)
@@ -31,21 +31,15 @@ func (gw *gateway) GetTransactionData(ctx context.Context, transaction *entities
 	go func() {
 		defer wg.Done()
 
-		transaction, err := cmn.FunctionRetrier(ctx, func() (*types.Transaction, error) {
+		tx, txErr = cmn.FunctionRetrier(ctx, func() (*types.Transaction, error) {
 			tx, isPending, err := client.TransactionByHash(ctx, hash)
 
 			if isPending {
-				return nil, fmt.Errorf("get transaction transaction is pending %w", cmn.ErrRetryable)
+				return nil, fmt.Errorf("tx is pending %w", cmn.ErrRetryable)
 			}
 
-			return tx, tryWrapRetryable("get transaction", err)
+			return tx, tryWrapRetryable("tx retry", err)
 		})
-
-		if err != nil {
-			txErr = err
-			return
-		}
-		tx = transaction
 	}()
 
 	go func() {
@@ -53,28 +47,25 @@ func (gw *gateway) GetTransactionData(ctx context.Context, transaction *entities
 
 		txRct, err := cmn.FunctionRetrier(ctx, func() (*types.Receipt, error) {
 			txRct, err := client.TransactionReceipt(ctx, hash)
-			return txRct, tryWrapRetryable("get transaction receipt", err)
+			return txRct, tryWrapRetryable("tx receipt retry", err)
 		})
 
 		if err != nil {
-			headerErr = err
+			header, headerErr = nil, fmt.Errorf("tx receipt %w", err)
 			return
 		}
 
-		hdr, err := client.HeaderByNumber(ctx, txRct.BlockNumber)
-
-		headerErr = err
-		header = hdr
+		header, headerErr = client.HeaderByNumber(ctx, txRct.BlockNumber)
 	}()
 
 	wg.Wait()
 
 	if txErr != nil {
-		return nil, txErr
+		return nil, fmt.Errorf("tx %w", err)
 	}
 
 	if headerErr != nil {
-		return nil, headerErr
+		return nil, fmt.Errorf("header %w", err)
 	}
 
 	data := tx.Data()
@@ -89,7 +80,7 @@ func (gw *gateway) GetTransactionData(ctx context.Context, transaction *entities
 	from, err := types.Sender(types.LatestSignerForChainID(tx.ChainId()), tx)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sender %w", err)
 	}
 
 	value := tx.Value().String()

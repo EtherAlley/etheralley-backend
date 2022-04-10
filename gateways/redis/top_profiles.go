@@ -27,12 +27,12 @@ func (gw *gateway) RecordAddressView(ctx context.Context, address string, ipAddr
 
 	// if the viewer address combo exists, we return and do not record a profile view
 	if err := gw.client.Get(ctx, viewLimitKey).Err(); err != redis.Nil {
-		return err
+		return fmt.Errorf("view already counted %w", err)
 	}
 
 	// register the viewer/address combo as already having viewed
 	if err := gw.client.Set(ctx, viewLimitKey, nil, viewLimitTTL).Err(); err != nil {
-		return err
+		return fmt.Errorf("setting view count %w", err)
 	}
 
 	gw.client.ZIncrBy(ctx, addressViewsKey, 1, address).Err() // increment address' view count within the zset
@@ -60,7 +60,7 @@ func (gw *gateway) GetTopViewedAddresses(ctx context.Context) (*[]string, error)
 	if err := gw.client.ZUnionStore(ctx, MergedAddressViews, &redis.ZStore{
 		Keys: keys,
 	}).Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("merging buckets %w", err)
 	}
 
 	// take top 10 scores sorted in desc order
@@ -68,7 +68,7 @@ func (gw *gateway) GetTopViewedAddresses(ctx context.Context) (*[]string, error)
 	results, err := gw.client.ZRevRangeWithScores(ctx, MergedAddressViews, 0, 9).Result()
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sorting scores %w", err)
 	}
 
 	topAddresses := []string{}
@@ -83,11 +83,15 @@ func (gw *gateway) GetTopViewedProfiles(ctx context.Context) (*[]entities.Profil
 	profilesString, err := gw.client.Get(ctx, TopProfilesResults).Result()
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get top viewed profiles %w", err)
 	}
 
 	results := &[]profileJson{}
 	err = json.Unmarshal([]byte(profilesString), results)
+
+	if err != nil {
+		return nil, fmt.Errorf("decode top viewed profiles %w", err)
+	}
 
 	profiles := []entities.Profile{}
 
@@ -95,7 +99,7 @@ func (gw *gateway) GetTopViewedProfiles(ctx context.Context) (*[]entities.Profil
 		profiles = append(profiles, *fromProfileJson(&result))
 	}
 
-	return &profiles, err
+	return &profiles, nil
 }
 
 func (gw *gateway) SaveTopViewedProfiles(ctx context.Context, profiles *[]entities.Profile) error {
@@ -108,8 +112,14 @@ func (gw *gateway) SaveTopViewedProfiles(ctx context.Context, profiles *[]entiti
 	bytes, err := json.Marshal(&profilesJson)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("encode top viewed profiles %w", err)
 	}
 
-	return gw.client.Set(ctx, TopProfilesResults, bytes, time.Hour).Err()
+	err = gw.client.Set(ctx, TopProfilesResults, bytes, time.Hour).Err()
+
+	if err != nil {
+		return fmt.Errorf("set top viewed profiles %w", err)
+	}
+
+	return nil
 }

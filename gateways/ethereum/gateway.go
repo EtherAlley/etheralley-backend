@@ -36,7 +36,7 @@ func (gw *gateway) getClient(ctx context.Context, blockchain cmn.Blockchain) (*e
 	case cmn.ARBITRUM:
 		return ethclient.DialContext(ctx, gw.settings.ArbitrumURI())
 	}
-	return nil, errors.New("invalid blockchain provided")
+	return nil, fmt.Errorf("eth get client %v", blockchain)
 }
 
 // Parse for go-ethereum http error to determine if its retryable.

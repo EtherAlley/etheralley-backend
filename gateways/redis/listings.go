@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -16,14 +17,14 @@ func (g *gateway) GetStoreListings(ctx context.Context, tokenIds *[]string) (*[]
 	listingsString, err := g.client.Get(ctx, getFullKey(ListingsNamespace, strings.Join(*tokenIds, "_"))).Result()
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get listings %w", err)
 	}
 
 	listingsJson := &[]listingJson{}
 	err = json.Unmarshal([]byte(listingsString), listingsJson)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get listings decoded %w", err)
 	}
 
 	listings := fromListingsJson(listingsJson)
@@ -36,7 +37,7 @@ func (g *gateway) SaveStoreListings(ctx context.Context, listings *[]entities.Li
 	bytes, err := json.Marshal(listingsJson)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("save listings encode %w", err)
 	}
 
 	tokenIds := []string{}
@@ -46,5 +47,9 @@ func (g *gateway) SaveStoreListings(ctx context.Context, listings *[]entities.Li
 
 	_, err = g.client.Set(ctx, getFullKey(ListingsNamespace, strings.Join(tokenIds, "_")), bytes, time.Hour).Result()
 
-	return err
+	if err != nil {
+		return fmt.Errorf("save listings %w", err)
+	}
+
+	return nil
 }
