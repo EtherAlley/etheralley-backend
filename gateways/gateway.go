@@ -63,7 +63,7 @@ type IBlockchainIndexGateway interface {
 	GetSwaps(ctx context.Context, address string, contract *entities.Contract) (interface{}, error)
 }
 
-type INFTAPIGateway interface {
+type IOffchainGateway interface {
 	GetNonFungibleMetadata(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error)
 	GetNonFungibleTokens(ctx context.Context, address string) (*[]entities.NonFungibleToken, error)
 }

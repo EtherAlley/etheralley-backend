@@ -11,7 +11,7 @@ type gateway struct {
 	httpClient common.IHttpClient
 }
 
-func NewGateway(logger common.ILogger, settings common.ISettings, httpClient common.IHttpClient) gateways.INFTAPIGateway {
+func NewGateway(logger common.ILogger, settings common.ISettings, httpClient common.IHttpClient) gateways.IOffchainGateway {
 	return &gateway{
 		settings,
 		logger,

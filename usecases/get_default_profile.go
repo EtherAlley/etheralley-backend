@@ -27,7 +27,7 @@ func NewGetDefaultProfile(
 	settings common.ISettings,
 	blockchainGateway gateways.IBlockchainGateway,
 	blochchainIndexGateway gateways.IBlockchainIndexGateway,
-	nftApiGateway gateways.INFTAPIGateway,
+	offchainGateway gateways.IOffchainGateway,
 	getAllFungibleTokens IGetAllFungibleTokensUseCase,
 	getAllStatistics IGetAllStatisticsUseCase,
 	resolveENSName IResolveENSNameUseCase,
@@ -63,7 +63,7 @@ func NewGetDefaultProfile(
 		go func() {
 			defer wg.Done()
 
-			nfts, err := nftApiGateway.GetNonFungibleTokens(ctx, input.Address)
+			nfts, err := offchainGateway.GetNonFungibleTokens(ctx, input.Address)
 
 			if err != nil {
 				logger.Errf(ctx, err, "err fetching default nfts for address %v", input.Address)

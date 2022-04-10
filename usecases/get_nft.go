@@ -26,7 +26,7 @@ type IGetNonFungibleTokenUseCase func(ctx context.Context, input *GetNonFungible
 func NewGetNonFungibleToken(
 	logger common.ILogger,
 	blockchainGateway gateways.IBlockchainGateway,
-	nftAPIGateway gateways.INFTAPIGateway,
+	offchainGateway gateways.IOffchainGateway,
 	cacheGateway gateways.ICacheGateway,
 ) IGetNonFungibleTokenUseCase {
 	return func(ctx context.Context, input *GetNonFungibleTokenInput) (*entities.NonFungibleToken, error) {
@@ -69,7 +69,7 @@ func NewGetNonFungibleToken(
 				return
 			}
 
-			metadata, metadataErr = nftAPIGateway.GetNonFungibleMetadata(ctx, uri)
+			metadata, metadataErr = offchainGateway.GetNonFungibleMetadata(ctx, uri)
 
 			if metadataErr != nil {
 				logger.Debugf(ctx, "err getting nft metadata: contract address %v token id %v chain %v err %v", contract.Address, tokenId, contract.Blockchain, metadataErr)
