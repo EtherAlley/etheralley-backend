@@ -296,20 +296,20 @@ type contractJson struct {
 
 type fungibleTokenJson struct {
 	Contract *contractJson         `json:"contract"`
-	Balance  string                `json:"balance"`
+	Balance  *string               `json:"balance"`
 	Metadata *fungibleMetadataJson `json:"metadata"`
 }
 
 type fungibleMetadataJson struct {
-	Name     string `json:"name"`
-	Symbol   string `json:"symbol"`
-	Decimals uint8  `json:"decimals"`
+	Name     *string `json:"name"`
+	Symbol   *string `json:"symbol"`
+	Decimals *uint8  `json:"decimals"`
 }
 
 type nonFungibleTokenJson struct {
 	Contract *contractJson            `json:"contract"`
 	TokenId  string                   `json:"token_id"`
-	Balance  string                   `json:"balance"`
+	Balance  *string                  `json:"balance"`
 	Metadata *nonFungibleMetadataJson `json:"metadata"`
 }
 

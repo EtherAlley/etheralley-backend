@@ -47,7 +47,7 @@ func NewGetAllNonFungibleTokens(
 							Address:    nftInput.NonFungibleToken.Contract.Address,
 							Interface:  nftInput.NonFungibleToken.Contract.Interface,
 						},
-						Balance:  "0",
+						Balance:  nil,
 						Metadata: nil,
 					}
 				} else {

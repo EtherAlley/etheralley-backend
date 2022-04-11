@@ -37,18 +37,24 @@ func NewGetFungibleToken(
 			Interface:  input.Token.Contract.Interface,
 		}
 
-		var balance string
-		var name string
-		var symbol string
-		var decimals uint8
-		var balanceErr error
+		var balance *string
+		var name *string
+		var symbol *string
+		var decimals *uint8
 
 		var wg sync.WaitGroup
 		wg.Add(2)
 
 		go func() {
 			defer wg.Done()
-			balance, balanceErr = blockchainGateway.GetFungibleBalance(ctx, address, contract)
+			bal, err := blockchainGateway.GetFungibleBalance(ctx, address, contract)
+
+			if err != nil {
+				logger.Errf(ctx, err, "err finding token balance: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+				return
+			}
+
+			balance = &bal
 		}()
 
 		go func() {
@@ -67,30 +73,55 @@ func NewGetFungibleToken(
 			logger.Debugf(ctx, "cache miss for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
 
 			var innerWg sync.WaitGroup
+			var metadataErr error // err is written to by all three goroutines. if any of them have an err we will not cache the token metadata
 			innerWg.Add(3)
 
-			var nameErr error
-			var symbolErr error
-			var decimalsErr error
-
 			go func() {
 				defer innerWg.Done()
-				name, nameErr = blockchainGateway.GetFungibleName(ctx, contract)
+
+				nameResult, nameErr := blockchainGateway.GetFungibleName(ctx, contract)
+
+				if nameErr != nil {
+					logger.Errf(ctx, nameErr, "err finding token name: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+					metadataErr = nameErr
+					return
+				}
+
+				name = &nameResult
 			}()
 
 			go func() {
 				defer innerWg.Done()
-				symbol, symbolErr = blockchainGateway.GetFungibleSymbol(ctx, contract)
+
+				symb, symbolErr := blockchainGateway.GetFungibleSymbol(ctx, contract)
+
+				if symbolErr != nil {
+					logger.Errf(ctx, symbolErr, "err finding token symbol: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+					metadataErr = symbolErr
+					return
+				}
+
+				symbol = &symb
 			}()
 
 			go func() {
 				defer innerWg.Done()
-				decimals, decimalsErr = blockchainGateway.GetFungibleDecimals(ctx, contract)
+
+				dec, decimalsErr := blockchainGateway.GetFungibleDecimals(ctx, contract)
+
+				if decimalsErr != nil {
+					logger.Errf(ctx, decimalsErr, "err finding token decimals: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+					metadataErr = decimalsErr
+					return
+				}
+
+				decimals = &dec
 			}()
 
 			innerWg.Wait()
 
-			if nameErr != nil || symbolErr != nil || decimalsErr != nil {
+			if metadataErr != nil {
+				logger.Debugf(ctx, "skipping token metadata cache: contract address %v blockchain %v err %v", contract.Address, contract.Blockchain, metadataErr)
 				return
 			}
 
@@ -99,15 +130,9 @@ func NewGetFungibleToken(
 				Symbol:   symbol,
 				Decimals: decimals,
 			})
-
 		}()
 
 		wg.Wait()
-
-		if balanceErr != nil {
-			logger.Debugf(ctx, "err finding token balance: contract address %v blockchain %v err %v", contract.Address, contract.Blockchain, balanceErr)
-			return nil, balanceErr
-		}
 
 		return &entities.FungibleToken{
 			Contract: contract,

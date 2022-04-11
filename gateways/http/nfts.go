@@ -56,9 +56,10 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 		cutoff = 13
 	}
 	for _, nftJson := range respJson.OwnedNFTs[:cutoff] {
+		balance := "1"
 		nft := entities.NonFungibleToken{
 			TokenId: nftJson.Id.TokenId,
-			Balance: "1", // TODO: Doesn't appear that a balance is provided by alchemy
+			Balance: &balance, // TODO: Doesn't appear that a balance is provided by alchemy for ERC1155, only ERC721...
 			Contract: &entities.Contract{
 				Blockchain: common.ETHEREUM,
 				Address:    nftJson.Contract.Address,

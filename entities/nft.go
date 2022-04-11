@@ -3,7 +3,7 @@ package entities
 type NonFungibleToken struct {
 	Contract *Contract
 	TokenId  string
-	Balance  string
+	Balance  *string              // Balance can be nil
 	Metadata *NonFungibleMetadata // Metadata can be nil
 }
 

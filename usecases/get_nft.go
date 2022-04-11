@@ -44,63 +44,58 @@ func NewGetNonFungibleToken(
 
 		var wg sync.WaitGroup
 		var metadata *entities.NonFungibleMetadata
-		var metadataErr error
-		var balance string
-		var balanceErr error
+		var balance *string
 
 		wg.Add(2)
 
 		go func() {
 			defer wg.Done()
-			metadata, metadataErr = cacheGateway.GetNonFungibleMetadata(ctx, contract, tokenId)
+			mdata, err := cacheGateway.GetNonFungibleMetadata(ctx, contract, tokenId)
 
-			if metadataErr == nil {
+			if err == nil {
 				logger.Debugf(ctx, "cache hit for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+				metadata = mdata
 				return
 			}
 
 			logger.Debugf(ctx, "cache miss for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 
 			var uri string
-			uri, metadataErr = blockchainGateway.GetNonFungibleURI(ctx, contract, tokenId)
+			uri, err = blockchainGateway.GetNonFungibleURI(ctx, contract, tokenId)
 
-			if metadataErr != nil {
-				logger.Debugf(ctx, "err getting nft uri: contract address %v token id %v chain %v err %v", contract.Address, tokenId, contract.Blockchain, metadataErr)
+			if err != nil {
+				logger.Errf(ctx, err, "err getting nft uri: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+				metadata = nil
 				return
 			}
 
-			metadata, metadataErr = offchainGateway.GetNonFungibleMetadata(ctx, uri)
+			mdata, err = offchainGateway.GetNonFungibleMetadata(ctx, uri)
 
-			if metadataErr != nil {
-				logger.Debugf(ctx, "err getting nft metadata: contract address %v token id %v chain %v err %v", contract.Address, tokenId, contract.Blockchain, metadataErr)
+			if err != nil {
+				logger.Errf(ctx, err, "err getting nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+				metadata = nil
 				return
 			}
 
-			logger.Debugf(ctx, "found nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+			cacheGateway.SaveNonFungibleMetadata(ctx, contract, tokenId, mdata)
 
-			cacheGateway.SaveNonFungibleMetadata(ctx, contract, tokenId, metadata)
+			metadata = mdata
 		}()
 
 		go func() {
 			defer wg.Done()
-			balance, balanceErr = blockchainGateway.GetNonFungibleBalance(ctx, address, contract, tokenId)
+			bal, err := blockchainGateway.GetNonFungibleBalance(ctx, address, contract, tokenId)
 
-			if balanceErr != nil {
-				logger.Errf(ctx, balanceErr, "err getting nft balance: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+			if err != nil {
+				logger.Errf(ctx, err, "err getting nft balance: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+				balance = nil
+				return
 			}
+
+			balance = &bal
 		}()
 
 		wg.Wait()
-
-		if balanceErr != nil {
-			return nil, balanceErr
-		}
-
-		// getting metadata, particularly following urls is a flakey operation. we are intentionally not bubbling up an error here and simply returning nil metadata.
-		// if the contract provided is bad it can be detected and bubbled in the balance error
-		if metadataErr != nil {
-			metadata = nil
-		}
 
 		nft := &entities.NonFungibleToken{
 			Contract: contract,

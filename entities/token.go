@@ -2,12 +2,12 @@ package entities
 
 type FungibleToken struct {
 	Contract *Contract
-	Balance  string
+	Balance  *string // balance can be nil
 	Metadata *FungibleMetadata
 }
 
 type FungibleMetadata struct {
-	Name     string
-	Symbol   string
-	Decimals uint8
+	Name     *string // name can be nil
+	Symbol   *string // symbol can be nil
+	Decimals *uint8  // decimals can be nil
 }
