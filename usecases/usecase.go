@@ -11,6 +11,7 @@ type ProfileInput struct {
 	FungibleTokens    *[]FungibleTokenInput    `json:"fungible_tokens" validate:"required,dive"`
 	Statistics        *[]StatisticInput        `json:"statistics" validate:"required,dive"`
 	Interactions      *[]InteractionInput      `json:"interactions" validate:"required,dive"`
+	Currencies        *[]CurrencyInput         `json:"currencies" validate:"required,dive"`
 }
 
 type ContractInput struct {
@@ -41,6 +42,10 @@ type StatisticInput struct {
 type InteractionInput struct {
 	Transaction *TransactionInput  `json:"transaction" validate:"required,dive"`
 	Type        common.Interaction `json:"type" validate:"required,oneof=CONTRACT_CREATION SEND_ETHER"`
+}
+
+type CurrencyInput struct {
+	Blockchain common.Blockchain `json:"blockchain" validate:"required,oneof=ethereum polygon arbitrum optimism"`
 }
 
 type DisplayConfigInput struct {

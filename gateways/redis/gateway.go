@@ -39,6 +39,7 @@ type profileJson struct {
 	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`
 	Statistics        *[]statisticJson        `json:"statistics"`
 	Interactions      *[]interactionJson      `json:"interactions"`
+	Currencies        *[]currencyJson         `json:"currencies"`
 }
 
 type contractJson struct {
@@ -88,6 +89,11 @@ type interactionJson struct {
 type transactionJson struct {
 	Id         string            `json:"id"`
 	Blockchain common.Blockchain `json:"blockchain"`
+}
+
+type currencyJson struct {
+	Blockchain common.Blockchain `json:"blockchain"`
+	Balance    *string           `json:"balance"`
 }
 
 type storeAssetsJson struct {
@@ -223,6 +229,14 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 		})
 	}
 
+	currencies := []entities.Currency{}
+	for _, currency := range *profileJson.Currencies {
+		currencies = append(currencies, entities.Currency{
+			Blockchain: currency.Blockchain,
+			Balance:    currency.Balance,
+		})
+	}
+
 	var config *entities.DisplayConfig
 	if profileJson.DisplayConfig != nil {
 		config = &entities.DisplayConfig{
@@ -294,6 +308,7 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 		FungibleTokens:    &tokens,
 		Statistics:        &stats,
 		Interactions:      &interactions,
+		Currencies:        &currencies,
 	}
 }
 
@@ -409,6 +424,14 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 		})
 	}
 
+	currencies := []currencyJson{}
+	for _, currency := range *profile.Currencies {
+		currencies = append(currencies, currencyJson{
+			Blockchain: currency.Blockchain,
+			Balance:    currency.Balance,
+		})
+	}
+
 	var config *displayConfigJson
 	if profile.DisplayConfig != nil {
 		config = &displayConfigJson{
@@ -480,6 +503,7 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 		FungibleTokens:    &tokens,
 		Statistics:        &stats,
 		Interactions:      &interactions,
+		Currencies:        &currencies,
 	}
 }
 

@@ -46,6 +46,7 @@ func NewSaveProfile(
 			NonFungibleTokens: toNonFungibleTokens(input.Profile.NonFungibleTokens),
 			FungibleTokens:    toFungibleTokens(input.Profile.FungibleTokens),
 			Statistics:        toStatistics(input.Profile.Statistics),
+			Currencies:        toCurrencies(input.Profile.Currencies),
 			DisplayConfig:     toDisplayConfig(input.Profile.DisplayConfig),
 		}
 
@@ -122,6 +123,16 @@ func toStatistics(statisticInputs *[]StatisticInput) *[]entities.Statistic {
 		})
 	}
 	return &stats
+}
+
+func toCurrencies(currencyInputs *[]CurrencyInput) *[]entities.Currency {
+	currencies := []entities.Currency{}
+	for _, currency := range *currencyInputs {
+		currencies = append(currencies, entities.Currency{
+			Blockchain: currency.Blockchain,
+		})
+	}
+	return &currencies
 }
 
 func toDisplayConfig(input *DisplayConfigInput) *entities.DisplayConfig {

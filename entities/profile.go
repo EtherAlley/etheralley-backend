@@ -9,4 +9,5 @@ type Profile struct {
 	FungibleTokens    *[]FungibleToken
 	Statistics        *[]Statistic
 	Interactions      *[]Interaction
+	Currencies        *[]Currency
 }

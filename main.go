@@ -63,6 +63,8 @@ func main() {
 	container.Provide(usecases.NewGetListingMetadata)
 	container.Provide(usecases.NewGetListings)
 	container.Provide(usecases.NewRefreshProfileUseCase)
+	container.Provide(usecases.NewGetCurrency)
+	container.Provide(usecases.NewGetAllCurrenciesUseCase)
 	container.Provide(httpPresenters.NewPresenter)
 	container.Provide(httpControllers.NewHttpController)
 

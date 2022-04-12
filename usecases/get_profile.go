@@ -31,6 +31,7 @@ func NewGetProfile(
 	getAllNonFungibleTokens IGetAllNonFungibleTokensUseCase,
 	getAllFungibleTokens IGetAllFungibleTokensUseCase,
 	getAllStatistics IGetAllStatisticsUseCase,
+	getAllCurrencies IGetAllCurrenciesUseCase,
 	resolveENSName IResolveENSNameUseCase,
 ) IGetProfileUseCase {
 	return func(ctx context.Context, input *GetProfileInput) (*entities.Profile, error) {
@@ -74,7 +75,7 @@ func NewGetProfile(
 		logger.Debugf(ctx, "db hit for profile %v", input.Address)
 
 		var wg sync.WaitGroup
-		wg.Add(5)
+		wg.Add(6)
 
 		go func() {
 			defer wg.Done()
@@ -152,6 +153,22 @@ func NewGetProfile(
 
 			profile.Statistics = getAllStatistics(ctx, &GetAllStatisticsInput{
 				Stats: &stats,
+			})
+		}()
+
+		go func() {
+			defer wg.Done()
+
+			currencies := []GetCurrencyInput{}
+			for _, currency := range *profile.Currencies {
+				currencies = append(currencies, GetCurrencyInput{
+					Address:    profile.Address,
+					Blockchain: currency.Blockchain,
+				})
+			}
+
+			profile.Currencies = getAllCurrencies(ctx, &GetAllCurrenciesInput{
+				Currencies: &currencies,
 			})
 		}()
 

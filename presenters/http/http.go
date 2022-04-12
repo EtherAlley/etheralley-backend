@@ -77,6 +77,7 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 		FungibleTokens:    toFungibleTokensJson(profile.FungibleTokens),
 		Statistics:        toStatisticsJson(profile.Statistics),
 		Interactions:      toInteractionsJson(profile.Interactions),
+		Currencies:        toCurrenciesJson(profile.Currencies),
 	}
 }
 
@@ -118,6 +119,16 @@ func toInteractionsJson(interactions *[]entities.Interaction) *[]interactionJson
 	}
 
 	return &interactionsJson
+}
+
+func toCurrenciesJson(currencies *[]entities.Currency) *[]currencyJson {
+	currenciesJson := []currencyJson{}
+
+	for _, currency := range *currencies {
+		currenciesJson = append(currenciesJson, *toCurrencyJson(&currency))
+	}
+
+	return &currenciesJson
 }
 
 func toFungibleJson(token *entities.FungibleToken) *fungibleTokenJson {
@@ -182,6 +193,13 @@ func toTransactionJson(transaction *entities.Transaction) *transactiontJson {
 	return &transactiontJson{
 		Blockchain: transaction.Blockchain,
 		Id:         transaction.Id,
+	}
+}
+
+func toCurrencyJson(currency *entities.Currency) *currencyJson {
+	return &currencyJson{
+		Blockchain: currency.Blockchain,
+		Balance:    currency.Balance,
 	}
 }
 
@@ -286,6 +304,7 @@ type profileJson struct {
 	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`
 	Statistics        *[]statisticJson        `json:"statistics"`
 	Interactions      *[]interactionJson      `json:"interactions"`
+	Currencies        *[]currencyJson         `json:"currencies"`
 }
 
 type contractJson struct {
@@ -335,6 +354,11 @@ type interactionJson struct {
 type transactiontJson struct {
 	Id         string            `json:"id"`
 	Blockchain common.Blockchain `json:"blockchain"`
+}
+
+type currencyJson struct {
+	common.Blockchain `json:"blockchain"`
+	Balance           *string `json:"balance"`
 }
 
 type storeAssetsJson struct {

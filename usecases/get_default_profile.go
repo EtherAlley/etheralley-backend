@@ -30,6 +30,7 @@ func NewGetDefaultProfile(
 	offchainGateway gateways.IOffchainGateway,
 	getAllFungibleTokens IGetAllFungibleTokensUseCase,
 	getAllStatistics IGetAllStatisticsUseCase,
+	getAllCurrencies IGetAllCurrenciesUseCase,
 	resolveENSName IResolveENSNameUseCase,
 ) IGetDefaultProfileUseCase {
 	return func(ctx context.Context, input *GetDefaultProfileInput) (*entities.Profile, error) {
@@ -46,7 +47,7 @@ func NewGetDefaultProfile(
 			Interactions: &[]entities.Interaction{},
 		}
 		var wg sync.WaitGroup
-		wg.Add(5)
+		wg.Add(6)
 
 		go func() {
 			defer wg.Done()
@@ -115,6 +116,21 @@ func NewGetDefaultProfile(
 			}
 			profile.Statistics = getAllStatistics(ctx, &GetAllStatisticsInput{
 				Stats: &stats,
+			})
+		}()
+
+		go func() {
+			defer wg.Done()
+
+			currencies := []GetCurrencyInput{}
+			for _, chain := range []string{common.ETHEREUM, common.POLYGON, common.ARBITRUM, common.OPTIMISM} {
+				currencies = append(currencies, GetCurrencyInput{
+					Address:    input.Address,
+					Blockchain: chain,
+				})
+			}
+			profile.Currencies = getAllCurrencies(ctx, &GetAllCurrenciesInput{
+				Currencies: &currencies,
 			})
 		}()
 

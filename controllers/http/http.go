@@ -31,6 +31,7 @@ type HttpController struct {
 	getListingMetadata  usecases.IGetListingMetadataUseCase
 	getListings         usecases.IGetListingsUseCase
 	refreshProfile      usecases.IRefreshProfileUseCase
+	getCurrency         usecases.IGetCurrencyUseCase
 }
 
 func NewHttpController(
@@ -51,6 +52,7 @@ func NewHttpController(
 	getListingMetadata usecases.IGetListingMetadataUseCase,
 	getListings usecases.IGetListingsUseCase,
 	refreshProfile usecases.IRefreshProfileUseCase,
+	getCurrency usecases.IGetCurrencyUseCase,
 ) *HttpController {
 	return &HttpController{
 		settings,
@@ -70,6 +72,7 @@ func NewHttpController(
 		getListingMetadata,
 		getListings,
 		refreshProfile,
+		getCurrency,
 	}
 }
 
@@ -118,6 +121,8 @@ func (hc *HttpController) Start() error {
 		r.Get("/nft", hc.getNFTRoute)
 		r.Get("/statistic", hc.getStatisticRoute)
 	})
+
+	r.Get("/currency", hc.getCurrencyRoute)
 
 	r.Route("/transactions", func(r chi.Router) {
 		r.Use(hc.parseTransaction)
