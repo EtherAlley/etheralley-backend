@@ -12,8 +12,7 @@ type GetAllCurrenciesInput struct {
 	Currencies *[]GetCurrencyInput `validate:"required"`
 }
 
-// Get all currencies
-// A non nil error will be returned if any interactions in the list are invalid
+// Get the balances for the given list of addresses and blockchains
 type IGetAllCurrenciesUseCase func(ctx context.Context, input *GetAllCurrenciesInput) *[]entities.Currency
 
 func NewGetAllCurrenciesUseCase(

@@ -92,5 +92,5 @@ type DisplayGroupInput struct {
 type DisplayItemInput struct {
 	Id    string           `json:"id" validate:"required"`
 	Index uint64           `json:"index" validate:"gte=0"`
-	Type  common.BadgeType `json:"type" validate:"required,oneof=non_fungible_tokens fungible_tokens statistics"`
+	Type  common.BadgeType `json:"type" validate:"required,oneof=non_fungible_tokens fungible_tokens statistics currencies"`
 }
