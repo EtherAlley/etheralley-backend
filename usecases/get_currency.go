@@ -13,7 +13,7 @@ type GetCurrencyInput struct {
 	Blockchain common.Blockchain `validate:"required,oneof=ethereum polygon arbitrum optimism"`
 }
 
-// Get the balance for the native currency of a given blockchain
+// Get the balance for a given address and blockchain
 type IGetCurrencyUseCase func(ctx context.Context, input *GetCurrencyInput) (*entities.Currency, error)
 
 func NewGetCurrency(
