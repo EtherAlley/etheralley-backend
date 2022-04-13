@@ -21,4 +21,5 @@ type IPresenter interface {
 	PresentListingMetadata(http.ResponseWriter, *http.Request, *entities.NonFungibleMetadata)
 	PresentListings(http.ResponseWriter, *http.Request, *[]entities.Listing)
 	PresentRefreshedProfile(w http.ResponseWriter, r *http.Request)
+	PresentCurrency(w http.ResponseWriter, r *http.Request, currency *entities.Currency)
 }

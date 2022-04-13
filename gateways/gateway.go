@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/big"
 
+	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
@@ -42,6 +43,8 @@ type ICacheGateway interface {
 }
 
 type IBlockchainGateway interface {
+	GetAccountBalance(ctx context.Context, blockchain common.Blockchain, address string) (string, error)
+
 	GetNonFungibleURI(ctx context.Context, contract *entities.Contract, tokenId string) (string, error)
 	GetNonFungibleBalance(ctx context.Context, address string, contract *entities.Contract, tokenId string) (string, error)
 

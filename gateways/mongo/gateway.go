@@ -41,6 +41,7 @@ type profileBson struct {
 	FungibleTokens    *[]fungibleTokenBson    `bson:"fungible_tokens"`
 	Statistics        *[]statisticBson        `bson:"statistics"`
 	Interactions      *[]interactionBson      `bson:"interactions"`
+	Currencies        *[]currencyBson         `json:"currencies"`
 }
 
 type contractBson struct {
@@ -72,6 +73,10 @@ type interactionBson struct {
 	Transaction *transactionBson   `bson:"transaction"`
 	Type        common.Interaction `bson:"type"`
 	Timestamp   uint64             `bson:"timestamp"`
+}
+
+type currencyBson struct {
+	Blockchain common.Blockchain `json:"blockchain"`
 }
 
 type displayConfigBson struct {
@@ -169,6 +174,13 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 		})
 	}
 
+	currencies := []entities.Currency{}
+	for _, currency := range *profileBson.Currencies {
+		currencies = append(currencies, entities.Currency{
+			Blockchain: currency.Blockchain,
+		})
+	}
+
 	config := entities.DisplayConfig{
 		Colors: &entities.DisplayColors{
 			Primary:       profileBson.DisplayConfig.Colors.Primary,
@@ -232,6 +244,7 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 		FungibleTokens:    &tokens,
 		Statistics:        &stats,
 		Interactions:      &interactions,
+		Currencies:        &currencies,
 	}
 }
 
@@ -280,6 +293,13 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 				Id:         interaction.Transaction.Id,
 			},
 			Timestamp: interaction.Timestamp,
+		})
+	}
+
+	currencies := []currencyBson{}
+	for _, currency := range *profile.Currencies {
+		currencies = append(currencies, currencyBson{
+			Blockchain: currency.Blockchain,
 		})
 	}
 
@@ -346,5 +366,6 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 		FungibleTokens:    &tokens,
 		Statistics:        &stats,
 		Interactions:      &interactions,
+		Currencies:        &currencies,
 	}
 }
