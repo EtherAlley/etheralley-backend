@@ -103,7 +103,7 @@ type storeAssetsJson struct {
 
 type displayConfigJson struct {
 	Colors       *displayColorsJson       `json:"colors"`
-	Text         *displayTextJson         `json:"text"`
+	Info         *displayInfoJson         `json:"info"`
 	Picture      *displayPictureJson      `json:"picture"`
 	Achievements *displayAchievementsJson `json:"achievements"`
 	Groups       *[]displayGroupJson      `json:"groups"`
@@ -116,9 +116,10 @@ type displayColorsJson struct {
 	SecondaryText string `json:"secondary_text"`
 }
 
-type displayTextJson struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
+type displayInfoJson struct {
+	Title         string `json:"title"`
+	Description   string `json:"description"`
+	TwitterHandle string `json:"twitter_handle"`
 }
 
 type displayPictureJson struct {
@@ -246,9 +247,10 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 				PrimaryText:   profileJson.DisplayConfig.Colors.PrimaryText,
 				SecondaryText: profileJson.DisplayConfig.Colors.SecondaryText,
 			},
-			Text: &entities.DisplayText{
-				Title:       profileJson.DisplayConfig.Text.Title,
-				Description: profileJson.DisplayConfig.Text.Description,
+			Info: &entities.DisplayInfo{
+				Title:         profileJson.DisplayConfig.Info.Title,
+				Description:   profileJson.DisplayConfig.Info.Description,
+				TwitterHandle: profileJson.DisplayConfig.Info.TwitterHandle,
 			},
 			Picture: &entities.DisplayPicture{},
 			Achievements: &entities.DisplayAchievements{
@@ -441,9 +443,10 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 				PrimaryText:   profile.DisplayConfig.Colors.PrimaryText,
 				SecondaryText: profile.DisplayConfig.Colors.SecondaryText,
 			},
-			Text: &displayTextJson{
-				Title:       profile.DisplayConfig.Text.Title,
-				Description: profile.DisplayConfig.Text.Description,
+			Info: &displayInfoJson{
+				Title:         profile.DisplayConfig.Info.Title,
+				Description:   profile.DisplayConfig.Info.Description,
+				TwitterHandle: profile.DisplayConfig.Info.TwitterHandle,
 			},
 			Picture: &displayPictureJson{},
 			Achievements: &displayAchievementsJson{

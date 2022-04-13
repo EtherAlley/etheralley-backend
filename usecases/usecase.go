@@ -50,7 +50,7 @@ type CurrencyInput struct {
 
 type DisplayConfigInput struct {
 	Colors       *DisplayColorsInput       `json:"colors" validate:"required,dive"`
-	Text         *DisplayTextInput         `json:"text" validate:"required,dive"`
+	Info         *DisplayInfoInput         `json:"info" validate:"required,dive"`
 	Picture      *DisplayPictureInput      `json:"picture" validate:"required,dive"`
 	Achievements *DisplayAchievementsInput `json:"achievements" validate:"required,dive"`
 	Groups       *[]DisplayGroupInput      `json:"groups" validate:"required,dive"`
@@ -63,9 +63,10 @@ type DisplayColorsInput struct {
 	SecondaryText string `json:"secondary_text" validate:"required,max=15"`
 }
 
-type DisplayTextInput struct {
-	Title       string `json:"title" validate:"max=40"`
-	Description string `json:"description" validate:"max=500"`
+type DisplayInfoInput struct {
+	Title         string `json:"title" validate:"max=40"`
+	Description   string `json:"description" validate:"max=500"`
+	TwitterHandle string `json:"twitter_handle" validate:"max=15"`
 }
 
 type DisplayPictureInput struct {

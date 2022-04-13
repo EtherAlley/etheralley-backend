@@ -81,7 +81,7 @@ type currencyBson struct {
 
 type displayConfigBson struct {
 	Colors       *displayColorsBson       `bson:"colors"`
-	Text         *displayTextBson         `bson:"text"`
+	Info         *displayInfoBson         `bson:"info"`
 	Picture      *displayPictureBson      `bson:"picture"`
 	Achievements *displayAchievementsBson `bson:"achievements"`
 	Groups       *[]displayGroupBson      `bson:"groups"`
@@ -94,9 +94,10 @@ type displayColorsBson struct {
 	SecondaryText string `bson:"secondary_text"`
 }
 
-type displayTextBson struct {
-	Title       string `bson:"title"`
-	Description string `bson:"description"`
+type displayInfoBson struct {
+	Title         string `bson:"title"`
+	Description   string `bson:"description"`
+	TwitterHandle string `bson:"twitter_handle"`
 }
 
 type displayPictureBson struct {
@@ -188,9 +189,10 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 			PrimaryText:   profileBson.DisplayConfig.Colors.PrimaryText,
 			SecondaryText: profileBson.DisplayConfig.Colors.SecondaryText,
 		},
-		Text: &entities.DisplayText{
-			Title:       profileBson.DisplayConfig.Text.Title,
-			Description: profileBson.DisplayConfig.Text.Description,
+		Info: &entities.DisplayInfo{
+			Title:         profileBson.DisplayConfig.Info.Title,
+			Description:   profileBson.DisplayConfig.Info.Description,
+			TwitterHandle: profileBson.DisplayConfig.Info.TwitterHandle,
 		},
 		Picture: &entities.DisplayPicture{},
 		Achievements: &entities.DisplayAchievements{
@@ -310,9 +312,10 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 			PrimaryText:   profile.DisplayConfig.Colors.PrimaryText,
 			SecondaryText: profile.DisplayConfig.Colors.SecondaryText,
 		},
-		Text: &displayTextBson{
-			Title:       profile.DisplayConfig.Text.Title,
-			Description: profile.DisplayConfig.Text.Description,
+		Info: &displayInfoBson{
+			Title:         profile.DisplayConfig.Info.Title,
+			Description:   profile.DisplayConfig.Info.Description,
+			TwitterHandle: profile.DisplayConfig.Info.TwitterHandle,
 		},
 		Picture: &displayPictureBson{},
 		Achievements: &displayAchievementsBson{

@@ -4,7 +4,7 @@ import "github.com/etheralley/etheralley-core-api/common"
 
 type DisplayConfig struct {
 	Colors       *DisplayColors
-	Text         *DisplayText
+	Info         *DisplayInfo
 	Picture      *DisplayPicture
 	Achievements *DisplayAchievements
 	Groups       *[]DisplayGroup
@@ -17,9 +17,10 @@ type DisplayColors struct {
 	SecondaryText string
 }
 
-type DisplayText struct {
-	Title       string
-	Description string
+type DisplayInfo struct {
+	Title         string
+	Description   string
+	TwitterHandle string
 }
 
 type DisplayPicture struct {

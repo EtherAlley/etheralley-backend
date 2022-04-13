@@ -143,9 +143,10 @@ func toDisplayConfig(input *DisplayConfigInput) *entities.DisplayConfig {
 			PrimaryText:   input.Colors.PrimaryText,
 			SecondaryText: input.Colors.SecondaryText,
 		},
-		Text: &entities.DisplayText{
-			Title:       input.Text.Title,
-			Description: input.Text.Description,
+		Info: &entities.DisplayInfo{
+			Title:         input.Info.Title,
+			Description:   input.Info.Description,
+			TwitterHandle: input.Info.TwitterHandle,
 		},
 		Picture: &entities.DisplayPicture{},
 		Achievements: &entities.DisplayAchievements{

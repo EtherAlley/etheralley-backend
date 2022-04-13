@@ -215,9 +215,10 @@ func toDisplayConfigJson(displayConfig *entities.DisplayConfig) *displayConfigJs
 			PrimaryText:   displayConfig.Colors.PrimaryText,
 			SecondaryText: displayConfig.Colors.SecondaryText,
 		},
-		Text: &displayTextJson{
-			Title:       displayConfig.Text.Title,
-			Description: displayConfig.Text.Description,
+		Info: &displayInfoJson{
+			Title:         displayConfig.Info.Title,
+			Description:   displayConfig.Info.Description,
+			TwitterHandle: displayConfig.Info.TwitterHandle,
 		},
 		Picture: &displayPictureJson{},
 		Achievements: &displayAchievementsJson{
@@ -368,7 +369,7 @@ type storeAssetsJson struct {
 
 type displayConfigJson struct {
 	Colors       *displayColorsJson       `json:"colors"`
-	Text         *displayTextJson         `json:"text"`
+	Info         *displayInfoJson         `json:"info"`
 	Picture      *displayPictureJson      `json:"picture"`
 	Achievements *displayAchievementsJson `json:"achievements"`
 	Groups       *[]displayGroupJson      `json:"groups"`
@@ -381,9 +382,10 @@ type displayColorsJson struct {
 	SecondaryText string `json:"secondary_text"`
 }
 
-type displayTextJson struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
+type displayInfoJson struct {
+	Title         string `json:"title"`
+	Description   string `json:"description"`
+	TwitterHandle string `json:"twitter_handle"`
 }
 
 type displayPictureJson struct {
