@@ -64,6 +64,7 @@ type IBlockchainGateway interface {
 
 type IBlockchainIndexGateway interface {
 	GetSwaps(ctx context.Context, address string, contract *entities.Contract) (interface{}, error)
+	GetStake(ctx context.Context, address string, contract *entities.Contract) (interface{}, error)
 }
 
 type IOffchainGateway interface {

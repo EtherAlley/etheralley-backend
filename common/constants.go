@@ -19,6 +19,7 @@ const (
 	SUSHISWAP_EXCHANGE  Interface = "SUSHISWAP_EXCHANGE"
 	UNISWAP_V2_EXCHANGE Interface = "UNISWAP_V2_EXCHANGE"
 	UNISWAP_V3_EXCHANGE Interface = "UNISWAP_V3_EXCHANGE"
+	ROCKET_POOL         Interface = "ROCKET_POOL"
 )
 
 type Interaction = string
@@ -31,7 +32,8 @@ const (
 type StatisticType = string
 
 const (
-	SWAP StatisticType = "SWAP"
+	SWAP  StatisticType = "SWAP"
+	STAKE StatisticType = "STAKE"
 )
 
 type BadgeType = string

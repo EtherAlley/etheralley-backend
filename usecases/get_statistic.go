@@ -39,6 +39,8 @@ func NewGetStatistic(
 		switch statType {
 		case common.SWAP:
 			data, err = blockchainIndexGateway.GetSwaps(ctx, address, contract)
+		case common.STAKE:
+			data, err = blockchainIndexGateway.GetStake(ctx, address, contract)
 		default:
 			data, err = nil, errors.New("invalid stat type")
 		}

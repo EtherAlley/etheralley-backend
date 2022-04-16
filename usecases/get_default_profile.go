@@ -100,19 +100,40 @@ func NewGetDefaultProfile(
 		go func() {
 			defer wg.Done()
 
-			stats := []GetStatisticsInput{}
-			for _, intf := range []string{common.UNISWAP_V2_EXCHANGE, common.UNISWAP_V3_EXCHANGE, common.SUSHISWAP_EXCHANGE} {
-				stats = append(stats, GetStatisticsInput{
+			stats := []GetStatisticsInput{
+				{
 					Address: input.Address,
 					Statistic: &StatisticInput{
 						Type: common.SWAP,
 						Contract: &ContractInput{
 							Address:    common.ZERO_ADDRESS,
-							Interface:  intf,
+							Interface:  common.UNISWAP_V2_EXCHANGE,
 							Blockchain: common.ETHEREUM,
 						},
 					},
-				})
+				},
+				{
+					Address: input.Address,
+					Statistic: &StatisticInput{
+						Type: common.SWAP,
+						Contract: &ContractInput{
+							Address:    common.ZERO_ADDRESS,
+							Interface:  common.SUSHISWAP_EXCHANGE,
+							Blockchain: common.ETHEREUM,
+						},
+					},
+				},
+				{
+					Address: input.Address,
+					Statistic: &StatisticInput{
+						Type: common.STAKE,
+						Contract: &ContractInput{
+							Address:    common.ZERO_ADDRESS,
+							Interface:  common.ROCKET_POOL,
+							Blockchain: common.ETHEREUM,
+						},
+					},
+				},
 			}
 			profile.Statistics = getAllStatistics(ctx, &GetAllStatisticsInput{
 				Stats: &stats,
