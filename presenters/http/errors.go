@@ -14,6 +14,11 @@ func (p *httpPresenter) PresentUnathorized(w http.ResponseWriter, r *http.Reques
 	p.presentJSON(w, r, http.StatusUnauthorized, toErrJson("unathorized"))
 }
 
+func (p *httpPresenter) PresentNotFound(w http.ResponseWriter, r *http.Request, err error) {
+	p.logger.Err(r.Context(), err, "not found err")
+	p.presentJSON(w, r, http.StatusNotFound, toErrJson("not found"))
+}
+
 func toErrJson(msg string) *errJson {
 	return &errJson{
 		Message: msg,

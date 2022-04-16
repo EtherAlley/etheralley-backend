@@ -101,7 +101,7 @@ func NewGetDefaultProfile(
 			defer wg.Done()
 
 			stats := []GetStatisticsInput{}
-			for _, intf := range []string{common.UNISWAP_V2_EXCHANGE, common.SUSHISWAP_EXCHANGE} {
+			for _, intf := range []string{common.UNISWAP_V2_EXCHANGE, common.UNISWAP_V3_EXCHANGE, common.SUSHISWAP_EXCHANGE} {
 				stats = append(stats, GetStatisticsInput{
 					Address: input.Address,
 					Statistic: &StatisticInput{

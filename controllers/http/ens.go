@@ -19,7 +19,7 @@ func (hc *HttpController) resolveAddressRoute(next http.Handler) http.Handler {
 		})
 
 		if err != nil {
-			hc.presenter.PresentBadRequest(w, r, err)
+			hc.presenter.PresentNotFound(w, r, err)
 			return
 		}
 

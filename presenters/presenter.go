@@ -9,6 +9,7 @@ import (
 type IPresenter interface {
 	PresentBadRequest(http.ResponseWriter, *http.Request, error)
 	PresentUnathorized(http.ResponseWriter, *http.Request, error)
+	PresentNotFound(http.ResponseWriter, *http.Request, error)
 	PresentHealth(http.ResponseWriter, *http.Request)
 	PresentChallenge(http.ResponseWriter, *http.Request, *entities.Challenge)
 	PresentFungibleToken(http.ResponseWriter, *http.Request, *entities.FungibleToken)
