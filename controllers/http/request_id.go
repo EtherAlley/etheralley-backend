@@ -3,14 +3,13 @@ package http
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"net/http"
-	"sync/atomic"
 
 	"github.com/etheralley/etheralley-core-api/common"
 )
 
 var RequestIDHeader = "X-Request-Id"
-var reqid uint64
 
 // add a request id to the context
 //
@@ -22,7 +21,7 @@ func (hc *HttpController) requestId(next http.Handler) http.Handler {
 		ctx := r.Context()
 		requestID := r.Header.Get(RequestIDHeader)
 		if requestID == "" {
-			requestID = fmt.Sprintf("%06d", atomic.AddUint64(&reqid, 1))
+			requestID = fmt.Sprintf("%10d", rand.Intn(10000000000))
 		}
 		ctx = context.WithValue(ctx, common.ContextKeyRequestId, requestID)
 		next.ServeHTTP(w, r.WithContext(ctx))
