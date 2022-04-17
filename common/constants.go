@@ -62,3 +62,10 @@ const (
 	STORE_PREMIUM     TokenIds = "1"
 	STORE_BETA_TESTER TokenIds = "2"
 )
+
+type TotalBadgeLimit = uint
+
+const (
+	REGULAR_TOTAL_BADGE_COUNT = 25 // this number should never be lower than the total count returned by default profile, so that new users can always save their initial profile
+	PREMIUM_TOTAL_BADGE_COUNT = 50
+)

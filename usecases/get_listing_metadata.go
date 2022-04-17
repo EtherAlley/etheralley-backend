@@ -45,6 +45,7 @@ func NewGetListingMetadata(
 				Image:       url,
 				Attributes: getAttribute([][2]interface{}{
 					{"Status", "Verified"},
+					{"Max Badge Count", 50},
 					{"Fungibility", "Semi-Fungible"},
 					{"Transferable", "True"},
 				}),

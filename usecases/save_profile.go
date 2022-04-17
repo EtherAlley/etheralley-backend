@@ -2,6 +2,8 @@ package usecases
 
 import (
 	"context"
+	"fmt"
+	"math/big"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -17,27 +19,53 @@ type SaveProfileInput struct {
 // save the profile to the database
 //
 // remove the cached profile
+//
+// TODO: can fetch interactions and premium balance concurrently
 type ISaveProfileUseCase func(ctx context.Context, input *SaveProfileInput) error
 
 func NewSaveProfile(
 	logger common.ILogger,
+	blockchainGateway gateways.IBlockchainGateway,
 	databaseGateway gateways.IDatabaseGateway,
 	cacheGateway gateways.ICacheGateway,
 	getAllInteractions IGetAllInteractionsUseCase,
 ) ISaveProfileUseCase {
 	return func(ctx context.Context, input *SaveProfileInput) error {
+		// general validation on profile being submitted
 		if err := common.ValidateStruct(input); err != nil {
 			return err
 		}
 
-		// interactions are not transient, so we must validate them on save
+		// validate total badge count
+		badgeCount := len(*input.Profile.FungibleTokens) + len(*input.Profile.NonFungibleTokens) + len(*input.Profile.Statistics) + len(*input.Profile.Currencies)
+		balances, err := blockchainGateway.GetStoreBalanceBatch(ctx, input.Profile.Address, &[]string{common.STORE_PREMIUM})
+
+		if err != nil {
+			return fmt.Errorf("failed to get premium balance %w", err)
+		}
+
+		if balances[0].Cmp(big.NewInt(0)) == 1 && badgeCount > common.PREMIUM_TOTAL_BADGE_COUNT {
+			return fmt.Errorf("invalid total badge count for premium provided %v %v", balances[0], badgeCount)
+		} else if balances[0].Cmp(big.NewInt(0)) == 0 && badgeCount > common.REGULAR_TOTAL_BADGE_COUNT {
+			return fmt.Errorf("invalid total badge count for regular provided %v %v", balances[0], badgeCount)
+		}
+
+		// validate that all interactions being submitted are unique
+		typeMap := map[string]bool{}
+		for _, interaction := range *input.Profile.Interactions {
+			if typeMap[interaction.Type] {
+				return fmt.Errorf("duplicate interaction type detected %v", interaction.Type)
+			}
+			typeMap[interaction.Type] = true
+		}
+
+		// interactions are not transient, so we must validate them against the on-chain transaction on every save
 		interactions, err := getAllInteractions(ctx, &GetAllInteractionsInput{
 			Interactions: toInteractionInputs(input.Profile),
 		})
 
 		if err != nil {
-			logger.Errf(ctx, err, "failed to validate interactions for profile %v", input.Profile.Address)
-			return err
+			return fmt.Errorf("failed to validate interactions %w", err)
 		}
 
 		profile := &entities.Profile{
@@ -53,8 +81,7 @@ func NewSaveProfile(
 		err = databaseGateway.SaveProfile(ctx, profile)
 
 		if err != nil {
-			logger.Errf(ctx, err, "failed to save profile %v", input.Profile.Address)
-			return err
+			return fmt.Errorf("failed to save profile to db %w", err)
 		}
 
 		// users will expect to see there saved changes the next time they visit their profile
