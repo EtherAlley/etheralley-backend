@@ -61,6 +61,8 @@ type DisplayColorsInput struct {
 	Secondary     string `json:"secondary" validate:"required,max=15"`
 	PrimaryText   string `json:"primary_text" validate:"required,max=15"`
 	SecondaryText string `json:"secondary_text" validate:"required,max=15"`
+	Shadow        string `json:"shadow" validate:"required,max=15"`
+	Accent        string `json:"accent" validate:"required,max=15"`
 }
 
 type DisplayInfoInput struct {

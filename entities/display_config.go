@@ -15,6 +15,8 @@ type DisplayColors struct {
 	Secondary     string
 	PrimaryText   string
 	SecondaryText string
+	Shadow        string
+	Accent        string
 }
 
 type DisplayInfo struct {
