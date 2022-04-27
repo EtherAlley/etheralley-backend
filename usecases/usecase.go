@@ -67,7 +67,7 @@ type DisplayColorsInput struct {
 
 type DisplayInfoInput struct {
 	Title         string `json:"title" validate:"max=40"`
-	Description   string `json:"description" validate:"max=500"`
+	Description   string `json:"description" validate:"max=1000"`
 	TwitterHandle string `json:"twitter_handle" validate:"max=15"`
 }
 
