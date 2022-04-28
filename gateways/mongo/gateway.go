@@ -92,6 +92,8 @@ type displayColorsBson struct {
 	Secondary     string `bson:"secondary"`
 	PrimaryText   string `bson:"primary_text"`
 	SecondaryText string `bson:"secondary_text"`
+	Shadow        string `bson:"shadow"`
+	Accent        string `bson:"accent"`
 }
 
 type displayInfoBson struct {
@@ -188,6 +190,8 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 			Secondary:     profileBson.DisplayConfig.Colors.Secondary,
 			PrimaryText:   profileBson.DisplayConfig.Colors.PrimaryText,
 			SecondaryText: profileBson.DisplayConfig.Colors.SecondaryText,
+			Shadow:        profileBson.DisplayConfig.Colors.Shadow,
+			Accent:        profileBson.DisplayConfig.Colors.Accent,
 		},
 		Info: &entities.DisplayInfo{
 			Title:         profileBson.DisplayConfig.Info.Title,
@@ -311,6 +315,8 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 			Secondary:     profile.DisplayConfig.Colors.Secondary,
 			PrimaryText:   profile.DisplayConfig.Colors.PrimaryText,
 			SecondaryText: profile.DisplayConfig.Colors.SecondaryText,
+			Shadow:        profile.DisplayConfig.Colors.Shadow,
+			Accent:        profile.DisplayConfig.Colors.Accent,
 		},
 		Info: &displayInfoBson{
 			Title:         profile.DisplayConfig.Info.Title,

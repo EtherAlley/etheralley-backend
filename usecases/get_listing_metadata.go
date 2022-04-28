@@ -45,9 +45,9 @@ func NewGetListingMetadata(
 				Image:       url,
 				Attributes: getAttribute([][2]interface{}{
 					{"Status", "Verified"},
-					{"Max Badge Count", 50},
+					{"Badge Count", 50},
 					{"Fungibility", "Semi-Fungible"},
-					{"Transferable", "True"},
+					{"Transferable", true},
 				}),
 			}, nil
 		case common.STORE_BETA_TESTER:
@@ -58,8 +58,8 @@ func NewGetListingMetadata(
 				Attributes: getAttribute([][2]interface{}{
 					{"Achievement", "Beta Tester"},
 					{"Fungibility", "Semi-Fungible"},
-					{"Transferable", "False"},
-					{"Maximum balance per address", "1"},
+					{"Transferable", false},
+					{"Max balance", 1},
 				}),
 			}, nil
 		}

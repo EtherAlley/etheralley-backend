@@ -114,6 +114,8 @@ type displayColorsJson struct {
 	Secondary     string `json:"secondary"`
 	PrimaryText   string `json:"primary_text"`
 	SecondaryText string `json:"secondary_text"`
+	Shadow        string `json:"shadow"`
+	Accent        string `json:"accent"`
 }
 
 type displayInfoJson struct {
@@ -246,6 +248,8 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 				Secondary:     profileJson.DisplayConfig.Colors.Secondary,
 				PrimaryText:   profileJson.DisplayConfig.Colors.PrimaryText,
 				SecondaryText: profileJson.DisplayConfig.Colors.SecondaryText,
+				Shadow:        profileJson.DisplayConfig.Colors.Shadow,
+				Accent:        profileJson.DisplayConfig.Colors.Accent,
 			},
 			Info: &entities.DisplayInfo{
 				Title:         profileJson.DisplayConfig.Info.Title,
@@ -442,6 +446,8 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 				Secondary:     profile.DisplayConfig.Colors.Secondary,
 				PrimaryText:   profile.DisplayConfig.Colors.PrimaryText,
 				SecondaryText: profile.DisplayConfig.Colors.SecondaryText,
+				Shadow:        profile.DisplayConfig.Colors.Shadow,
+				Accent:        profile.DisplayConfig.Colors.Accent,
 			},
 			Info: &displayInfoJson{
 				Title:         profile.DisplayConfig.Info.Title,

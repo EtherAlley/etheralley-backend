@@ -214,6 +214,8 @@ func toDisplayConfigJson(displayConfig *entities.DisplayConfig) *displayConfigJs
 			Secondary:     displayConfig.Colors.Secondary,
 			PrimaryText:   displayConfig.Colors.PrimaryText,
 			SecondaryText: displayConfig.Colors.SecondaryText,
+			Shadow:        displayConfig.Colors.Shadow,
+			Accent:        displayConfig.Colors.Accent,
 		},
 		Info: &displayInfoJson{
 			Title:         displayConfig.Info.Title,
@@ -380,6 +382,8 @@ type displayColorsJson struct {
 	Secondary     string `json:"secondary"`
 	PrimaryText   string `json:"primary_text"`
 	SecondaryText string `json:"secondary_text"`
+	Shadow        string `json:"shadow"`
+	Accent        string `json:"accent"`
 }
 
 type displayInfoJson struct {

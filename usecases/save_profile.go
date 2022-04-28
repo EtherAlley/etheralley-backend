@@ -169,6 +169,8 @@ func toDisplayConfig(input *DisplayConfigInput) *entities.DisplayConfig {
 			Secondary:     input.Colors.Secondary,
 			PrimaryText:   input.Colors.PrimaryText,
 			SecondaryText: input.Colors.SecondaryText,
+			Shadow:        input.Colors.Shadow,
+			Accent:        input.Colors.Accent,
 		},
 		Info: &entities.DisplayInfo{
 			Title:         input.Info.Title,
