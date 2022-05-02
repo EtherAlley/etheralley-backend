@@ -11,27 +11,32 @@ import (
 )
 
 type gateway struct {
+	settings common.ISettings
 	logger   common.ILogger
 	profiles *mongo.Collection
 }
 
 func NewGateway(settings common.ISettings, logger common.ILogger) gateways.IDatabaseGateway {
+	return &gateway{
+		settings,
+		logger,
+		nil,
+	}
+}
+
+func (gw *gateway) Init() {
 	ctx := context.Background()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(settings.DatabaseURI()).SetMaxConnecting(100))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(gw.settings.DatabaseURI()).SetMaxConnecting(100))
 
 	if err != nil {
-		logger.Err(ctx, err, "mongo connection error")
+		gw.logger.Err(ctx, err, "mongo connection error")
 		panic(err)
 	}
 
-	db := client.Database(settings.Database())
-	profiles := db.Collection("profiles")
+	db := client.Database(gw.settings.Database())
 
-	return &gateway{
-		logger,
-		profiles,
-	}
+	gw.profiles = db.Collection("profiles")
 }
 
 type profileBson struct {

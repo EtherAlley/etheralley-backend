@@ -1,0 +1,27 @@
+{
+  "0x82af49447d8a07e3bd95bd0d56f35241523fbab1": {
+    "name": "Wrapped Ether",
+    "symbol": "WETH",
+    "decimals": 18
+  },
+  "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1": {
+    "name": "Dai Stablecoin",
+    "symbol": "DAI",
+    "decimals": 18
+  },
+  "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8": {
+    "name": "USD Coin (Arb1)",
+    "symbol": "USDC",
+    "decimals": 18
+  },
+  "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9": {
+    "name": "Tether USD",
+    "symbol": "USDT",
+    "decimals": 6
+  },
+  "0xfc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a": {
+    "name": "GMX",
+    "symbol": "GMX",
+    "decimals": 18
+  }
+}

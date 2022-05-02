@@ -17,7 +17,7 @@ type ProfileInput struct {
 type ContractInput struct {
 	Blockchain common.Blockchain `json:"blockchain" validate:"required,oneof=ethereum polygon arbitrum optimism"`
 	Address    string            `json:"address" validate:"required,eth_addr"`
-	Interface  common.Interface  `json:"interface" validate:"required,oneof=ERC721 ERC1155 ERC20 ENS_REGISTRAR SUSHISWAP_EXCHANGE UNISWAP_V2_EXCHANGE UNISWAP_V3_EXCHANGE ROCKET_POOL"`
+	Interface  common.Interface  `json:"interface" validate:"required,oneof=ERC721 ERC1155 ERC20 ENS_REGISTRAR CRYPTO_KITTIES CRYPTO_PUNKS SUSHISWAP_EXCHANGE UNISWAP_V2_EXCHANGE UNISWAP_V3_EXCHANGE ROCKET_POOL"`
 }
 
 type TransactionInput struct {

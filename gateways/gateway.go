@@ -9,11 +9,15 @@ import (
 )
 
 type IDatabaseGateway interface {
+	Init()
+
 	GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error)
 	SaveProfile(ctx context.Context, profile *entities.Profile) error
 }
 
 type ICacheGateway interface {
+	Init()
+
 	GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error)
 	SaveProfile(ctx context.Context, profile *entities.Profile) error
 	DeleteProfile(ctx context.Context, address string) error
@@ -45,13 +49,16 @@ type ICacheGateway interface {
 type IBlockchainGateway interface {
 	GetAccountBalance(ctx context.Context, blockchain common.Blockchain, address string) (string, error)
 
-	GetNonFungibleURI(ctx context.Context, contract *entities.Contract, tokenId string) (string, error)
-	GetNonFungibleBalance(ctx context.Context, address string, contract *entities.Contract, tokenId string) (string, error)
+	GetERC1155URI(ctx context.Context, contract *entities.Contract, tokenId string) (string, error)
+	GetERC721URI(ctx context.Context, contract *entities.Contract, tokenId string) (string, error)
+	GetERC1155Balance(ctx context.Context, address string, contract *entities.Contract, tokenId string) (string, error)
+	GetERC721Balance(ctx context.Context, address string, contract *entities.Contract, tokenId string) (string, error)
+	GetPunkBalance(ctx context.Context, address string, contract *entities.Contract, tokenId string) (string, error)
 
-	GetFungibleBalance(ctx context.Context, address string, contract *entities.Contract) (string, error)
-	GetFungibleName(ctx context.Context, contract *entities.Contract) (string, error)
-	GetFungibleSymbol(ctx context.Context, contract *entities.Contract) (string, error)
-	GetFungibleDecimals(ctx context.Context, contract *entities.Contract) (uint8, error)
+	GetERC20Balance(ctx context.Context, address string, contract *entities.Contract) (string, error)
+	GetERC20Name(ctx context.Context, contract *entities.Contract) (string, error)
+	GetERC20Symbol(ctx context.Context, contract *entities.Contract) (string, error)
+	GetERC20Decimals(ctx context.Context, contract *entities.Contract) (uint8, error)
 
 	GetENSAddressFromName(ctx context.Context, ensName string) (string, error)
 	GetENSNameFromAddress(ctx context.Context, address string) (name string, err error)
@@ -68,6 +75,12 @@ type IBlockchainIndexGateway interface {
 }
 
 type IOffchainGateway interface {
-	GetNonFungibleMetadata(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error)
+	Init()
+
 	GetNonFungibleTokens(ctx context.Context, address string) (*[]entities.NonFungibleToken, error)
+	GetNonFungibleMetadata(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error)
+	GetPunkMetadata(ctx context.Context, tokenId string) (*entities.NonFungibleMetadata, error)
+	GetKittieMetadata(ctx context.Context, tokenId string) (*entities.NonFungibleMetadata, error)
+
+	GetFungibleMetadata(ctx context.Context, contract *entities.Contract) (*entities.FungibleMetadata, error)
 }

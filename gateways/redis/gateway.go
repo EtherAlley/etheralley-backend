@@ -10,20 +10,25 @@ import (
 )
 
 type gateway struct {
-	client *redis.Client
-	logger common.ILogger
+	settings common.ISettings
+	logger   common.ILogger
+	client   *redis.Client
 }
 
 func NewGateway(settings common.ISettings, logger common.ILogger) gateways.ICacheGateway {
-	client := redis.NewClient(&redis.Options{
-		Addr:     settings.CacheAddr(),
-		Password: settings.CachePassword(),
-		DB:       settings.CacheDB(),
-	})
 	return &gateway{
-		client,
+		settings,
 		logger,
+		nil,
 	}
+}
+
+func (gw *gateway) Init() {
+	gw.client = redis.NewClient(&redis.Options{
+		Addr:     gw.settings.CacheAddr(),
+		Password: gw.settings.CachePassword(),
+		DB:       gw.settings.CacheDB(),
+	})
 }
 
 func getFullKey(keys ...string) string {

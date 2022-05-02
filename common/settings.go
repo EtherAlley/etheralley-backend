@@ -29,6 +29,7 @@ type ISettings interface {
 	ArbitrumURI() string
 	OptimismURI() string
 	ENSMetadataURI() string
+	CryptoKittiesMetadataURI() string
 	IPFSURI() string
 	TheGraphURI() string
 	TheGraphHostedURI() string
@@ -36,27 +37,28 @@ type ISettings interface {
 }
 
 type settings struct {
-	hostname              string
-	instanceID            string
-	env                   string
-	port                  string
-	redisAddr             string
-	redisDB               string
-	redisPassword         string
-	mongoURI              string
-	mongoDB               string
-	storeBlockchain       string
-	storeAddress          string
-	storeImageURI         string
-	ethereumURI           string
-	polygonURI            string
-	arbitrumURI           string
-	optimismURI           string
-	ensMetadataURI        string
-	ipfsURI               string
-	theGraphURI           string
-	theGraphHostedURI     string
-	defaultTokenAddresses string
+	hostname                 string
+	instanceID               string
+	env                      string
+	port                     string
+	redisAddr                string
+	redisDB                  string
+	redisPassword            string
+	mongoURI                 string
+	mongoDB                  string
+	storeBlockchain          string
+	storeAddress             string
+	storeImageURI            string
+	ethereumURI              string
+	polygonURI               string
+	arbitrumURI              string
+	optimismURI              string
+	ensMetadataURI           string
+	cryptoKittiesMetadataURI string
+	ipfsURI                  string
+	theGraphURI              string
+	theGraphHostedURI        string
+	defaultTokenAddresses    string
 }
 
 func NewSettings() ISettings {
@@ -81,27 +83,28 @@ func NewSettings() ISettings {
 	instanceID = instanceID[0:10]
 
 	return &settings{
-		hostname:              hostname,
-		instanceID:            instanceID,
-		env:                   os.Getenv("ENV"),
-		port:                  os.Getenv("PORT"),
-		redisAddr:             os.Getenv("REDIS_ADDR"),
-		redisPassword:         os.Getenv("REDIS_PASSWORD"),
-		redisDB:               os.Getenv("REDIS_DB"),
-		mongoURI:              os.Getenv("MONGO_URI"),
-		mongoDB:               os.Getenv("MONGO_DB"),
-		storeBlockchain:       os.Getenv("STORE_BLOCKCHAIN"),
-		storeAddress:          os.Getenv("STORE_ADDRESS"),
-		storeImageURI:         os.Getenv("STORE_IMAGE_URI"),
-		ethereumURI:           os.Getenv("ETHEREUM_URI"),
-		polygonURI:            os.Getenv("POLYGON_URI"),
-		arbitrumURI:           os.Getenv("ARBITRUM_URI"),
-		optimismURI:           os.Getenv("OPTIMISM_URI"),
-		ensMetadataURI:        os.Getenv("ENS_METADATA_URI"),
-		ipfsURI:               os.Getenv("IPFS_URI"),
-		theGraphURI:           os.Getenv("THE_GRAPH_URI"),
-		theGraphHostedURI:     os.Getenv("THE_GRAPH_HOSTED_URI"),
-		defaultTokenAddresses: os.Getenv("DEFAULT_TOKEN_ADDRESSES"),
+		hostname:                 hostname,
+		instanceID:               instanceID,
+		env:                      os.Getenv("ENV"),
+		port:                     os.Getenv("PORT"),
+		redisAddr:                os.Getenv("REDIS_ADDR"),
+		redisPassword:            os.Getenv("REDIS_PASSWORD"),
+		redisDB:                  os.Getenv("REDIS_DB"),
+		mongoURI:                 os.Getenv("MONGO_URI"),
+		mongoDB:                  os.Getenv("MONGO_DB"),
+		storeBlockchain:          os.Getenv("STORE_BLOCKCHAIN"),
+		storeAddress:             os.Getenv("STORE_ADDRESS"),
+		storeImageURI:            os.Getenv("STORE_IMAGE_URI"),
+		ethereumURI:              os.Getenv("ETHEREUM_URI"),
+		polygonURI:               os.Getenv("POLYGON_URI"),
+		arbitrumURI:              os.Getenv("ARBITRUM_URI"),
+		optimismURI:              os.Getenv("OPTIMISM_URI"),
+		ensMetadataURI:           os.Getenv("ENS_METADATA_URI"),
+		cryptoKittiesMetadataURI: os.Getenv("CRYPTO_KITTIES_METADATA_URI"),
+		ipfsURI:                  os.Getenv("IPFS_URI"),
+		theGraphURI:              os.Getenv("THE_GRAPH_URI"),
+		theGraphHostedURI:        os.Getenv("THE_GRAPH_HOSTED_URI"),
+		defaultTokenAddresses:    os.Getenv("DEFAULT_TOKEN_ADDRESSES"),
 	}
 }
 
@@ -181,6 +184,10 @@ func (s *settings) OptimismURI() string {
 
 func (s *settings) ENSMetadataURI() string {
 	return s.ensMetadataURI
+}
+
+func (s *settings) CryptoKittiesMetadataURI() string {
+	return s.cryptoKittiesMetadataURI
 }
 
 func (s *settings) IPFSURI() string {

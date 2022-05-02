@@ -12,7 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-func (gw *gateway) GetFungibleBalance(ctx context.Context, address string, contract *entities.Contract) (string, error) {
+func (gw *gateway) GetERC20Balance(ctx context.Context, address string, contract *entities.Contract) (string, error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
@@ -40,7 +40,7 @@ func (gw *gateway) GetFungibleBalance(ctx context.Context, address string, contr
 	return balance.String(), nil
 }
 
-func (gw *gateway) GetFungibleName(ctx context.Context, contract *entities.Contract) (string, error) {
+func (gw *gateway) GetERC20Name(ctx context.Context, contract *entities.Contract) (string, error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (gw *gateway) GetFungibleName(ctx context.Context, contract *entities.Contr
 	return name, nil
 }
 
-func (gw *gateway) GetFungibleSymbol(ctx context.Context, contract *entities.Contract) (string, error) {
+func (gw *gateway) GetERC20Symbol(ctx context.Context, contract *entities.Contract) (string, error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
@@ -84,7 +84,7 @@ func (gw *gateway) GetFungibleSymbol(ctx context.Context, contract *entities.Con
 
 	symbol, err := cmn.FunctionRetrier(ctx, func() (string, error) {
 		symbol, err := instance.Symbol(&bind.CallOpts{})
-		return symbol, tryWrapRetryable("get erc20 symbol", err)
+		return symbol, tryWrapRetryable("erc20 symbol retry", err)
 	})
 
 	if err != nil {
@@ -94,7 +94,7 @@ func (gw *gateway) GetFungibleSymbol(ctx context.Context, contract *entities.Con
 	return symbol, nil
 }
 
-func (gw *gateway) GetFungibleDecimals(ctx context.Context, contract *entities.Contract) (uint8, error) {
+func (gw *gateway) GetERC20Decimals(ctx context.Context, contract *entities.Contract) (uint8, error) {
 	client, err := gw.getClient(ctx, contract.Blockchain)
 
 	if err != nil {
@@ -111,7 +111,7 @@ func (gw *gateway) GetFungibleDecimals(ctx context.Context, contract *entities.C
 
 	decimals, err := cmn.FunctionRetrier(ctx, func() (uint8, error) {
 		decimals, err := instance.Decimals(&bind.CallOpts{})
-		return decimals, tryWrapRetryable("get erc20 decimals", err)
+		return decimals, tryWrapRetryable("erc20 decimals retry", err)
 	})
 
 	if err != nil {

@@ -11,9 +11,10 @@ import (
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/controllers"
 	httpControllers "github.com/etheralley/etheralley-core-api/controllers/http"
+	"github.com/etheralley/etheralley-core-api/gateways"
 	"github.com/etheralley/etheralley-core-api/gateways/ethereum"
-	httpGateway "github.com/etheralley/etheralley-core-api/gateways/http"
 	"github.com/etheralley/etheralley-core-api/gateways/mongo"
+	"github.com/etheralley/etheralley-core-api/gateways/offchain"
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 	"github.com/etheralley/etheralley-core-api/gateways/thegraph"
 	httpPresenters "github.com/etheralley/etheralley-core-api/presenters/http"
@@ -42,7 +43,7 @@ func main() {
 	container.Provide(mongo.NewGateway)
 	container.Provide(ethereum.NewGateway)
 	container.Provide(thegraph.NewGateway)
-	container.Provide(httpGateway.NewGateway)
+	container.Provide(offchain.NewGateway)
 	container.Provide(usecases.NewGetChallenge)
 	container.Provide(usecases.NewGetProfile)
 	container.Provide(usecases.NewGetDefaultProfile)
@@ -72,7 +73,12 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	// start controllers in concurrent go routines
-	err := container.Invoke(func(controller *httpControllers.HttpController) {
+	err := container.Invoke(func(controller *httpControllers.HttpController, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, offchainGateway gateways.IOffchainGateway) {
+		// do any initialization here
+		cacheGateway.Init()
+		databaseGateway.Init()
+		offchainGateway.Init()
+
 		go controllers.StartController(controller)
 	})
 

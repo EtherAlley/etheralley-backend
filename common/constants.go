@@ -16,6 +16,8 @@ const (
 	ERC1155             Interface = "ERC1155"
 	ERC20               Interface = "ERC20"
 	ENS_REGISTRAR       Interface = "ENS_REGISTRAR"
+	CRYPTO_KITTIES      Interface = "CRYPTO_KITTIES"
+	CRYPTO_PUNKS        Interface = "CRYPTO_PUNKS"
 	SUSHISWAP_EXCHANGE  Interface = "SUSHISWAP_EXCHANGE"
 	UNISWAP_V2_EXCHANGE Interface = "UNISWAP_V2_EXCHANGE"
 	UNISWAP_V3_EXCHANGE Interface = "UNISWAP_V3_EXCHANGE"
