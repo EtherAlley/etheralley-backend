@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      metadata: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -15,8 +17,6 @@ jobs:
 
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.36.0
-        permissions:
-          metadata: write
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
