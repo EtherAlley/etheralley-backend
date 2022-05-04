@@ -62,9 +62,13 @@ type settings struct {
 }
 
 func NewSettings() ISettings {
-	err := godotenv.Load()
-	if err != nil {
-		panic("Error loading settings")
+	env := os.Getenv("ENV")
+
+	if env == "dev" {
+		err := godotenv.Load()
+		if err != nil {
+			panic("Error loading settings")
+		}
 	}
 
 	// See https://github.com/go-chi/chi/blob/master/middleware/request_id.go#L46
@@ -83,9 +87,9 @@ func NewSettings() ISettings {
 	instanceID = instanceID[0:10]
 
 	return &settings{
+		env:                      env,
 		hostname:                 hostname,
 		instanceID:               instanceID,
-		env:                      os.Getenv("ENV"),
 		port:                     os.Getenv("PORT"),
 		redisAddr:                os.Getenv("REDIS_ADDR"),
 		redisPassword:            os.Getenv("REDIS_PASSWORD"),

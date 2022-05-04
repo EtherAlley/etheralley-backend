@@ -1,6 +1,9 @@
 build:
 	go build -o bin/main main.go
 
+test:
+	go test -v ./...
+
 run:
 	go run main.go
 
@@ -8,7 +11,7 @@ docker-build:
 	docker build --tag core-api .
 
 docker-run:
-	docker run -d -p 8080:8080 -e MONGO_HOST=host.docker.internal -e REDIS_HOST=host.docker.internal --name core-api core-api
+	docker run -d -p 8080:8080 --env-file .env.docker --name core-api core-api
 
 docker-mongo:
 	docker run -d -p 27017:27017 -e MONGO_INITDB_ROOT_PASSWORD=secret -e MONGO_INITDB_ROOT_USERNAME=mongoadmin --name mongo mongo
