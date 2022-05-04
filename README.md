@@ -1,4 +1,4 @@
-# etheralley-core-api
+# etheralley-core-apia
 
 [![Issues](https://img.shields.io/github/issues/EtherAlley/etheralley-web-interface.svg?style=for-the-badge)](https://github.com/EtherAlley/etheralley-web-interface/issues)
 [![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-web-interface.svg?style=for-the-badge)](https://github.com/EtherAlley/etheralley-web-interface/blob/main/LICENSE)
