@@ -8,7 +8,7 @@ The core rest api for the EtherAlley platform
 
 ## Local Setup
 
-1. Download [Go v18.x](https://go.dev/dl/)
+1. Download [Go v18](https://go.dev/dl/)
 
 2. Download [Docker](https://www.docker.com/products/docker-desktop/)
 
