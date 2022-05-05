@@ -26,7 +26,7 @@ func NewGetListingMetadata(
 			return nil, err
 		}
 
-		// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexidecimal form
+		// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexadecimal form
 		tokenId, err := strconv.ParseInt(input.TokenId, 16, 64)
 
 		if err != nil {

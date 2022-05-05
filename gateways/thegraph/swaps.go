@@ -23,7 +23,7 @@ type swapTokenJson = struct {
 	Symbol string `json:"symbol"`
 }
 
-// in general, regardless of the subgraph schema, we gets swaps where the address is ther recipient and get the full swaps from the associated transaction
+// in general, regardless of the subgraph schema, we gets swaps where the address is there recipient and get the full swaps from the associated transaction
 // we use the full swap list to reconstruct the full swap. We do this because in many scenarios there are multiple hops a swap takes to get to its final destination
 // TODO:
 // https://thegraph.com/hosted-service/subgraph/ianlapham/uniswap-arbitrum-one

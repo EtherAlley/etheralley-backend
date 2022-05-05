@@ -17,7 +17,7 @@ type GetDefaultProfileInput struct {
 // Get a default profile for the provided address
 type IGetDefaultProfileUseCase func(ctx context.Context, input *GetDefaultProfileInput) (*entities.Profile, error)
 
-// Attempt to provide a pleasent default profile when none has been configured.
+// Attempt to provide a pleasant default profile when none has been configured.
 //
 // Fetch nfts and stats from the graph and fetch tokens from a fixed list.
 //

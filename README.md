@@ -1,32 +1,30 @@
 # etheralley-core-api
 
-[![Issues](https://img.shields.io/github/issues/EtherAlley/etheralley-web-interface.svg?style=for-the-badge)](https://github.com/EtherAlley/etheralley-web-interface/issues)
-[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-web-interface.svg?style=for-the-badge)](https://github.com/EtherAlley/etheralley-web-interface/blob/main/LICENSE)
+The core web api for the EtherAlley platform
 
-This reposiotry contains the core rest api for the EtherAlley platform
+[![build](https://github.com/EtherAlley/etheralley-core-api/actions/workflows/build.yml/badge.svg)](https://github.com/EtherAlley/etheralley-core-api/actions/workflows/push.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-core-api)](https://goreportcard.com/report/github.com/etheralley/etheralley-core-api)
+[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-web-interface.svg)](https://github.com/EtherAlley/etheralley-web-interface/blob/main/LICENSE)
 
-## Local development
-
-### Prerequisites
-
-These steps must be completed before proceeding
+## Local Setup
 
 1. Download [Go](https://go.dev/dl/)
+
 2. Download [Docker](https://www.docker.com/products/docker-desktop/)
+
 3. Acquire API keys for communicating with various blockchains. e.g. [Alchemy](https://www.alchemy.com/)
+
 4. Acquire an API key for communicating with subgraphs on [TheGraph](https://thegraph.com/en/)
 
-### Setup
-
-1. Start the Mongo database in a docker container
+5. Start the Mongo database in a docker container
    ```sh
     make docker-mongo
    ```
-2. Start the Redis cache in a docker container
+6. Start the Redis cache in a docker container
    ```sh
     make docker-redis
    ```
-3. Add a file named `.env` in the root of the project with the following environment variables. Anything with `<REPLACE>` must be replaced with the keys acquired in the prerequisite steps
+7. Add a file named `.env` in the root of the project with the following environment variables. Anything with `<REPLACE>` must be replaced with the keys acquired in the previouse steps
    ```
     ENV=dev
     PORT=8080
@@ -49,7 +47,7 @@ These steps must be completed before proceeding
     ENS_METADATA_URI=https://metadata.ens.domains/goerli
     CRYPTO_KITTIES_METADATA_URI=https://api.cryptokitties.co/kitties
    ```
-4. Start the web service
+8. Start the web service
    ```sh
     make run
    ```
