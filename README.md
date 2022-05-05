@@ -2,7 +2,7 @@
 
 The core web api for the EtherAlley platform
 
-[![build](https://github.com/EtherAlley/etheralley-core-api/actions/workflows/build.yml/badge.svg)](https://github.com/EtherAlley/etheralley-core-api/actions/workflows/push.yml)
+[![build](https://github.com/EtherAlley/etheralley-core-api/actions/workflows/build.yml/badge.svg)](https://github.com/EtherAlley/etheralley-core-api/actions/workflows/build.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-core-api)](https://goreportcard.com/report/github.com/etheralley/etheralley-core-api)
 [![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-web-interface.svg)](https://github.com/EtherAlley/etheralley-web-interface/blob/main/LICENSE)
 
