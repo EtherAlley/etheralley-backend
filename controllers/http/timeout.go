@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// cancel context after a certian threshold
+// cancel context after a certain threshold
 //
 // we are intentionally not returning an error response
 // and allowing for the usecases to handle downstream context timeouts naturally
