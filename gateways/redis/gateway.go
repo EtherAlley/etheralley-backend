@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"crypto/tls"
 	"strings"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -24,11 +25,18 @@ func NewGateway(settings common.ISettings, logger common.ILogger) gateways.ICach
 }
 
 func (gw *gateway) Init() {
-	gw.client = redis.NewClient(&redis.Options{
-		Addr:     gw.settings.CacheAddr(),
-		Password: gw.settings.CachePassword(),
-		DB:       gw.settings.CacheDB(),
-	})
+	opt := &redis.Options{
+		Addr:      gw.settings.CacheAddr(),
+		Password:  gw.settings.CachePassword(),
+		DB:        gw.settings.CacheDB(),
+		TLSConfig: nil,
+	}
+
+	if !gw.settings.IsDev() {
+		opt.TLSConfig = &tls.Config{}
+	}
+
+	gw.client = redis.NewClient(opt)
 }
 
 func getFullKey(keys ...string) string {

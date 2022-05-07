@@ -5,7 +5,7 @@ test:
 	go test -v ./...
 
 run:
-	go run main.go
+	ENV=dev go run main.go
 
 docker-build:
 	docker build --tag core-api .
