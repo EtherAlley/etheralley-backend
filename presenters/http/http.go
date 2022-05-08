@@ -53,8 +53,6 @@ func (p *httpPresenter) logEvent(w http.ResponseWriter, r *http.Request, statusC
 		{Key: "resptime", Value: time.Since(t1).String()},
 		{Key: "statuscode", Value: fmt.Sprint(statusCode)},
 		{Key: "remoteaddr", Value: r.RemoteAddr},
-		{Key: "hostname", Value: p.settings.Hostname()},
-		{Key: "instanceid", Value: p.settings.InstanceID()},
 	})
 }
 

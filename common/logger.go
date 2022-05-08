@@ -48,6 +48,9 @@ func NewLogger(settings ISettings) ILogger {
 
 // add additional context to the event log
 func (l *logger) addContext(ctx context.Context, event *zerolog.Event) {
+	event.Str("hostname", l.settings.Hostname())
+	event.Str("appname", l.settings.Appname())
+
 	requestId := ctx.Value(ContextKeyRequestId)
 	if requestId != nil {
 		event.Str("requestid", requestId.(string))
