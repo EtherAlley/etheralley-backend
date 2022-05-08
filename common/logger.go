@@ -28,16 +28,14 @@ type logger struct {
 }
 
 func NewLogger(settings ISettings) ILogger {
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
 
 	var zLogger zerolog.Logger
 
 	if settings.IsDev() {
-		zLogger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr})
-		zLogger = zLogger.Level(zerolog.DebugLevel)
+		zLogger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).Level(zerolog.DebugLevel)
 	} else {
-		zLogger = zerolog.New(os.Stderr)
-		zLogger = zLogger.Level(zerolog.InfoLevel)
+		zLogger = zerolog.New(os.Stderr).Level(zerolog.InfoLevel)
 	}
 
 	return &logger{
