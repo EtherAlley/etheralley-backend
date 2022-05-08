@@ -1,8 +1,6 @@
 package common
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"os"
 	"strconv"
 	"strings"
@@ -11,8 +9,8 @@ import (
 )
 
 type ISettings interface {
+	Appname() string
 	Hostname() string
-	InstanceID() string
 	Env() string
 	IsDev() bool
 	Port() string
@@ -37,6 +35,7 @@ type ISettings interface {
 }
 
 type settings struct {
+	appname                  string
 	hostname                 string
 	instanceID               string
 	env                      string
@@ -71,25 +70,15 @@ func NewSettings() ISettings {
 		}
 	}
 
-	// See https://github.com/go-chi/chi/blob/master/middleware/request_id.go#L46
 	hostname, err := os.Hostname()
 	if hostname == "" || err != nil {
 		hostname = "localhost"
 	}
 
-	var buf [12]byte
-	var instanceID string
-	for len(instanceID) < 10 {
-		rand.Read(buf[:])
-		instanceID = base64.StdEncoding.EncodeToString(buf[:])
-		instanceID = strings.NewReplacer("+", "", "/", "").Replace(instanceID)
-	}
-	instanceID = instanceID[0:10]
-
 	return &settings{
 		env:                      env,
+		appname:                  "core-api",
 		hostname:                 hostname,
-		instanceID:               instanceID,
 		port:                     os.Getenv("PORT"),
 		redisAddr:                os.Getenv("REDIS_ADDR"),
 		redisPassword:            os.Getenv("REDIS_PASSWORD"),
@@ -110,6 +99,9 @@ func NewSettings() ISettings {
 		theGraphHostedURI:        os.Getenv("THE_GRAPH_HOSTED_URI"),
 		defaultTokenAddresses:    os.Getenv("DEFAULT_TOKEN_ADDRESSES"),
 	}
+}
+func (s *settings) Appname() string {
+	return s.appname
 }
 
 func (s *settings) Hostname() string {
