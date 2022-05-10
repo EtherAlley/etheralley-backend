@@ -84,7 +84,7 @@ func (hc *HttpController) Start() error {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://etheralley.io", "http://localhost:3000"},
+		AllowedOrigins:   []string{"https://www.etheralley.io", "http://localhost:3000"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: false,
