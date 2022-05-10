@@ -25,6 +25,7 @@ type responseJson struct {
 			Name        string                    `json:"name"`
 			Description string                    `json:"description"`
 			Image       string                    `json:"image"`
+			ImageURL    string                    `json:"image_url"`
 			Attributes  *[]map[string]interface{} `json:"attributes"`
 		}
 	} `json:"ownedNfts"`
@@ -57,6 +58,15 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 	}
 	for _, nftJson := range respJson.OwnedNFTs[:cutoff] {
 		balance := "1"
+
+		image := ""
+		if nftJson.Metadata.Image != "" {
+			image = nftJson.Metadata.Image
+		} else if nftJson.Metadata.ImageURL != "" {
+			image = nftJson.Metadata.ImageURL
+		}
+		image = gw.replaceIPFSScheme(image)
+
 		nft := entities.NonFungibleToken{
 			TokenId: nftJson.Id.TokenId,
 			Balance: &balance, // TODO: Doesn't appear that a balance is provided by alchemy for ERC1155, only ERC721...
@@ -68,7 +78,7 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 			Metadata: &entities.NonFungibleMetadata{
 				Name:        nftJson.Metadata.Name,
 				Description: nftJson.Metadata.Description,
-				Image:       gw.replaceIPFSScheme(nftJson.Metadata.Image),
+				Image:       image,
 				Attributes:  nftJson.Metadata.Attributes,
 			},
 		}

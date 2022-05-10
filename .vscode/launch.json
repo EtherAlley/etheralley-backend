@@ -11,7 +11,9 @@
       "mode": "debug",
       "remotePath": "",
       "program": "${workspaceRoot}",
-      "env": {},
+      "env": {
+        "ENV": "dev"
+      },
       "args": [],
       "showLog": true
     }
