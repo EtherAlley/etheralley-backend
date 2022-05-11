@@ -1,7 +1,7 @@
 package http
 
 import (
-	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -12,9 +12,11 @@ func (hc *HttpController) recoverer(next http.Handler) http.Handler {
 		defer func() {
 			if rvr := recover(); rvr != nil && rvr != http.ErrAbortHandler {
 
-				hc.logger.Errorf(r.Context(), "Caught panic in recoverer: %+v", rvr)
+				err := fmt.Errorf("Caught panic in recoverer: %+v", rvr)
 
-				hc.presenter.PresentBadRequest(w, r, errors.New("caught panic in recoverer"))
+				hc.logger.Error(r.Context()).Err(err).Send()
+
+				hc.presenter.PresentBadRequest(w, r, err)
 			}
 		}()
 

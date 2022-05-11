@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"strings"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -67,9 +68,20 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 		}
 		image = gw.replaceIPFSScheme(image)
 
+		// Appears the token ids are provided in hexidecimal format
+		tokenId := nftJson.Id.TokenId
+		if strings.Contains(tokenId, "0x") {
+			num := new(big.Int)
+			num, ok := num.SetString(strings.Split(tokenId, "0x")[1], 16)
+			if !ok {
+				return nil, fmt.Errorf("parsing token id %v", tokenId)
+			}
+			tokenId = num.String()
+		}
+
 		nft := entities.NonFungibleToken{
-			TokenId: nftJson.Id.TokenId,
-			Balance: &balance, // TODO: Doesn't appear that a balance is provided by alchemy for ERC1155, only ERC721...
+			TokenId: tokenId,
+			Balance: &balance, // Doesn't appear that a balance is provided by alchemy for ERC1155, only ERC721...
 			Contract: &entities.Contract{
 				Blockchain: common.ETHEREUM,
 				Address:    nftJson.Contract.Address,

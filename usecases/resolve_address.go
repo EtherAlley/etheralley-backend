@@ -42,20 +42,20 @@ func NewResolveENSAddress(
 			address, err := cacheGateway.GetENSAddressFromName(ctx, value)
 
 			if err == nil {
-				logger.Debugf(ctx, "cache hit for ens name %v -> address %v", input, address)
+				logger.Debug(ctx).Msgf("cache hit for ens name %v -> address %v", input, address)
 				return address, err
 			}
 
-			logger.Debugf(ctx, "cache miss for getting address from ens name %v", input)
+			logger.Debug(ctx).Msgf("cache miss for getting address from ens name %v", input)
 
 			address, err = blockchainGateway.GetENSAddressFromName(ctx, value)
 
 			if err != nil {
-				logger.Debugf(ctx, "err getting address from ens name %v %v", input, err)
+				logger.Debug(ctx).Err(err).Msgf("err getting address from ens name %v", input)
 				return address, err
 			}
 
-			logger.Debugf(ctx, "chain hit for ens name %v -> address %v", input, address)
+			logger.Debug(ctx).Msgf("chain hit for ens name %v -> address %v", input, address)
 
 			address = strings.ToLower(address)
 

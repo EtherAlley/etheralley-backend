@@ -44,7 +44,7 @@ func NewGetTopProfilesUseCase(
 				})
 
 				if err != nil {
-					logger.Errf(ctx, err, "err hydrating top profiles %v")
+					logger.Warn(ctx).Err(err).Msgf("err hydrating top profile %v", address)
 					return
 				}
 

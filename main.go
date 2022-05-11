@@ -24,13 +24,13 @@ import (
 
 func awaitSigterm(logger common.ILogger) {
 	ctx := context.Background()
-	logger.Info(ctx, "awaiting sigterm")
+	logger.Info(ctx).Msg("awaiting sigterm")
 
 	cancelChan := make(chan os.Signal, 1)
 	signal.Notify(cancelChan, syscall.SIGTERM, syscall.SIGINT)
 	sig := <-cancelChan
 
-	logger.Infof(ctx, "caught sigterm %v", sig)
+	logger.Info(ctx).Msgf("caught sigterm %v", sig)
 }
 
 func main() {

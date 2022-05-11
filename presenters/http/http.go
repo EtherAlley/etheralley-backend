@@ -44,7 +44,7 @@ func (p *httpPresenter) presentStatus(w http.ResponseWriter, r *http.Request, st
 func (p *httpPresenter) logEvent(w http.ResponseWriter, r *http.Request, statusCode int) {
 	ctx := r.Context()
 	t1 := ctx.Value(common.ContextKeyRequestStartTime).(time.Time)
-	p.logger.Event(r.Context(), []struct {
+	p.logger.Info(ctx).Strs([]struct {
 		Key   string
 		Value string
 	}{
@@ -53,7 +53,7 @@ func (p *httpPresenter) logEvent(w http.ResponseWriter, r *http.Request, statusC
 		{Key: "resptime", Value: time.Since(t1).String()},
 		{Key: "statuscode", Value: fmt.Sprint(statusCode)},
 		{Key: "remoteaddr", Value: r.RemoteAddr},
-	})
+	}).Msg("http event")
 }
 
 func toChallengeJson(challenge *entities.Challenge) *challengeJson {

@@ -46,6 +46,7 @@ func NewGetStatistic(
 		}
 
 		if err != nil {
+			logger.Info(ctx).Err(err).Msgf("err getting statistic %v %v %v %v", address, statType, contract.Blockchain, contract.Interface)
 			return nil, err
 		}
 

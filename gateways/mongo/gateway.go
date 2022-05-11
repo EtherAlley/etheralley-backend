@@ -30,7 +30,7 @@ func (gw *gateway) Init() {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(gw.settings.DatabaseURI()).SetMaxConnecting(100))
 
 	if err != nil {
-		gw.logger.Err(ctx, err, "mongo connection error")
+		gw.logger.Error(ctx).Err(err).Msg("mongo connection error")
 		panic(err)
 	}
 

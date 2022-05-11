@@ -55,20 +55,20 @@ func (c *httpClient) doInternal(ctx context.Context, method string, url string, 
 
 	}
 
-	c.logger.Debugf(ctx, "http request %v %v", method, url)
+	c.logger.Debug(ctx).Msgf("http request %v %v", method, url)
 
 	resp, err := c.client.Do(req)
 
 	if err != nil {
-		return nil, fmt.Errorf("http response err %w", err)
+		return nil, fmt.Errorf("http response %v err %w", url, err)
 	}
 
 	if resp.StatusCode == 429 {
-		return nil, fmt.Errorf("http rate limit %w", ErrRetryable)
+		return nil, fmt.Errorf("http rate limit %v %w", url, ErrRetryable)
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("http invalid status code %v", resp.StatusCode)
+		return nil, fmt.Errorf("http invalid status code %v %v", resp.StatusCode, url)
 	}
 
 	return resp, nil

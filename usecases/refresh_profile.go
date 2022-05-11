@@ -27,12 +27,8 @@ func NewRefreshProfileUseCase(logger common.ILogger, cacheGateway gateways.ICach
 
 		profile, err := cacheGateway.GetProfileByAddress(ctx, input.Address)
 
-		if err == common.ErrNotFound {
-			logger.Debugf(ctx, "Refresh for non-existent profile %v", input.Address)
-			return nil
-		}
-
 		if err != nil {
+			logger.Debug(ctx).Err(err).Msgf("skipping profile refresh %v", input.Address)
 			return err
 		}
 

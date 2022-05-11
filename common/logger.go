@@ -8,18 +8,21 @@ import (
 )
 
 type ILogger interface {
-	Info(ctx context.Context, msg string)
-	Infof(ctx context.Context, msg string, v ...interface{})
-	Error(ctx context.Context, msg string)
-	Errorf(ctx context.Context, msg string, v ...interface{})
-	Err(ctx context.Context, err error, msg string)
-	Errf(ctx context.Context, err error, msg string, v ...interface{})
-	Debug(ctx context.Context, msg string)
-	Debugf(ctx context.Context, msg string, v ...interface{})
-	Event(ctx context.Context, strs []struct {
+	Debug(ctx context.Context) ILogEvent
+	Info(ctx context.Context) ILogEvent
+	Warn(ctx context.Context) ILogEvent
+	Error(ctx context.Context) ILogEvent
+}
+
+type ILogEvent interface {
+	Send()
+	Msg(msg string)
+	Msgf(msg string, v ...any)
+	Err(err error) ILogEvent
+	Strs(strs []struct {
 		Key   string
 		Value string
-	})
+	}) ILogEvent
 }
 
 type logger struct {
@@ -44,8 +47,28 @@ func NewLogger(settings ISettings) ILogger {
 	}
 }
 
+func (l *logger) Debug(ctx context.Context) ILogEvent {
+	return l.newEvent(ctx, l.logger.Debug())
+}
+
+func (l *logger) Info(ctx context.Context) ILogEvent {
+	return l.newEvent(ctx, l.logger.Info())
+}
+
+func (l *logger) Warn(ctx context.Context) ILogEvent {
+	return l.newEvent(ctx, l.logger.Warn())
+}
+
+func (l *logger) Error(ctx context.Context) ILogEvent {
+	return l.newEvent(ctx, l.logger.Error())
+}
+
+type logEvent struct {
+	event *zerolog.Event
+}
+
 // add additional context to the event log
-func (l *logger) addContext(ctx context.Context, event *zerolog.Event) {
+func (l *logger) newEvent(ctx context.Context, event *zerolog.Event) ILogEvent {
 	event.Str("hostname", l.settings.Hostname())
 	event.Str("appname", l.settings.Appname())
 
@@ -53,64 +76,35 @@ func (l *logger) addContext(ctx context.Context, event *zerolog.Event) {
 	if requestId != nil {
 		event.Str("requestid", requestId.(string))
 	}
+
+	return &logEvent{
+		event,
+	}
 }
 
-func (l *logger) Info(ctx context.Context, msg string) {
-	event := l.logger.Info()
-	l.addContext(ctx, event)
-	event.Msg(msg)
+func (e *logEvent) Send() {
+	e.event.Send()
 }
 
-func (l *logger) Infof(ctx context.Context, msg string, v ...interface{}) {
-	event := l.logger.Info()
-	l.addContext(ctx, event)
-	event.Msgf(msg, v...)
+func (e *logEvent) Msg(msg string) {
+	e.event.Msg(msg)
 }
 
-func (l *logger) Error(ctx context.Context, msg string) {
-	event := l.logger.Error()
-	l.addContext(ctx, event)
-	event.Msg(msg)
+func (e *logEvent) Msgf(msg string, v ...any) {
+	e.event.Msgf(msg, v...)
 }
 
-func (l *logger) Errorf(ctx context.Context, msg string, v ...interface{}) {
-	event := l.logger.Error()
-	l.addContext(ctx, event)
-	event.Msgf(msg, v...)
+func (e *logEvent) Err(err error) ILogEvent {
+	e.event.Stack().Err(err)
+	return e
 }
 
-func (l *logger) Err(ctx context.Context, err error, msg string) {
-	event := l.logger.Error()
-	l.addContext(ctx, event)
-	event.Stack().Err(err).Msg(msg)
-}
-
-func (l *logger) Errf(ctx context.Context, err error, msg string, v ...interface{}) {
-	event := l.logger.Error()
-	l.addContext(ctx, event)
-	event.Stack().Err(err).Msgf(msg, v...)
-}
-
-func (l *logger) Debug(ctx context.Context, msg string) {
-	event := l.logger.Debug()
-	l.addContext(ctx, event)
-	event.Msg(msg)
-}
-
-func (l *logger) Debugf(ctx context.Context, msg string, v ...interface{}) {
-	event := l.logger.Debug()
-	l.addContext(ctx, event)
-	event.Msgf(msg, v...)
-}
-
-func (l *logger) Event(ctx context.Context, strs []struct {
+func (e *logEvent) Strs(strs []struct {
 	Key   string
 	Value string
-}) {
-	event := l.logger.Info()
-	l.addContext(ctx, event)
+}) ILogEvent {
 	for _, str := range strs {
-		event.Str(str.Key, str.Value)
+		e.event.Str(str.Key, str.Value)
 	}
-	event.Msg("event")
+	return e
 }
