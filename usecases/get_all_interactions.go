@@ -39,7 +39,7 @@ func NewGetAllInteractionsUseCase(
 				interaction, err := getInteraction(ctx, &intr)
 
 				if err != nil {
-					logger.Errf(ctx, err, "invalid interaction: transaction id %v blockchain %v type %v address %v", intr.Interaction.Transaction.Id, intr.Interaction.Transaction.Blockchain, intr.Interaction.Type, intr.Address)
+					logger.Info(ctx).Err(err).Msgf("invalid interaction: transaction id %v blockchain %v type %v address %v", intr.Interaction.Transaction.Id, intr.Interaction.Transaction.Blockchain, intr.Interaction.Type, intr.Address)
 					interactionErr = err
 					return
 				}

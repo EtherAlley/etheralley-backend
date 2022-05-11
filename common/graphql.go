@@ -26,7 +26,7 @@ func NewGraphQLClient(logger ILogger) IGraphQLClient {
 func (g *graphQLClient) Query(ctx context.Context, url string, q interface{}, v map[string]interface{}) error {
 	client := graphql.NewClient(url, g.httpClient)
 
-	g.logger.Debugf(ctx, "graphql request %v", url)
+	g.logger.Debug(ctx).Msgf("graphql request %v", url)
 
 	return client.Query(ctx, q, v)
 }

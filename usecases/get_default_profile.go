@@ -67,7 +67,7 @@ func NewGetDefaultProfile(
 			nfts, err := offchainGateway.GetNonFungibleTokens(ctx, input.Address)
 
 			if err != nil {
-				logger.Errf(ctx, err, "err fetching default nfts for address %v", input.Address)
+				logger.Warn(ctx).Err(err).Msgf("err fetching default nfts for address %v", input.Address)
 				profile.NonFungibleTokens = &[]entities.NonFungibleToken{}
 				return
 			}
@@ -157,10 +157,11 @@ func NewGetDefaultProfile(
 
 		go func() {
 			defer wg.Done()
+
 			balances, err := blockchainGateway.GetStoreBalanceBatch(ctx, input.Address, &[]string{common.STORE_PREMIUM, common.STORE_BETA_TESTER})
 
 			if err != nil {
-				logger.Errf(ctx, err, "err fetching store asset balance for %v", input.Address)
+				logger.Info(ctx).Err(err).Msgf("err fetching store asset balance for %v", input.Address)
 				profile.StoreAssets = &entities.StoreAssets{
 					Premium:    false,
 					BetaTester: false,

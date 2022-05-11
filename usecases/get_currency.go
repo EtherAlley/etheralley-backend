@@ -28,6 +28,7 @@ func NewGetCurrency(
 		balance, err := blockchainGateway.GetAccountBalance(ctx, input.Blockchain, input.Address)
 
 		if err != nil {
+			logger.Info(ctx).Err(err).Msgf("err getting account balance %v %v", input.Blockchain, input.Address)
 			return nil, err
 		}
 

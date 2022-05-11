@@ -32,15 +32,16 @@ func NewGetListings(
 		cachedListings, err := cacheGateway.GetStoreListings(ctx, &ids)
 
 		if err == nil {
-			logger.Debugf(ctx, "cache hit for store listings %+v", ids)
+			logger.Debug(ctx).Msgf("cache hit for store listings %+v", ids)
 			return cachedListings, nil
 		}
 
-		logger.Debugf(ctx, "cache miss for store listings %+v", ids)
+		logger.Debug(ctx).Msgf("cache miss for store listings %+v", ids)
 
 		listingInfo, err := blockchainGateway.GetStoreListingInfo(ctx, &ids)
 
 		if err != nil {
+			logger.Info(ctx).Err(err).Msgf("err getting store listings %+v", ids)
 			return nil, err
 		}
 

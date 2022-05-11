@@ -56,12 +56,12 @@ func NewGetNonFungibleToken(
 			mdata, err := cacheGateway.GetNonFungibleMetadata(ctx, contract, tokenId)
 
 			if err == nil {
-				logger.Debugf(ctx, "cache hit for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+				logger.Debug(ctx).Msgf("cache hit for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 				metadata = mdata
 				return
 			}
 
-			logger.Debugf(ctx, "cache miss for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+			logger.Debug(ctx).Msgf("cache miss for nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 
 			var uri string
 			switch contract.Interface {
@@ -80,7 +80,7 @@ func NewGetNonFungibleToken(
 			}
 
 			if err != nil {
-				logger.Errf(ctx, err, "err getting nft uri: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+				logger.Info(ctx).Err(err).Msgf("err getting nft uri: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 				metadata = nil
 				return
 			}
@@ -101,7 +101,7 @@ func NewGetNonFungibleToken(
 			}
 
 			if err != nil {
-				logger.Errf(ctx, err, "err getting nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+				logger.Info(ctx).Err(err).Msgf("err getting nft metadata: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 				metadata = nil
 				return
 			}
@@ -132,7 +132,7 @@ func NewGetNonFungibleToken(
 			}
 
 			if err != nil {
-				logger.Errf(ctx, err, "err getting nft balance: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
+				logger.Info(ctx).Err(err).Msgf("err getting nft balance: contract address %v token id %v chain %v", contract.Address, tokenId, contract.Blockchain)
 				balance = nil
 				return
 			}

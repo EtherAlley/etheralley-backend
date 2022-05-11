@@ -79,7 +79,7 @@ func NewHttpController(
 func (hc *HttpController) Start() error {
 	ctx := context.Background()
 
-	hc.logger.Info(ctx, "starting http controller")
+	hc.logger.Info(ctx).Msg("starting http controller")
 
 	r := chi.NewRouter()
 
@@ -136,16 +136,16 @@ func (hc *HttpController) Start() error {
 
 	port := hc.settings.Port()
 
-	hc.logger.Infof(ctx, "listening on port %v", port)
+	hc.logger.Info(ctx).Msgf("listening on port %v", port)
 
 	err := http.ListenAndServe(fmt.Sprintf(":%v", port), r)
 
-	hc.logger.Err(ctx, err, "error in http controller")
+	hc.logger.Error(ctx).Err(err).Msg("error in http controller")
 
 	return err
 }
 
 func (hc *HttpController) Exit() {
 	ctx := context.Background()
-	hc.logger.Error(ctx, "detected exit in http controller")
+	hc.logger.Error(ctx).Msg("detected exit in http controller")
 }

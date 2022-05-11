@@ -5,17 +5,17 @@ import (
 )
 
 func (p *httpPresenter) PresentBadRequest(w http.ResponseWriter, r *http.Request, err error) {
-	p.logger.Err(r.Context(), err, "bad request err")
+	p.logger.Info(r.Context()).Err(err).Msg("bad request")
 	p.presentJSON(w, r, http.StatusBadRequest, toErrJson("bad request"))
 }
 
 func (p *httpPresenter) PresentUnathorized(w http.ResponseWriter, r *http.Request, err error) {
-	p.logger.Err(r.Context(), err, "unauthorized err")
+	p.logger.Info(r.Context()).Err(err).Msg("unauthorized")
 	p.presentJSON(w, r, http.StatusUnauthorized, toErrJson("unathorized"))
 }
 
 func (p *httpPresenter) PresentNotFound(w http.ResponseWriter, r *http.Request, err error) {
-	p.logger.Err(r.Context(), err, "not found err")
+	p.logger.Info(r.Context()).Err(err).Msg("not found")
 	p.presentJSON(w, r, http.StatusNotFound, toErrJson("not found"))
 }
 

@@ -53,7 +53,7 @@ func NewGetFungibleToken(
 			bal, err := blockchainGateway.GetERC20Balance(ctx, address, contract)
 
 			if err != nil {
-				logger.Errf(ctx, err, "err finding token balance: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+				logger.Info(ctx).Err(err).Msgf("err finding token balance: contract address %v blockchain %v", contract.Address, contract.Blockchain)
 				return
 			}
 
@@ -66,26 +66,26 @@ func NewGetFungibleToken(
 			metadata, err := offchainGateway.GetFungibleMetadata(ctx, contract)
 
 			if err == nil {
-				logger.Debugf(ctx, "memory hit for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+				logger.Debug(ctx).Msgf("memory hit for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
 				name = metadata.Name
 				symbol = metadata.Symbol
 				decimals = metadata.Decimals
 				return
 			}
 
-			logger.Debugf(ctx, "memory miss for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+			logger.Debug(ctx).Msgf("memory miss for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
 
 			metadata, err = cacheGateway.GetFungibleMetadata(ctx, contract)
 
 			if err == nil {
-				logger.Debugf(ctx, "cache hit for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+				logger.Debug(ctx).Msgf("cache hit for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
 				name = metadata.Name
 				symbol = metadata.Symbol
 				decimals = metadata.Decimals
 				return
 			}
 
-			logger.Debugf(ctx, "cache miss for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+			logger.Debug(ctx).Msgf("cache miss for token metadata: contract address %v blockchain %v", contract.Address, contract.Blockchain)
 
 			var innerWg sync.WaitGroup
 			var nameErr error
@@ -99,7 +99,7 @@ func NewGetFungibleToken(
 				result, err := blockchainGateway.GetERC20Name(ctx, contract)
 
 				if err != nil {
-					logger.Errf(ctx, err, "err finding token name: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+					logger.Info(ctx).Err(err).Msgf("err finding token name: contract address %v blockchain %v", contract.Address, contract.Blockchain)
 					nameErr = err
 					return
 				}
@@ -113,7 +113,7 @@ func NewGetFungibleToken(
 				result, err := blockchainGateway.GetERC20Symbol(ctx, contract)
 
 				if err != nil {
-					logger.Errf(ctx, err, "err finding token symbol: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+					logger.Info(ctx).Err(err).Msgf("err finding token symbol: contract address %v blockchain %v", contract.Address, contract.Blockchain)
 					symbolErr = err
 					return
 				}
@@ -127,7 +127,7 @@ func NewGetFungibleToken(
 				result, err := blockchainGateway.GetERC20Decimals(ctx, contract)
 
 				if err != nil {
-					logger.Errf(ctx, err, "err finding token decimals: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+					logger.Info(ctx).Err(err).Msgf("err finding token decimals: contract address %v blockchain %v", contract.Address, contract.Blockchain)
 					decimalErr = err
 					return
 				}
@@ -138,7 +138,7 @@ func NewGetFungibleToken(
 			innerWg.Wait()
 
 			if nameErr != nil || symbolErr != nil || decimalErr != nil {
-				logger.Debugf(ctx, "skipping token metadata cache: contract address %v blockchain %v", contract.Address, contract.Blockchain)
+				logger.Debug(ctx).Msgf("skipping token metadata cache: contract address %v blockchain %v name err %v symbol err %v decimal err %v", contract.Address, contract.Blockchain, nameErr, symbolErr, decimalErr)
 				return
 			}
 
