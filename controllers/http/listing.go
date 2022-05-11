@@ -8,6 +8,14 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+func (hc *HttpController) getStoreMetadataRoute(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	metadata := hc.getStoreMetadata(ctx)
+
+	hc.presenter.PresentStoreMetadata(w, r, metadata)
+}
+
 func (hc *HttpController) getMetadataByIdRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

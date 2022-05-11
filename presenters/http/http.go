@@ -267,6 +267,17 @@ func toDisplayConfigJson(displayConfig *entities.DisplayConfig) *displayConfigJs
 	return config
 }
 
+func toStoreMetadataJson(metadata *entities.StoreMetadata) *storeMetadataJson {
+	return &storeMetadataJson{
+		Name:                 metadata.Name,
+		Description:          metadata.Description,
+		Image:                metadata.Image,
+		ExternalLink:         metadata.ExternalLink,
+		SellerFeeBasisPoints: metadata.SellerFeeBasisPoints,
+		FeeRecipient:         metadata.FeeRecipient,
+	}
+}
+
 func toListingsJson(listings *[]entities.Listing) *[]listingJson {
 	listingJson := []listingJson{}
 
@@ -415,6 +426,15 @@ type displayItemJson struct {
 	Id    string           `json:"id"`
 	Index uint64           `json:"index"`
 	Type  common.BadgeType `json:"type"`
+}
+
+type storeMetadataJson struct {
+	Name                 string `json:"name"`
+	Description          string `json:"description"`
+	Image                string `json:"image"`
+	ExternalLink         string `json:"external_link"`
+	SellerFeeBasisPoints uint   `json:"seller_fee_basis_points"`
+	FeeRecipient         string `json:"fee_recipient"`
 }
 
 type listingJson struct {
