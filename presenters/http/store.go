@@ -6,6 +6,12 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
+func (p *httpPresenter) PresentStoreMetadata(w http.ResponseWriter, r *http.Request, metadata *entities.StoreMetadata) {
+	json := toStoreMetadataJson(metadata)
+
+	p.presentJSON(w, r, http.StatusOK, json)
+}
+
 func (p *httpPresenter) PresentListingMetadata(w http.ResponseWriter, r *http.Request, metadata *entities.NonFungibleMetadata) {
 	json := toNonFungibleMetadataJson(metadata)
 

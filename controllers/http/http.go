@@ -32,6 +32,7 @@ type HttpController struct {
 	getListings         usecases.IGetListingsUseCase
 	refreshProfile      usecases.IRefreshProfileUseCase
 	getCurrency         usecases.IGetCurrencyUseCase
+	getStoreMetadata    usecases.IGetStoreMetadataUseCase
 }
 
 func NewHttpController(
@@ -53,6 +54,7 @@ func NewHttpController(
 	getListings usecases.IGetListingsUseCase,
 	refreshProfile usecases.IRefreshProfileUseCase,
 	getCurrency usecases.IGetCurrencyUseCase,
+	getStoreMetadata usecases.IGetStoreMetadataUseCase,
 ) *HttpController {
 	return &HttpController{
 		settings,
@@ -73,6 +75,7 @@ func NewHttpController(
 		getListings,
 		refreshProfile,
 		getCurrency,
+		getStoreMetadata,
 	}
 }
 
@@ -131,6 +134,7 @@ func (hc *HttpController) Start() error {
 
 	r.Route("/listings", func(r chi.Router) {
 		r.Post("/", hc.getListingsRoute)
+		r.Get("/metadata", hc.getStoreMetadataRoute)
 		r.Get("/metadata/{tokenid}", hc.getMetadataByIdRoute)
 	})
 

@@ -66,6 +66,7 @@ func main() {
 	container.Provide(usecases.NewRefreshProfileUseCase)
 	container.Provide(usecases.NewGetCurrency)
 	container.Provide(usecases.NewGetAllCurrenciesUseCase)
+	container.Provide(usecases.NewGetStoreMetadata)
 	container.Provide(httpPresenters.NewPresenter)
 	container.Provide(httpControllers.NewHttpController)
 
