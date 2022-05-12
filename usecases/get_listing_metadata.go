@@ -26,7 +26,7 @@ func NewGetListingMetadata(
 			return nil, err
 		}
 
-		// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexadecimal form
+		// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexadecimal form with no 0x prefix.
 		tokenId, err := strconv.ParseInt(input.TokenId, 16, 64)
 
 		if err != nil {
@@ -41,25 +41,26 @@ func NewGetListingMetadata(
 		case common.STORE_PREMIUM:
 			return &entities.NonFungibleMetadata{
 				Name:        "EtherAlley Premium",
-				Description: "This token gives the holder access to premium features on EtherAlley.io",
+				Description: "This semi-fungible token gives the holder access to premium features on EtherAlley.io",
 				Image:       url,
 				Attributes: getAttribute([][2]interface{}{
 					{"Status", "Verified"},
-					{"Badge Count", 50},
+					{"Badge Count", "50"},
 					{"Fungibility", "Semi-Fungible"},
-					{"Transferable", true},
+					{"Transferable", "true"},
+					{"Max balance", "unlimited"},
 				}),
 			}, nil
 		case common.STORE_BETA_TESTER:
 			return &entities.NonFungibleMetadata{
 				Name:        "EtherAlley Beta Tester",
-				Description: "The holder of this token participated in the EtherAlley beta. This token is non transferable",
+				Description: "This semi-fungible token indicates the holder participated in the EtherAlley.io beta. This token is non-transferable",
 				Image:       url,
 				Attributes: getAttribute([][2]interface{}{
 					{"Achievement", "Beta Tester"},
 					{"Fungibility", "Semi-Fungible"},
-					{"Transferable", false},
-					{"Max balance", 1},
+					{"Transferable", "false"},
+					{"Max balance", "1"},
 				}),
 			}, nil
 		}

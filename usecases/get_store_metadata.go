@@ -18,7 +18,7 @@ func NewGetStoreMetadata(
 	return func(ctx context.Context) *entities.StoreMetadata {
 		return &entities.StoreMetadata{
 			Name:                 "EtherAlley Store",
-			Description:          "Purchasable assets that unlock powerful features on the EtherAlley platform",
+			Description:          "Purchasable assets that unlock powerful features on the EtherAlley.io platform",
 			Image:                "https://etheralley.io/store/contract.png",
 			ExternalLink:         "https://etheralley.io",
 			SellerFeeBasisPoints: 500, // 5%
