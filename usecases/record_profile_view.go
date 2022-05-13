@@ -17,6 +17,7 @@ type IRecordProfileViewUseCase func(ctx context.Context, input *RecordProfileVie
 func NewRecordProfileViewUseCase(logger common.ILogger, cacheGateway gateways.ICacheGateway) IRecordProfileViewUseCase {
 	return func(ctx context.Context, input *RecordProfileViewInput) error {
 		if err := common.ValidateStruct(input); err != nil {
+			logger.Info(ctx).Err(err).Msgf("err recording profile view with ip %v", input.IpAddress)
 			return err
 		}
 
