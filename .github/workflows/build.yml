@@ -22,12 +22,16 @@ jobs:
       - name: Test
         run: go test -v ./...
 
-      - name: Tag
+      - name: Set Short SHA
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Create Tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: ${{ github.sha }}
+          custom_tag: ${{ steps.vars.outputs.sha_short }}
           tag_prefix:
 
       - name: Create Release
