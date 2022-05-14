@@ -11,9 +11,6 @@ var xForwardedFor = http.CanonicalHeaderKey("X-Forwarded-For")
 // See https://github.com/go-chi/chi/blob/master/middleware/realip.go
 func (hc *HttpController) realIP(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		hc.logger.Info(r.Context()).Msgf("x-forwarded-for: %v", xForwardedFor)
-		hc.logger.Info(r.Context()).Msgf("remoteaddr before: %v", r.RemoteAddr)
-
 		if ip := getIP(r); ip != "" {
 			r.RemoteAddr = ip
 		}
@@ -21,8 +18,6 @@ func (hc *HttpController) realIP(h http.Handler) http.Handler {
 		if host, err := parseIP(r); err == nil {
 			r.RemoteAddr = host
 		}
-
-		hc.logger.Info(r.Context()).Msgf("remoteaddr after: %v", r.RemoteAddr)
 
 		h.ServeHTTP(w, r)
 	})
