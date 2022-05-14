@@ -8,47 +8,60 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
-type ResolveENSNameInput struct {
-	Address string `validate:"required,eth_addr"`
-}
-
-// Resolve an ens name for an address
-type IResolveENSNameUseCase func(ctx context.Context, input *ResolveENSNameInput) (name string, err error)
-
-// Provided address is normalized to avoid user error
-//
-// Resolved values are cached
 func NewResolveENSName(
 	logger common.ILogger,
 	blockchainGateway gateways.IBlockchainGateway,
 	cacheGateway gateways.ICacheGateway,
 ) IResolveENSNameUseCase {
-	return func(ctx context.Context, input *ResolveENSNameInput) (string, error) {
-		if err := common.ValidateStruct(input); err != nil {
-			return "", err
-		}
+	return &resolveENSNameUseCase{
+		logger,
+		blockchainGateway,
+		cacheGateway,
+	}
+}
 
-		address := strings.ToLower(input.Address)
+type resolveENSNameUseCase struct {
+	logger            common.ILogger
+	blockchainGateway gateways.IBlockchainGateway
+	cacheGateway      gateways.ICacheGateway
+}
 
-		name, err := cacheGateway.GetENSNameFromAddress(ctx, address)
+type IResolveENSNameUseCase interface {
+	// Resolve an ens name for an address
+	Do(ctx context.Context, input *ResolveENSNameInput) (name string, err error)
+}
 
-		if err == nil {
-			logger.Debug(ctx).Msgf("cache hit for address %v -> ens name %v", address, name)
-			return name, err
-		}
+type ResolveENSNameInput struct {
+	Address string `validate:"required,eth_addr"`
+}
 
-		logger.Debug(ctx).Msgf("cache miss getting ens name from address %v", address)
+// Provided address is normalized to avoid user error.
+// Resolved values are cached.
+func (uc *resolveENSNameUseCase) Do(ctx context.Context, input *ResolveENSNameInput) (string, error) {
+	if err := common.ValidateStruct(input); err != nil {
+		return "", err
+	}
 
-		name, err = blockchainGateway.GetENSNameFromAddress(ctx, address)
+	address := strings.ToLower(input.Address)
 
-		if err != nil {
-			logger.Debug(ctx).Err(err).Msgf("err getting ens name from address %v", address)
-		}
+	name, err := uc.cacheGateway.GetENSNameFromAddress(ctx, address)
 
-		logger.Debug(ctx).Msgf("chain hit for address %v -> ens name %v", address, name)
-
-		cacheGateway.SaveENSName(ctx, address, name) // We should cache the result no matter what. Even the fact that they don't have an ens name
-
+	if err == nil {
+		uc.logger.Debug(ctx).Msgf("cache hit for address %v -> ens name %v", address, name)
 		return name, err
 	}
+
+	uc.logger.Debug(ctx).Msgf("cache miss getting ens name from address %v", address)
+
+	name, err = uc.blockchainGateway.GetENSNameFromAddress(ctx, address)
+
+	if err != nil {
+		uc.logger.Debug(ctx).Err(err).Msgf("err getting ens name from address %v", address)
+	}
+
+	uc.logger.Debug(ctx).Msgf("chain hit for address %v -> ens name %v", address, name)
+
+	uc.cacheGateway.SaveENSName(ctx, address, name) // We should cache the result no matter what. Even the fact that they don't have an ens name
+
+	return name, err
 }

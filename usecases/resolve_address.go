@@ -8,66 +8,76 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
-type ResolveAddressInput struct {
-	Value string `validate:"required"`
-}
-
-// Resolve an address from an ens name
-type IResolveAddressUseCase func(ctx context.Context, input *ResolveAddressInput) (address string, err error)
-
-// Attempts to detect provided input format and resolve ens address
-//
-// Provided input is normalized to avoid user error
-//
-// Output address is also normalized for consistency
-//
-// If the address contains a ".", we assume its an attempted ens address and try to resolve.
-// Otherwise, if input is in valid hex format we gracefully return it without err.
-//
-// Resolved values are cached
 func NewResolveENSAddress(
 	logger common.ILogger,
 	blockchainGateway gateways.IBlockchainGateway,
 	cacheGateway gateways.ICacheGateway,
 ) IResolveAddressUseCase {
-	return func(ctx context.Context, input *ResolveAddressInput) (string, error) {
-		if err := common.ValidateStruct(input); err != nil {
-			return "", err
-		}
+	return &resolveAddressUseCase{
+		logger,
+		blockchainGateway,
+		cacheGateway,
+	}
+}
 
-		value := strings.ToLower(input.Value)
+type resolveAddressUseCase struct {
+	logger            common.ILogger
+	blockchainGateway gateways.IBlockchainGateway
+	cacheGateway      gateways.ICacheGateway
+}
 
-		if strings.Contains(value, ".") {
+type IResolveAddressUseCase interface {
+	// Resolve an address from an ens name
+	Do(ctx context.Context, input *ResolveAddressInput) (string, error)
+}
 
-			address, err := cacheGateway.GetENSAddressFromName(ctx, value)
+type ResolveAddressInput struct {
+	Value string `validate:"required"`
+}
 
-			if err == nil {
-				logger.Debug(ctx).Msgf("cache hit for ens name %v -> address %v", input, address)
-				return address, err
-			}
+// Attempts to detect provided input format and resolve ens address.
+// Provided input is normalized to avoid user error.
+// Output address is also normalized for consistency.
+// If the address contains a ".", we assume its an attempted ens address and try to resolve.
+// Otherwise, if input is in valid hex format we gracefully return it without err.
+// Resolved values are cached
+func (uc *resolveAddressUseCase) Do(ctx context.Context, input *ResolveAddressInput) (string, error) {
+	if err := common.ValidateStruct(input); err != nil {
+		return "", err
+	}
 
-			logger.Debug(ctx).Msgf("cache miss for getting address from ens name %v", input)
+	value := strings.ToLower(input.Value)
 
-			address, err = blockchainGateway.GetENSAddressFromName(ctx, value)
+	if strings.Contains(value, ".") {
 
-			if err != nil {
-				logger.Debug(ctx).Err(err).Msgf("err getting address from ens name %v", input)
-				return address, err
-			}
+		address, err := uc.cacheGateway.GetENSAddressFromName(ctx, value)
 
-			logger.Debug(ctx).Msgf("chain hit for ens name %v -> address %v", input, address)
-
-			address = strings.ToLower(address)
-
-			cacheGateway.SaveENSAddress(ctx, value, address)
-
+		if err == nil {
+			uc.logger.Debug(ctx).Msgf("cache hit for ens name %v -> address %v", input, address)
 			return address, err
 		}
 
-		if err := common.ValidateField(value, `required,eth_addr`); err != nil {
-			return value, err
+		uc.logger.Debug(ctx).Msgf("cache miss for getting address from ens name %v", input)
+
+		address, err = uc.blockchainGateway.GetENSAddressFromName(ctx, value)
+
+		if err != nil {
+			uc.logger.Debug(ctx).Err(err).Msgf("err getting address from ens name %v", input)
+			return address, err
 		}
 
-		return value, nil
+		uc.logger.Debug(ctx).Msgf("chain hit for ens name %v -> address %v", input, address)
+
+		address = strings.ToLower(address)
+
+		uc.cacheGateway.SaveENSAddress(ctx, value, address)
+
+		return address, err
 	}
+
+	if err := common.ValidateField(value, `required,eth_addr`); err != nil {
+		return value, err
+	}
+
+	return value, nil
 }

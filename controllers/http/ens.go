@@ -14,7 +14,7 @@ func (hc *HttpController) resolveAddressRoute(next http.Handler) http.Handler {
 		ctx := r.Context()
 
 		// the address param of the route could be either an ens name or an address
-		address, err := hc.resolveAddress(ctx, &usecases.ResolveAddressInput{
+		address, err := hc.resolveAddress.Do(ctx, &usecases.ResolveAddressInput{
 			Value: chi.URLParam(r, "address"),
 		})
 

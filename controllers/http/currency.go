@@ -10,7 +10,7 @@ func (hc *HttpController) getCurrencyRoute(w http.ResponseWriter, r *http.Reques
 	ctx := r.Context()
 	query := r.URL.Query()
 
-	currency, err := hc.getCurrency(ctx, &usecases.GetCurrencyInput{
+	currency, err := hc.getCurrency.Do(ctx, &usecases.GetCurrencyInput{
 		Address:    query.Get("address"),
 		Blockchain: query.Get("blockchain"),
 	})

@@ -10,66 +10,77 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
+func NewGetInteractionUseCase(
+	logger common.ILogger,
+	blockchainGateway gateways.IBlockchainGateway,
+) IGetInteractionUseCase {
+	return &getInteractionUseCase{
+		logger,
+		blockchainGateway,
+	}
+}
+
+type getInteractionUseCase struct {
+	logger            common.ILogger
+	blockchainGateway gateways.IBlockchainGateway
+}
+
+type IGetInteractionUseCase interface {
+	// Get the transaction data for a given interaction input
+	// Validate transaction against interaction type
+	Do(ctx context.Context, input *GetInteractionInput) (*entities.Interaction, error)
+}
+
 type GetInteractionInput struct {
 	Address     string            `validate:"required,eth_addr"`
 	Interaction *InteractionInput `validate:"required,dive"`
 }
 
-// Get the transaction data for a given interaction input
-//
-// Validate transaction against interaction type
-type IGetInteractionUseCase func(ctx context.Context, input *GetInteractionInput) (*entities.Interaction, error)
-
-func NewGetInteractionUseCase(
-	logger common.ILogger,
-	blockchainGateway gateways.IBlockchainGateway,
-) IGetInteractionUseCase {
-	return func(ctx context.Context, input *GetInteractionInput) (*entities.Interaction, error) {
-		if err := common.ValidateStruct(input); err != nil {
-			return nil, err
-		}
-
-		address := input.Address
-		tx := &entities.Transaction{
-			Id:         input.Interaction.Transaction.Id,
-			Blockchain: input.Interaction.Transaction.Blockchain,
-		}
-
-		data, err := blockchainGateway.GetTransactionData(ctx, tx)
-
-		if err != nil {
-			return nil, err
-		}
-
-		err = validateTransaction(address, data)
-
-		if err != nil {
-			return nil, err
-		}
-
-		var validationErr error
-		switch input.Interaction.Type {
-		case common.CONTRACT_CREATION:
-			validationErr = validateContractCreation(data)
-		case common.SEND_ETHER:
-			validationErr = validateSendEther(data)
-		default:
-			validationErr = errors.New("unsupported interaction type")
-		}
-
-		if validationErr != nil {
-			return nil, validationErr
-		}
-
-		interaction := &entities.Interaction{
-			Transaction:     tx,
-			Type:            input.Interaction.Type,
-			Timestamp:       data.Timestamp,
-			TransactionData: data,
-		}
-
-		return interaction, nil
+func (uc *getInteractionUseCase) Do(ctx context.Context, input *GetInteractionInput) (*entities.Interaction, error) {
+	if err := common.ValidateStruct(input); err != nil {
+		return nil, err
 	}
+
+	address := input.Address
+	tx := &entities.Transaction{
+		Id:         input.Interaction.Transaction.Id,
+		Blockchain: input.Interaction.Transaction.Blockchain,
+	}
+
+	data, err := uc.blockchainGateway.GetTransactionData(ctx, tx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = validateTransaction(address, data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var validationErr error
+	switch input.Interaction.Type {
+	case common.CONTRACT_CREATION:
+		validationErr = validateContractCreation(data)
+	case common.SEND_ETHER:
+		validationErr = validateSendEther(data)
+	default:
+		validationErr = errors.New("unsupported interaction type")
+	}
+
+	if validationErr != nil {
+		return nil, validationErr
+	}
+
+	interaction := &entities.Interaction{
+		Transaction:     tx,
+		Type:            input.Interaction.Type,
+		Timestamp:       data.Timestamp,
+		TransactionData: data,
+	}
+
+	return interaction, nil
 }
 
 func validateTransaction(address string, data *entities.TransactionData) error {
