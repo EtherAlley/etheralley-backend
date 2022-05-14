@@ -8,13 +8,6 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
-type GetListingsInput struct {
-	TokenIds *[]string `json:"token_ids" validate:"required,dive,numeric"`
-}
-
-// Get the EtherAlley store listings for the provided array of token ids
-type IGetListingsUseCase func(ctx context.Context, input *GetListingsInput) (listings *[]entities.Listing, err error)
-
 func NewGetListings(
 	logger common.ILogger,
 	settings common.ISettings,
@@ -22,53 +15,78 @@ func NewGetListings(
 	cacheGateway gateways.ICacheGateway,
 	getListingMetadata IGetListingMetadataUseCase,
 ) IGetListingsUseCase {
-	return func(ctx context.Context, input *GetListingsInput) (*[]entities.Listing, error) {
-		if err := common.ValidateStruct(input); err != nil {
-			return nil, err
-		}
+	return &getListingUseCase{
+		logger,
+		settings,
+		blockchainGateway,
+		cacheGateway,
+		getListingMetadata,
+	}
+}
 
-		ids := *input.TokenIds
+type getListingUseCase struct {
+	logger             common.ILogger
+	settings           common.ISettings
+	blockchainGateway  gateways.IBlockchainGateway
+	cacheGateway       gateways.ICacheGateway
+	getListingMetadata IGetListingMetadataUseCase
+}
 
-		cachedListings, err := cacheGateway.GetStoreListings(ctx, &ids)
+type IGetListingsUseCase interface {
+	// Get the EtherAlley store listings for the provided array of token ids
+	Do(ctx context.Context, input *GetListingsInput) (listings *[]entities.Listing, err error)
+}
 
-		if err == nil {
-			logger.Debug(ctx).Msgf("cache hit for store listings %+v", ids)
-			return cachedListings, nil
-		}
+type GetListingsInput struct {
+	TokenIds *[]string `json:"token_ids" validate:"required,dive,numeric"`
+}
 
-		logger.Debug(ctx).Msgf("cache miss for store listings %+v", ids)
+func (uc *getListingUseCase) Do(ctx context.Context, input *GetListingsInput) (*[]entities.Listing, error) {
+	if err := common.ValidateStruct(input); err != nil {
+		return nil, err
+	}
 
-		listingInfo, err := blockchainGateway.GetStoreListingInfo(ctx, &ids)
+	ids := *input.TokenIds
+
+	cachedListings, err := uc.cacheGateway.GetStoreListings(ctx, &ids)
+
+	if err == nil {
+		uc.logger.Debug(ctx).Msgf("cache hit for store listings %+v", ids)
+		return cachedListings, nil
+	}
+
+	uc.logger.Debug(ctx).Msgf("cache miss for store listings %+v", ids)
+
+	listingInfo, err := uc.blockchainGateway.GetStoreListingInfo(ctx, &ids)
+
+	if err != nil {
+		uc.logger.Info(ctx).Err(err).Msgf("err getting store listings %+v", ids)
+		return nil, err
+	}
+
+	listings := make([]entities.Listing, len(ids))
+	for i := 0; i < len(ids); i++ {
+		metadata, err := uc.getListingMetadata.Do(ctx, &GetListingMetadataInput{
+			TokenId: ids[i],
+		})
 
 		if err != nil {
-			logger.Info(ctx).Err(err).Msgf("err getting store listings %+v", ids)
 			return nil, err
 		}
 
-		listings := make([]entities.Listing, len(ids))
-		for i := 0; i < len(ids); i++ {
-			metadata, err := getListingMetadata(ctx, &GetListingMetadataInput{
-				TokenId: ids[i],
-			})
-
-			if err != nil {
-				return nil, err
-			}
-
-			listings[i] = entities.Listing{
-				Contract: &entities.Contract{
-					Blockchain: settings.StoreBlockchain(),
-					Address:    settings.StoreAddress(),
-					Interface:  common.ERC1155,
-				},
-				TokenId:  ids[i],
-				Info:     &(*listingInfo)[i],
-				Metadata: metadata,
-			}
+		listings[i] = entities.Listing{
+			Contract: &entities.Contract{
+				Blockchain: uc.settings.StoreBlockchain(),
+				Address:    uc.settings.StoreAddress(),
+				Interface:  common.ERC1155,
+			},
+			TokenId:  ids[i],
+			Info:     &(*listingInfo)[i],
+			Metadata: metadata,
 		}
-
-		cacheGateway.SaveStoreListings(ctx, &listings)
-
-		return &listings, err
 	}
+
+	uc.cacheGateway.SaveStoreListings(ctx, &listings)
+
+	return &listings, err
 }

@@ -29,7 +29,7 @@ func (hc *HttpController) getTokenRoute(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 	query := r.URL.Query()
 
-	token, err := hc.getFungibleToken(ctx, &usecases.GetFungibleTokenInput{
+	token, err := hc.getFungibleToken.Do(ctx, &usecases.GetFungibleTokenInput{
 		Address: query.Get("user_address"),
 		Token: &usecases.FungibleTokenInput{
 			Contract: ctx.Value(common.ContextKeyContract).(*usecases.ContractInput),
@@ -48,7 +48,7 @@ func (hc *HttpController) getNFTRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	query := r.URL.Query()
 
-	nft, err := hc.getNonFungibleToken(ctx, &usecases.GetNonFungibleTokenInput{
+	nft, err := hc.getNonFungibleToken.Do(ctx, &usecases.GetNonFungibleTokenInput{
 		Address: query.Get("user_address"),
 		NonFungibleToken: &usecases.NonFungibleTokenInput{
 			TokenId:  query.Get("token_id"),
@@ -68,7 +68,7 @@ func (hc *HttpController) getStatisticRoute(w http.ResponseWriter, r *http.Reque
 	ctx := r.Context()
 	query := r.URL.Query()
 
-	statistic, err := hc.getStatistic(ctx, &usecases.GetStatisticsInput{
+	statistic, err := hc.getStatistic.Do(ctx, &usecases.GetStatisticsInput{
 		Address: query.Get("user_address"),
 		Statistic: &usecases.StatisticInput{
 			Contract: ctx.Value(common.ContextKeyContract).(*usecases.ContractInput),

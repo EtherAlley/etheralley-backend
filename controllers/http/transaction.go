@@ -27,7 +27,7 @@ func (hc *HttpController) getInteractionRoute(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 	query := r.URL.Query()
 
-	interaction, err := hc.getInteraction(ctx, &usecases.GetInteractionInput{
+	interaction, err := hc.getInteraction.Do(ctx, &usecases.GetInteractionInput{
 		Address: query.Get("user_address"),
 		Interaction: &usecases.InteractionInput{
 			Transaction: ctx.Value(common.ContextKeyTransaction).(*usecases.TransactionInput),

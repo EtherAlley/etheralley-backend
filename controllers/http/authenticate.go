@@ -20,7 +20,7 @@ func (hc *HttpController) authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		err := hc.verifyChallenge(r.Context(), &usecases.VerifyChallengeInput{
+		err := hc.verifyChallenge.Do(r.Context(), &usecases.VerifyChallengeInput{
 			Address: address,
 			SigHex:  token[1],
 		})

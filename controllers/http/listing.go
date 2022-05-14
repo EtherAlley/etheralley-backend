@@ -11,7 +11,7 @@ import (
 func (hc *HttpController) getStoreMetadataRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	metadata := hc.getStoreMetadata(ctx)
+	metadata := hc.getStoreMetadata.Do(ctx)
 
 	hc.presenter.PresentStoreMetadata(w, r, metadata)
 }
@@ -19,7 +19,7 @@ func (hc *HttpController) getStoreMetadataRoute(w http.ResponseWriter, r *http.R
 func (hc *HttpController) getMetadataByIdRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	metadata, err := hc.getListingMetadata(ctx, &usecases.GetListingMetadataInput{
+	metadata, err := hc.getListingMetadata.Do(ctx, &usecases.GetListingMetadataInput{
 		TokenId: chi.URLParam(r, "tokenid"),
 	})
 
@@ -42,7 +42,7 @@ func (hc *HttpController) getListingsRoute(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	listings, err := hc.getListings(ctx, input)
+	listings, err := hc.getListings.Do(ctx, input)
 
 	if err != nil {
 		hc.presenter.PresentBadRequest(w, r, err)

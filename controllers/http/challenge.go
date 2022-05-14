@@ -11,7 +11,7 @@ func (hc *HttpController) getChallengeRoute(w http.ResponseWriter, r *http.Reque
 	ctx := r.Context()
 	address := ctx.Value(common.ContextKeyAddress).(string)
 
-	challenge, err := hc.getChallenge(ctx, &usecases.GetChallengeInput{
+	challenge, err := hc.getChallenge.Do(ctx, &usecases.GetChallengeInput{
 		Address: address,
 	})
 

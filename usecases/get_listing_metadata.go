@@ -10,67 +10,76 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-type GetListingMetadataInput struct {
-	TokenId string `validate:"required,numeric"`
-}
-
-// Get the metadata for a provided token id for the EtherAlley store
-type IGetListingMetadataUseCase func(ctx context.Context, input *GetListingMetadataInput) (metadata *entities.NonFungibleMetadata, err error)
-
 func NewGetListingMetadata(
 	logger common.ILogger,
 	settings common.ISettings,
 ) IGetListingMetadataUseCase {
-	return func(ctx context.Context, input *GetListingMetadataInput) (*entities.NonFungibleMetadata, error) {
-		if err := common.ValidateStruct(input); err != nil {
-			return nil, err
-		}
-
-		// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexadecimal form with no 0x prefix.
-		tokenId, err := strconv.ParseInt(input.TokenId, 16, 64)
-
-		if err != nil {
-			return nil, err
-		}
-
-		tokenString := fmt.Sprint(tokenId)
-
-		url := getImageUrl(settings.StoreImageURI(), tokenString)
-
-		switch tokenString {
-		case common.STORE_PREMIUM:
-			return &entities.NonFungibleMetadata{
-				Name:        "EtherAlley Premium",
-				Description: "This semi-fungible token gives the holder access to premium features on EtherAlley.io",
-				Image:       url,
-				Attributes: getAttribute([][2]interface{}{
-					{"Status", "Verified"},
-					{"Badge Count", "50"},
-					{"Fungibility", "Semi-Fungible"},
-					{"Transferable", "true"},
-					{"Max balance", "unlimited"},
-				}),
-			}, nil
-		case common.STORE_BETA_TESTER:
-			return &entities.NonFungibleMetadata{
-				Name:        "EtherAlley Beta Tester",
-				Description: "This semi-fungible token indicates the holder participated in the EtherAlley.io beta. This token is non-transferable",
-				Image:       url,
-				Attributes: getAttribute([][2]interface{}{
-					{"Achievement", "Beta Tester"},
-					{"Fungibility", "Semi-Fungible"},
-					{"Transferable", "false"},
-					{"Max balance", "1"},
-				}),
-			}, nil
-		}
-
-		return nil, errors.New("unspported token id")
+	return &getListingMetadata{
+		logger,
+		settings,
 	}
 }
 
-func getImageUrl(baseUrl string, tokenId string) string {
-	return fmt.Sprintf("%v/store/%v.png", baseUrl, tokenId)
+type getListingMetadata struct {
+	logger   common.ILogger
+	settings common.ISettings
+}
+
+type IGetListingMetadataUseCase interface {
+	// Get the metadata for a provided token id for the EtherAlley store
+	Do(ctx context.Context, input *GetListingMetadataInput) (metadata *entities.NonFungibleMetadata, err error)
+}
+
+type GetListingMetadataInput struct {
+	TokenId string `validate:"required,numeric"`
+}
+
+func (uc *getListingMetadata) Do(ctx context.Context, input *GetListingMetadataInput) (*entities.NonFungibleMetadata, error) {
+	if err := common.ValidateStruct(input); err != nil {
+		return nil, err
+	}
+
+	// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexadecimal form with no 0x prefix.
+	tokenId, err := strconv.ParseInt(input.TokenId, 16, 64)
+
+	if err != nil {
+		return nil, err
+	}
+
+	tokenString := fmt.Sprint(tokenId)
+	switch tokenString {
+	case common.STORE_PREMIUM:
+		return &entities.NonFungibleMetadata{
+			Name:        "EtherAlley Premium",
+			Description: "This semi-fungible token gives the holder access to premium features on EtherAlley.io",
+			Image:       uc.getImageUrl(tokenString),
+			Attributes: getAttribute([][2]interface{}{
+				{"Status", "Verified"},
+				{"Badge Count", "50"},
+				{"Fungibility", "Semi-Fungible"},
+				{"Transferable", "true"},
+				{"Max balance", "unlimited"},
+			}),
+		}, nil
+	case common.STORE_BETA_TESTER:
+		return &entities.NonFungibleMetadata{
+			Name:        "EtherAlley Beta Tester",
+			Description: "This semi-fungible token indicates the holder participated in the EtherAlley.io beta. This token is non-transferable",
+			Image:       uc.getImageUrl(tokenString),
+			Attributes: getAttribute([][2]interface{}{
+				{"Achievement", "Beta Tester"},
+				{"Fungibility", "Semi-Fungible"},
+				{"Transferable", "false"},
+				{"Max balance", "1"},
+			}),
+		}, nil
+	}
+
+	return nil, errors.New("unspported token id")
+}
+
+func (uc *getListingMetadata) getImageUrl(tokenId string) string {
+	return fmt.Sprintf("%v/store/%v.png", uc.settings.StoreImageURI(), tokenId)
 }
 
 func getAttribute(attrs [][2]interface{}) *[]map[string]interface{} {

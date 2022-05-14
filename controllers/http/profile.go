@@ -12,7 +12,7 @@ func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *htt
 	ctx := r.Context()
 	address := ctx.Value(common.ContextKeyAddress).(string)
 
-	profile, err := hc.getProfile(ctx, &usecases.GetProfileInput{
+	profile, err := hc.getProfile.Do(ctx, &usecases.GetProfileInput{
 		Address: address,
 	})
 
@@ -37,7 +37,7 @@ func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Reques
 
 	profile.Address = ctx.Value(common.ContextKeyAddress).(string)
 
-	err = hc.saveProfile(ctx, &usecases.SaveProfileInput{
+	err = hc.saveProfile.Do(ctx, &usecases.SaveProfileInput{
 		Profile: profile,
 	})
 
@@ -57,7 +57,7 @@ func (hc *HttpController) recordProfileViewMiddleware(next http.Handler) http.Ha
 		done := make(chan bool)
 		go func() {
 			// we also don't care about the results, they will not affect the results of the request
-			hc.recordProfileView(ctx, &usecases.RecordProfileViewInput{
+			hc.recordProfileView.Do(ctx, &usecases.RecordProfileViewInput{
 				Address:   ctx.Value(common.ContextKeyAddress).(string),
 				IpAddress: r.RemoteAddr,
 			})
@@ -73,7 +73,7 @@ func (hc *HttpController) recordProfileViewMiddleware(next http.Handler) http.Ha
 func (hc *HttpController) getTopProfilesRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	profiles := hc.getTopProfiles(ctx, &usecases.GetTopProfilesInput{})
+	profiles := hc.getTopProfiles.Do(ctx, &usecases.GetTopProfilesInput{})
 
 	hc.presenter.PresentTopProfiles(w, r, profiles)
 }
@@ -82,7 +82,7 @@ func (hc *HttpController) refreshProfileRoute(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 	address := ctx.Value(common.ContextKeyAddress).(string)
 
-	err := hc.refreshProfile(ctx, &usecases.RefreshProfileInput{
+	err := hc.refreshProfile.Do(ctx, &usecases.RefreshProfileInput{
 		Address: address,
 	})
 

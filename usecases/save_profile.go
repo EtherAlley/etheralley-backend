@@ -10,19 +10,6 @@ import (
 	"github.com/etheralley/etheralley-core-api/gateways"
 )
 
-type SaveProfileInput struct {
-	Profile *ProfileInput `validate:"required,dive"`
-}
-
-// validate the non transient info being submitted (interactions)
-//
-// save the profile to the database
-//
-// remove the cached profile
-//
-// TODO: can fetch interactions and premium balance concurrently
-type ISaveProfileUseCase func(ctx context.Context, input *SaveProfileInput) error
-
 func NewSaveProfile(
 	logger common.ILogger,
 	blockchainGateway gateways.IBlockchainGateway,
@@ -30,65 +17,94 @@ func NewSaveProfile(
 	cacheGateway gateways.ICacheGateway,
 	getAllInteractions IGetAllInteractionsUseCase,
 ) ISaveProfileUseCase {
-	return func(ctx context.Context, input *SaveProfileInput) error {
-		// general validation on profile being submitted
-		if err := common.ValidateStruct(input); err != nil {
-			return err
-		}
-
-		// validate total badge count
-		badgeCount := len(*input.Profile.FungibleTokens) + len(*input.Profile.NonFungibleTokens) + len(*input.Profile.Statistics) + len(*input.Profile.Currencies)
-		balances, err := blockchainGateway.GetStoreBalanceBatch(ctx, input.Profile.Address, &[]string{common.STORE_PREMIUM})
-
-		if err != nil {
-			return fmt.Errorf("failed to get premium balance %w", err)
-		}
-
-		if balances[0].Cmp(big.NewInt(0)) == 1 && badgeCount > common.PREMIUM_TOTAL_BADGE_COUNT {
-			return fmt.Errorf("invalid total badge count for premium provided %v %v", balances[0], badgeCount)
-		} else if balances[0].Cmp(big.NewInt(0)) == 0 && badgeCount > common.REGULAR_TOTAL_BADGE_COUNT {
-			return fmt.Errorf("invalid total badge count for regular provided %v %v", balances[0], badgeCount)
-		}
-
-		// validate that all interactions being submitted are unique
-		typeMap := map[string]bool{}
-		for _, interaction := range *input.Profile.Interactions {
-			if typeMap[interaction.Type] {
-				return fmt.Errorf("duplicate interaction type detected %v", interaction.Type)
-			}
-			typeMap[interaction.Type] = true
-		}
-
-		// interactions are not transient, so we must validate them against the on-chain transaction on every save
-		interactions, err := getAllInteractions(ctx, &GetAllInteractionsInput{
-			Interactions: toInteractionInputs(input.Profile),
-		})
-
-		if err != nil {
-			return fmt.Errorf("failed to validate interactions %w", err)
-		}
-
-		profile := &entities.Profile{
-			Address:           input.Profile.Address,
-			Interactions:      interactions,
-			NonFungibleTokens: toNonFungibleTokens(input.Profile.NonFungibleTokens),
-			FungibleTokens:    toFungibleTokens(input.Profile.FungibleTokens),
-			Statistics:        toStatistics(input.Profile.Statistics),
-			Currencies:        toCurrencies(input.Profile.Currencies),
-			DisplayConfig:     toDisplayConfig(input.Profile.DisplayConfig),
-		}
-
-		err = databaseGateway.SaveProfile(ctx, profile)
-
-		if err != nil {
-			return fmt.Errorf("failed to save profile to db %w", err)
-		}
-
-		// users will expect to see there saved changes the next time they visit their profile
-		cacheGateway.DeleteProfile(ctx, input.Profile.Address)
-
-		return nil
+	return &saveProfileUseCase{
+		logger,
+		blockchainGateway,
+		databaseGateway,
+		cacheGateway,
+		getAllInteractions,
 	}
+}
+
+type saveProfileUseCase struct {
+	logger             common.ILogger
+	blockchainGateway  gateways.IBlockchainGateway
+	databaseGateway    gateways.IDatabaseGateway
+	cacheGateway       gateways.ICacheGateway
+	getAllInteractions IGetAllInteractionsUseCase
+}
+
+type ISaveProfileUseCase interface {
+	// Validate the non transient info being submitted (interactions).
+	// Save the profile to the database.
+	// Remove the cached profile.
+	//
+	// TODO: can fetch interactions and premium balance concurrently.
+	Do(ctx context.Context, input *SaveProfileInput) error
+}
+
+type SaveProfileInput struct {
+	Profile *ProfileInput `validate:"required,dive"`
+}
+
+func (uc *saveProfileUseCase) Do(ctx context.Context, input *SaveProfileInput) error {
+	// general validation on profile being submitted
+	if err := common.ValidateStruct(input); err != nil {
+		return err
+	}
+
+	// validate total badge count
+	badgeCount := len(*input.Profile.FungibleTokens) + len(*input.Profile.NonFungibleTokens) + len(*input.Profile.Statistics) + len(*input.Profile.Currencies)
+	balances, err := uc.blockchainGateway.GetStoreBalanceBatch(ctx, input.Profile.Address, &[]string{common.STORE_PREMIUM})
+
+	if err != nil {
+		return fmt.Errorf("failed to get premium balance %w", err)
+	}
+
+	if balances[0].Cmp(big.NewInt(0)) == 1 && badgeCount > common.PREMIUM_TOTAL_BADGE_COUNT {
+		return fmt.Errorf("invalid total badge count for premium provided %v %v", balances[0], badgeCount)
+	} else if balances[0].Cmp(big.NewInt(0)) == 0 && badgeCount > common.REGULAR_TOTAL_BADGE_COUNT {
+		return fmt.Errorf("invalid total badge count for regular provided %v %v", balances[0], badgeCount)
+	}
+
+	// validate that all interactions being submitted are unique
+	typeMap := map[string]bool{}
+	for _, interaction := range *input.Profile.Interactions {
+		if typeMap[interaction.Type] {
+			return fmt.Errorf("duplicate interaction type detected %v", interaction.Type)
+		}
+		typeMap[interaction.Type] = true
+	}
+
+	// interactions are not transient, so we must validate them against the on-chain transaction on every save
+	interactions, err := uc.getAllInteractions.Do(ctx, &GetAllInteractionsInput{
+		Interactions: toInteractionInputs(input.Profile),
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to validate interactions %w", err)
+	}
+
+	profile := &entities.Profile{
+		Address:           input.Profile.Address,
+		Interactions:      interactions,
+		NonFungibleTokens: toNonFungibleTokens(input.Profile.NonFungibleTokens),
+		FungibleTokens:    toFungibleTokens(input.Profile.FungibleTokens),
+		Statistics:        toStatistics(input.Profile.Statistics),
+		Currencies:        toCurrencies(input.Profile.Currencies),
+		DisplayConfig:     toDisplayConfig(input.Profile.DisplayConfig),
+	}
+
+	err = uc.databaseGateway.SaveProfile(ctx, profile)
+
+	if err != nil {
+		return fmt.Errorf("failed to save profile to db %w", err)
+	}
+
+	// users will expect to see there saved changes the next time they visit their profile
+	uc.cacheGateway.DeleteProfile(ctx, input.Profile.Address)
+
+	return nil
 }
 
 func toInteractionInputs(profile *ProfileInput) *[]GetInteractionInput {
