@@ -29,14 +29,14 @@ type responseJson struct {
 			ImageURL    string                    `json:"image_url"`
 			Attributes  *[]map[string]interface{} `json:"attributes"`
 		}
+		Error string `json:"error"`
 	} `json:"ownedNfts"`
 }
 
+// See https://docs.alchemy.com/alchemy/enhanced-apis/nft-api/getnfts
 // TODO: Polygon is also supported if we want to fetch from both in the future
 func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[]entities.NonFungibleToken, error) {
-	nfts := []entities.NonFungibleToken{}
-
-	url := fmt.Sprintf("%v/getNFTs?owner=%v", gw.settings.EthereumURI(), address)
+	url := fmt.Sprintf("%v/getNFTs?owner=%v&filters[]=SPAM", gw.settings.EthereumURI(), address)
 
 	resp, err := gw.httpClient.Do(ctx, "GET", url, &common.HttpOptions{})
 
@@ -52,23 +52,24 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 		return nil, fmt.Errorf("decode all nfts response %w", err)
 	}
 
-	// TODO: Taking the first 12 for now
-	cutoff := len(respJson.OwnedNFTs)
-	if cutoff > 12 {
-		cutoff = 13
-	}
-	for _, nftJson := range respJson.OwnedNFTs[:cutoff] {
-		balance := "1"
+	nfts := []entities.NonFungibleToken{}
+	for _, nftJson := range respJson.OwnedNFTs {
+		// skip nfts that have an error
+		if nftJson.Error != "" {
+			continue
+		}
 
 		image := ""
 		if nftJson.Metadata.Image != "" {
 			image = nftJson.Metadata.Image
 		} else if nftJson.Metadata.ImageURL != "" {
 			image = nftJson.Metadata.ImageURL
+		} else { // skip nfts that don't have an image url
+			continue
 		}
 		image = gw.replaceIPFSScheme(image)
 
-		// Appears the token ids are provided in hexidecimal format
+		// It appears the token ids are provided in hexidecimal format
 		tokenId := nftJson.Id.TokenId
 		if strings.Contains(tokenId, "0x") {
 			num := new(big.Int)
@@ -79,9 +80,12 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 			tokenId = num.String()
 		}
 
+		// Doesn't appear that a balance is provided by alchemy for ERC1155, only ERC721... Hardcoding balance of 1 for now.
+		balance := "1"
+
 		nft := entities.NonFungibleToken{
 			TokenId: tokenId,
-			Balance: &balance, // Doesn't appear that a balance is provided by alchemy for ERC1155, only ERC721...
+			Balance: &balance,
 			Contract: &entities.Contract{
 				Blockchain: common.ETHEREUM,
 				Address:    nftJson.Contract.Address,
@@ -97,7 +101,15 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 		nfts = append(nfts, nft)
 	}
 
-	return &nfts, nil
+	// TODO: Taking the first 12 for now
+	// Reminder, making this number bigger than 12 has implications for the max badge limit
+	cutoff := len(nfts)
+	if cutoff > 12 {
+		cutoff = 13
+	}
+	trimmedNFTs := nfts[:cutoff]
+
+	return &trimmedNFTs, nil
 }
 
 type nftMetadataRespBody struct {
