@@ -22,15 +22,17 @@ type responseJson struct {
 				TokenType string `json:"tokenType"`
 			} `json:"tokenMetadata"`
 		} `json:"id"`
-		Metadata struct {
-			Name        string                    `json:"name"`
-			Description string                    `json:"description"`
-			Image       string                    `json:"image"`
-			ImageURL    string                    `json:"image_url"`
-			Attributes  *[]map[string]interface{} `json:"attributes"`
-		}
-		Error string `json:"error"`
+		Metadata json.RawMessage `json:"metadata"` // This can be either string or struct. We need to parse one by one
+		Error    string          `json:"error"`
 	} `json:"ownedNfts"`
+}
+
+type responseMetadataJson struct {
+	Name        string                    `json:"name"`
+	Description string                    `json:"description"`
+	Image       string                    `json:"image"`
+	ImageURL    string                    `json:"image_url"`
+	Attributes  *[]map[string]interface{} `json:"attributes"`
 }
 
 // See https://docs.alchemy.com/alchemy/enhanced-apis/nft-api/getnfts
@@ -59,11 +61,17 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 			continue
 		}
 
+		// skip anything that is not the standard metadata json structur
+		var metadata responseMetadataJson
+		if err := json.Unmarshal(nftJson.Metadata, &metadata); err != nil {
+			continue
+		}
+
 		image := ""
-		if nftJson.Metadata.Image != "" {
-			image = nftJson.Metadata.Image
-		} else if nftJson.Metadata.ImageURL != "" {
-			image = nftJson.Metadata.ImageURL
+		if metadata.Image != "" {
+			image = metadata.Image
+		} else if metadata.ImageURL != "" {
+			image = metadata.ImageURL
 		} else { // skip nfts that don't have an image url
 			continue
 		}
@@ -92,10 +100,10 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 				Interface:  nftJson.Id.TokenMetadata.TokenType,
 			},
 			Metadata: &entities.NonFungibleMetadata{
-				Name:        nftJson.Metadata.Name,
-				Description: nftJson.Metadata.Description,
+				Name:        metadata.Name,
+				Description: metadata.Description,
 				Image:       image,
-				Attributes:  nftJson.Metadata.Attributes,
+				Attributes:  metadata.Attributes,
 			},
 		}
 		nfts = append(nfts, nft)

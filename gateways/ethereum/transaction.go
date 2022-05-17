@@ -38,7 +38,7 @@ func (gw *gateway) GetTransactionData(ctx context.Context, transaction *entities
 				return nil, fmt.Errorf("tx is pending %w", cmn.ErrRetryable)
 			}
 
-			return tx, tryWrapRetryable("tx retry", err)
+			return tx, gw.tryWrapRetryable(ctx, "tx retry", err)
 		})
 	}()
 
@@ -47,7 +47,7 @@ func (gw *gateway) GetTransactionData(ctx context.Context, transaction *entities
 
 		txRct, err := cmn.FunctionRetrier(ctx, func() (*types.Receipt, error) {
 			txRct, err := client.TransactionReceipt(ctx, hash)
-			return txRct, tryWrapRetryable("tx receipt retry", err)
+			return txRct, gw.tryWrapRetryable(ctx, "tx receipt retry", err)
 		})
 
 		if err != nil {

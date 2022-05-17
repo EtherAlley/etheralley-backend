@@ -37,7 +37,7 @@ func (gw *gateway) GetPunkBalance(ctx context.Context, address string, contract 
 
 	owner, err := cmn.FunctionRetrier(ctx, func() (common.Address, error) {
 		owner, err := instance.PunkIndexToAddress(&bind.CallOpts{}, id)
-		return owner, tryWrapRetryable("punk balanceOf retry", err)
+		return owner, gw.tryWrapRetryable(ctx, "punk balanceOf retry", err)
 	})
 
 	// treat a bad contract address as a zero balance

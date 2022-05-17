@@ -30,7 +30,7 @@ func (gw *gateway) GetERC20Balance(ctx context.Context, address string, contract
 
 	balance, err := cmn.FunctionRetrier(ctx, func() (*big.Int, error) {
 		balance, err := instance.BalanceOf(&bind.CallOpts{}, adr)
-		return balance, tryWrapRetryable("erc20 balance retry", err)
+		return balance, gw.tryWrapRetryable(ctx, "erc20 balance retry", err)
 	})
 
 	if err != nil {
@@ -57,7 +57,7 @@ func (gw *gateway) GetERC20Name(ctx context.Context, contract *entities.Contract
 
 	name, err := cmn.FunctionRetrier(ctx, func() (string, error) {
 		name, err := instance.Name(&bind.CallOpts{})
-		return name, tryWrapRetryable("erc20 name retry", err)
+		return name, gw.tryWrapRetryable(ctx, "erc20 name retry", err)
 	})
 
 	if err != nil {
@@ -84,7 +84,7 @@ func (gw *gateway) GetERC20Symbol(ctx context.Context, contract *entities.Contra
 
 	symbol, err := cmn.FunctionRetrier(ctx, func() (string, error) {
 		symbol, err := instance.Symbol(&bind.CallOpts{})
-		return symbol, tryWrapRetryable("erc20 symbol retry", err)
+		return symbol, gw.tryWrapRetryable(ctx, "erc20 symbol retry", err)
 	})
 
 	if err != nil {
@@ -111,7 +111,7 @@ func (gw *gateway) GetERC20Decimals(ctx context.Context, contract *entities.Cont
 
 	decimals, err := cmn.FunctionRetrier(ctx, func() (uint8, error) {
 		decimals, err := instance.Decimals(&bind.CallOpts{})
-		return decimals, tryWrapRetryable("erc20 decimals retry", err)
+		return decimals, gw.tryWrapRetryable(ctx, "erc20 decimals retry", err)
 	})
 
 	if err != nil {

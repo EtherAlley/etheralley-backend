@@ -39,7 +39,7 @@ func (gw *gateway) GetERC1155Balance(ctx context.Context, address string, contra
 
 	balance, err := cmn.FunctionRetrier(ctx, func() (*big.Int, error) {
 		balance, err := instance.BalanceOf(&bind.CallOpts{}, adr, id)
-		return balance, tryWrapRetryable("erc1155 balance retry", err)
+		return balance, gw.tryWrapRetryable(ctx, "erc1155 balance retry", err)
 	})
 
 	// treat a bad contract address as a zero balance
@@ -78,7 +78,7 @@ func (gw *gateway) GetERC721Balance(ctx context.Context, address string, contrac
 
 	owner, err := cmn.FunctionRetrier(ctx, func() (common.Address, error) {
 		owner, err := instance.OwnerOf(&bind.CallOpts{}, id)
-		return owner, tryWrapRetryable("erc721 balance retry", err)
+		return owner, gw.tryWrapRetryable(ctx, "erc721 balance retry", err)
 	})
 
 	// treat a bad contract address as a zero balance
@@ -120,7 +120,7 @@ func (gw *gateway) GetERC1155URI(ctx context.Context, contract *entities.Contrac
 
 	uri, err := cmn.FunctionRetrier(ctx, func() (string, error) {
 		uri, err := instance.Uri(&bind.CallOpts{}, id)
-		return uri, tryWrapRetryable("erc1155 uri retry", err)
+		return uri, gw.tryWrapRetryable(ctx, "erc1155 uri retry", err)
 	})
 
 	if err != nil {
@@ -157,6 +157,6 @@ func (gw *gateway) GetERC721URI(ctx context.Context, contract *entities.Contract
 
 	return cmn.FunctionRetrier(ctx, func() (string, error) {
 		uri, err := instance.TokenURI(&bind.CallOpts{}, id)
-		return uri, tryWrapRetryable("erc721 uri retry", err)
+		return uri, gw.tryWrapRetryable(ctx, "erc721 uri retry", err)
 	})
 }

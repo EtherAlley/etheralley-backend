@@ -42,7 +42,7 @@ func (gw *gateway) GetStoreListingInfo(ctx context.Context, ids *[]string) (*[]e
 
 	listingsArr, err := cmn.FunctionRetrier(ctx, func() ([]contracts.IEtherAlleyStoreTokenListing, error) {
 		listingsArr, err := instance.GetListingBatch(&bind.CallOpts{}, idsArr)
-		return listingsArr, tryWrapRetryable("listing info retry", err)
+		return listingsArr, gw.tryWrapRetryable(ctx, "listing info retry", err)
 	})
 
 	if err != nil {
@@ -97,6 +97,6 @@ func (gw *gateway) GetStoreBalanceBatch(ctx context.Context, address string, ids
 
 	return cmn.FunctionRetrier(ctx, func() ([]*big.Int, error) {
 		balences, err := instance.BalanceOfBatch(&bind.CallOpts{}, accountsArr, idsArr)
-		return balences, tryWrapRetryable("balance batch retry", err)
+		return balences, gw.tryWrapRetryable(ctx, "balance batch retry", err)
 	})
 }

@@ -18,7 +18,7 @@ func (gw *gateway) GetENSAddressFromName(ctx context.Context, name string) (stri
 
 	adr, err := cmn.FunctionRetrier(ctx, func() (common.Address, error) {
 		adr, err := ens.Resolve(client, name)
-		return adr, tryWrapRetryable("get address from ens name", err)
+		return adr, gw.tryWrapRetryable(ctx, "get address from ens name", err)
 	})
 
 	if err != nil {
@@ -37,6 +37,6 @@ func (gw *gateway) GetENSNameFromAddress(ctx context.Context, address string) (s
 
 	return cmn.FunctionRetrier(ctx, func() (string, error) {
 		name, err := ens.ReverseResolve(client, common.HexToAddress(address))
-		return name, tryWrapRetryable("get ens name from address", err)
+		return name, gw.tryWrapRetryable(ctx, "get ens name from address", err)
 	})
 }

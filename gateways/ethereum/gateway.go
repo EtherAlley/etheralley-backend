@@ -40,16 +40,16 @@ func (gw *gateway) getClient(ctx context.Context, blockchain cmn.Blockchain) (*e
 }
 
 // Parse for go-ethereum http error to determine if its retryable.
-// Wrap in common.ErrRetryable if status code is 429
-// and add context
-func tryWrapRetryable(context string, err error) error {
+// Wrap in common.ErrRetryable if status code is 429 and include msg
+func (gw *gateway) tryWrapRetryable(ctx context.Context, msg string, err error) error {
 	if err == nil {
 		return nil
 	}
 
 	var e rpc.HTTPError
 	if errors.As(err, &e) && e.StatusCode == 429 {
-		return fmt.Errorf("%v %v %w", context, err, cmn.ErrRetryable)
+		gw.logger.Warn(ctx).Err(err).Msgf("eth rate limit: %v", msg)
+		return fmt.Errorf("%v %v %w", msg, err, cmn.ErrRetryable)
 	}
 
 	return err
