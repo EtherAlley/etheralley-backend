@@ -1,3 +1,8 @@
+// always use layer 1 for ens resolution
+// we also use the secondary uri for ens name resolution to avoid rate limiting
+// we do this because failing to resolve the ens name is a very unpleseant experience for the end user
+// they will see a 404 page implying their ens name does not exist
+
 package ethereum
 
 import (
@@ -6,11 +11,12 @@ import (
 
 	cmn "github.com/etheralley/etheralley-core-api/common"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/wealdtech/go-ens/v3"
 )
 
 func (gw *gateway) GetENSAddressFromName(ctx context.Context, name string) (string, error) {
-	client, err := gw.getClient(ctx, cmn.ETHEREUM) // awlays use layer 1 for ens resolution
+	client, err := ethclient.DialContext(ctx, gw.settings.EthereumSecondaryURI())
 
 	if err != nil {
 		return "", fmt.Errorf("ens building client %w", err)
@@ -29,7 +35,7 @@ func (gw *gateway) GetENSAddressFromName(ctx context.Context, name string) (stri
 }
 
 func (gw *gateway) GetENSNameFromAddress(ctx context.Context, address string) (string, error) {
-	client, err := gw.getClient(ctx, cmn.ETHEREUM) // awlays use layer 1 for ens resolution
+	client, err := ethclient.DialContext(ctx, gw.settings.EthereumMainURI())
 
 	if err != nil {
 		return "", fmt.Errorf("ens building client %w", err)
