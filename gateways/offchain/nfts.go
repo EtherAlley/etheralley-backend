@@ -91,13 +91,19 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 		// Doesn't appear that a balance is provided by alchemy for ERC1155, only ERC721... Hardcoding balance of 1 for now.
 		balance := "1"
 
+		// we handle ens nfts specially because we need special logic to fetch their metadata
+		tokenType := nftJson.Id.TokenMetadata.TokenType
+		if nftJson.Contract.Address == common.ENS_BASE_REGISTRAR_ADDRESS {
+			tokenType = common.ENS_REGISTRAR
+		}
+
 		nft := entities.NonFungibleToken{
 			TokenId: tokenId,
 			Balance: &balance,
 			Contract: &entities.Contract{
 				Blockchain: common.ETHEREUM,
 				Address:    nftJson.Contract.Address,
-				Interface:  nftJson.Id.TokenMetadata.TokenType,
+				Interface:  tokenType,
 			},
 			Metadata: &entities.NonFungibleMetadata{
 				Name:        metadata.Name,
@@ -113,7 +119,7 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 	// Reminder, making this number bigger than 12 has implications for the max badge limit
 	cutoff := len(nfts)
 	if cutoff > 12 {
-		cutoff = 13
+		cutoff = 12
 	}
 	trimmedNFTs := nfts[:cutoff]
 

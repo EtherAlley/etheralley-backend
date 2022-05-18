@@ -55,7 +55,8 @@ const (
 type Address = string
 
 const (
-	ZERO_ADDRESS Address = "0x0000000000000000000000000000000000000000"
+	ZERO_ADDRESS               Address = "0x0000000000000000000000000000000000000000"
+	ENS_BASE_REGISTRAR_ADDRESS Address = "0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85"
 )
 
 type TokenIds = string
