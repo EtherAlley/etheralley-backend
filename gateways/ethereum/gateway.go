@@ -25,16 +25,17 @@ func NewGateway(logger cmn.ILogger, settings cmn.ISettings, http cmn.IHttpClient
 	}
 }
 
+// Use the main uris for the core blockchain workflows
 func (gw *gateway) getClient(ctx context.Context, blockchain cmn.Blockchain) (*ethclient.Client, error) {
 	switch blockchain {
 	case cmn.ETHEREUM:
-		return ethclient.DialContext(ctx, gw.settings.EthereumURI())
+		return ethclient.DialContext(ctx, gw.settings.EthereumMainURI())
 	case cmn.POLYGON:
-		return ethclient.DialContext(ctx, gw.settings.PolygonURI())
+		return ethclient.DialContext(ctx, gw.settings.PolygonMainURI())
 	case cmn.OPTIMISM:
-		return ethclient.DialContext(ctx, gw.settings.OptimismURI())
+		return ethclient.DialContext(ctx, gw.settings.OptimismMainURI())
 	case cmn.ARBITRUM:
-		return ethclient.DialContext(ctx, gw.settings.ArbitrumURI())
+		return ethclient.DialContext(ctx, gw.settings.ArbitrumMainURI())
 	}
 	return nil, fmt.Errorf("eth get client %v", blockchain)
 }

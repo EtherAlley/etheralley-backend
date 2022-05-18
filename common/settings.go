@@ -22,11 +22,17 @@ type ISettings interface {
 	StoreBlockchain() string
 	StoreAddress() string
 	StoreImageURI() string
-	EthereumURI() string
-	PolygonURI() string
-	ArbitrumURI() string
-	OptimismURI() string
+	// This ethereum uri should be used for most workflows.
+	EthereumMainURI() string
+	// This ethereum secondary uri is intended to offload traffic from the main uri and avoid rate limiting for critical paths.
+	// this URI should be used sparringly for critical workflows.
+	EthereumSecondaryURI() string
+	PolygonMainURI() string
+	ArbitrumMainURI() string
+	OptimismMainURI() string
 	ENSMetadataURI() string
+	// This ethereum uri is specific to alchemy and is intended for alchemy only apis (e.g. get all nfts).
+	AlchemyEthereumURI() string
 	CryptoKittiesMetadataURI() string
 	IPFSURI() string
 	TheGraphURI() string
@@ -48,10 +54,12 @@ type settings struct {
 	storeBlockchain          string
 	storeAddress             string
 	storeImageURI            string
-	ethereumURI              string
-	polygonURI               string
-	arbitrumURI              string
-	optimismURI              string
+	ethereumMainURI          string
+	ethereumSecondaryURI     string
+	polygonMainURI           string
+	arbitrumMainURI          string
+	optimismMainURI          string
+	alchemyEthereumURI       string
 	ensMetadataURI           string
 	cryptoKittiesMetadataURI string
 	ipfsURI                  string
@@ -88,10 +96,12 @@ func NewSettings() ISettings {
 		storeBlockchain:          os.Getenv("STORE_BLOCKCHAIN"),
 		storeAddress:             os.Getenv("STORE_ADDRESS"),
 		storeImageURI:            os.Getenv("STORE_IMAGE_URI"),
-		ethereumURI:              os.Getenv("ETHEREUM_URI"),
-		polygonURI:               os.Getenv("POLYGON_URI"),
-		arbitrumURI:              os.Getenv("ARBITRUM_URI"),
-		optimismURI:              os.Getenv("OPTIMISM_URI"),
+		ethereumMainURI:          os.Getenv("ETHEREUM_MAIN_URI"),
+		ethereumSecondaryURI:     os.Getenv("ETHEREUM_SECONDARY_URI"),
+		polygonMainURI:           os.Getenv("POLYGON_MAIN_URI"),
+		arbitrumMainURI:          os.Getenv("ARBITRUM_MAIN_URI"),
+		optimismMainURI:          os.Getenv("OPTIMISM_MAIN_URI"),
+		alchemyEthereumURI:       os.Getenv("ALCHEMY_ETHEREUM_URI"),
 		ensMetadataURI:           os.Getenv("ENS_METADATA_URI"),
 		cryptoKittiesMetadataURI: os.Getenv("CRYPTO_KITTIES_METADATA_URI"),
 		ipfsURI:                  os.Getenv("IPFS_URI"),
@@ -162,20 +172,28 @@ func (s *settings) StoreImageURI() string {
 	return s.storeImageURI
 }
 
-func (s *settings) EthereumURI() string {
-	return s.ethereumURI
+func (s *settings) EthereumMainURI() string {
+	return s.ethereumMainURI
 }
 
-func (s *settings) PolygonURI() string {
-	return s.polygonURI
+func (s *settings) EthereumSecondaryURI() string {
+	return s.ethereumSecondaryURI
 }
 
-func (s *settings) ArbitrumURI() string {
-	return s.arbitrumURI
+func (s *settings) PolygonMainURI() string {
+	return s.polygonMainURI
 }
 
-func (s *settings) OptimismURI() string {
-	return s.optimismURI
+func (s *settings) ArbitrumMainURI() string {
+	return s.arbitrumMainURI
+}
+
+func (s *settings) OptimismMainURI() string {
+	return s.optimismMainURI
+}
+
+func (s *settings) AlchemyEthereumURI() string {
+	return s.alchemyEthereumURI
 }
 
 func (s *settings) ENSMetadataURI() string {
