@@ -62,7 +62,7 @@ func (uc *resolveAddressUseCase) Do(ctx context.Context, input *ResolveAddressIn
 		address, err = uc.blockchainGateway.GetENSAddressFromName(ctx, value)
 
 		if err != nil {
-			uc.logger.Debug(ctx).Err(err).Msgf("err getting address from ens name %v", input)
+			uc.logger.Info(ctx).Err(err).Msgf("err getting address from ens name %v", input)
 			return address, err
 		}
 

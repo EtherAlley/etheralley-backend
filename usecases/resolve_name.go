@@ -56,7 +56,7 @@ func (uc *resolveENSNameUseCase) Do(ctx context.Context, input *ResolveENSNameIn
 	name, err = uc.blockchainGateway.GetENSNameFromAddress(ctx, address)
 
 	if err != nil {
-		uc.logger.Debug(ctx).Err(err).Msgf("err getting ens name from address %v", address)
+		uc.logger.Info(ctx).Err(err).Msgf("err getting ens name from address %v", address)
 	}
 
 	uc.logger.Debug(ctx).Msgf("chain hit for address %v -> ens name %v", address, name)

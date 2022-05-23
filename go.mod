@@ -11,7 +11,7 @@ require (
 	github.com/hasura/go-graphql-client v0.7.0
 	github.com/joho/godotenv v1.4.0
 	github.com/rs/zerolog v1.26.1
-	github.com/wealdtech/go-ens/v3 v3.5.3
+	github.com/wealdtech/go-ens/v3 v3.5.4
 	go.mongodb.org/mongo-driver v1.9.1
 	go.uber.org/dig v1.14.1
 )
