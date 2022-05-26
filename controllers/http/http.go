@@ -33,6 +33,7 @@ type HttpController struct {
 	refreshProfile      usecases.IRefreshProfileUseCase
 	getCurrency         usecases.IGetCurrencyUseCase
 	getStoreMetadata    usecases.IGetStoreMetadataUseCase
+	verifyRateLimit     usecases.IVerifyRateLimitUseCase
 }
 
 func NewHttpController(
@@ -55,6 +56,7 @@ func NewHttpController(
 	refreshProfile usecases.IRefreshProfileUseCase,
 	getCurrency usecases.IGetCurrencyUseCase,
 	getStoreMetadata usecases.IGetStoreMetadataUseCase,
+	verifyRateLimit usecases.IVerifyRateLimitUseCase,
 ) *HttpController {
 	return &HttpController{
 		settings,
@@ -76,6 +78,7 @@ func NewHttpController(
 		refreshProfile,
 		getCurrency,
 		getStoreMetadata,
+		verifyRateLimit,
 	}
 }
 
@@ -99,6 +102,7 @@ func (hc *HttpController) Start() error {
 	r.Use(hc.requestId)
 	r.Use(hc.recoverer)
 	r.Use(hc.timeout)
+	r.Use(hc.rateLimit)
 
 	r.Get("/", hc.healthRoute)
 

@@ -44,6 +44,8 @@ type ICacheGateway interface {
 
 	GetStoreListings(ctx context.Context, tokenIds *[]string) (*[]entities.Listing, error)
 	SaveStoreListings(ctx context.Context, listings *[]entities.Listing) error
+
+	VerifyRateLimit(ctx context.Context, ipAddress string) error
 }
 
 type IBlockchainGateway interface {
