@@ -8,18 +8,21 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 	"github.com/etheralley/etheralley-core-api/gateways"
 	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis_rate/v9"
 )
 
 type gateway struct {
 	settings common.ISettings
 	logger   common.ILogger
 	client   *redis.Client
+	limiter  *redis_rate.Limiter
 }
 
 func NewGateway(settings common.ISettings, logger common.ILogger) gateways.ICacheGateway {
 	return &gateway{
 		settings,
 		logger,
+		nil,
 		nil,
 	}
 }
@@ -37,6 +40,7 @@ func (gw *gateway) Init() {
 	}
 
 	gw.client = redis.NewClient(opt)
+	gw.limiter = redis_rate.NewLimiter(gw.client)
 }
 
 func getFullKey(keys ...string) string {

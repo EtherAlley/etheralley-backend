@@ -51,7 +51,7 @@ func (uc *getListingMetadata) Do(ctx context.Context, input *GetListingMetadataI
 	case common.STORE_PREMIUM:
 		return &entities.NonFungibleMetadata{
 			Name:        "EtherAlley Premium",
-			Description: "This semi-fungible token gives the holder access to premium features on EtherAlley.io",
+			Description: "This is a semi-fungible token that gives the holder access to premium features on EtherAlley.io",
 			Image:       uc.getImageUrl(tokenString),
 			Attributes: getAttribute([][2]interface{}{
 				{"Status", "Verified"},
@@ -64,7 +64,7 @@ func (uc *getListingMetadata) Do(ctx context.Context, input *GetListingMetadataI
 	case common.STORE_BETA_TESTER:
 		return &entities.NonFungibleMetadata{
 			Name:        "EtherAlley Beta Tester",
-			Description: "This semi-fungible token indicates the holder participated in the EtherAlley.io beta. This token is non-transferable",
+			Description: "This is a semi-fungible & soulbound token that indicates the holder participated in the EtherAlley.io beta",
 			Image:       uc.getImageUrl(tokenString),
 			Attributes: getAttribute([][2]interface{}{
 				{"Achievement", "Beta Tester"},
