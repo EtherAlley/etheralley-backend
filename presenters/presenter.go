@@ -11,6 +11,7 @@ type IPresenter interface {
 	PresentUnathorized(http.ResponseWriter, *http.Request, error)
 	PresentNotFound(http.ResponseWriter, *http.Request, error)
 	PresentTooManyRequests(http.ResponseWriter, *http.Request, error)
+	PresentForbiddenRequest(http.ResponseWriter, *http.Request, error)
 	PresentHealth(http.ResponseWriter, *http.Request)
 	PresentChallenge(http.ResponseWriter, *http.Request, *entities.Challenge)
 	PresentFungibleToken(http.ResponseWriter, *http.Request, *entities.FungibleToken)

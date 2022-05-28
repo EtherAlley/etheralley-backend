@@ -63,6 +63,11 @@ func (uc *getTopProfilesUseCase) Do(ctx context.Context, input *GetTopProfilesIn
 				return
 			}
 
+			if profile.Banned {
+				uc.logger.Info(ctx).Msgf("excluding banned profile %v", address)
+				return
+			}
+
 			profiles[i] = profile
 		}(i, address)
 	}

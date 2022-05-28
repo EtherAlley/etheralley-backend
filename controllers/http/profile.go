@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/etheralley/etheralley-core-api/common"
@@ -18,6 +19,11 @@ func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *htt
 
 	if err != nil {
 		hc.presenter.PresentBadRequest(w, r, err)
+		return
+	}
+
+	if profile.Banned {
+		hc.presenter.PresentForbiddenRequest(w, r, fmt.Errorf("banned profile"))
 		return
 	}
 

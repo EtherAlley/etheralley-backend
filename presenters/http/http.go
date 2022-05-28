@@ -64,8 +64,9 @@ func toChallengeJson(challenge *entities.Challenge) *challengeJson {
 
 func toProfileJson(profile *entities.Profile) *profileJson {
 	return &profileJson{
-		Address: profile.Address,
-		ENSName: profile.ENSName,
+		Address:      profile.Address,
+		LastModified: profile.LastModified,
+		ENSName:      profile.ENSName,
 		StoreAssets: &storeAssetsJson{
 			Premium:    profile.StoreAssets.Premium,
 			BetaTester: profile.StoreAssets.BetaTester,
@@ -309,6 +310,7 @@ type challengeJson struct {
 
 type profileJson struct {
 	Address           string                  `json:"address"`
+	LastModified      *time.Time              `json:"last_modified,omitempty"`
 	ENSName           string                  `json:"ens_name"`
 	StoreAssets       *storeAssetsJson        `json:"store_assets"`
 	DisplayConfig     *displayConfigJson      `json:"display_config,omitempty"`
