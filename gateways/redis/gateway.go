@@ -3,6 +3,7 @@ package redis
 import (
 	"crypto/tls"
 	"strings"
+	"time"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -49,6 +50,8 @@ func getFullKey(keys ...string) string {
 
 type profileJson struct {
 	Address           string                  `json:"address"`
+	Banned            bool                    `json:"banned"`
+	LastModified      *time.Time              `json:"last_modified"`
 	ENSName           string                  `json:"ens_name"`
 	DisplayConfig     *displayConfigJson      `json:"display_config,omitempty"`
 	StoreAssets       *storeAssetsJson        `json:"store_assets"`
@@ -320,8 +323,10 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 	}
 
 	return &entities.Profile{
-		Address: profileJson.Address,
-		ENSName: profileJson.ENSName,
+		Address:      profileJson.Address,
+		Banned:       profileJson.Banned,
+		LastModified: profileJson.LastModified,
+		ENSName:      profileJson.ENSName,
 		StoreAssets: &entities.StoreAssets{
 			Premium:    profileJson.StoreAssets.Premium,
 			BetaTester: profileJson.StoreAssets.BetaTester,
@@ -518,8 +523,10 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 	}
 
 	return &profileJson{
-		Address: profile.Address,
-		ENSName: profile.ENSName,
+		Address:      profile.Address,
+		Banned:       profile.Banned,
+		LastModified: profile.LastModified,
+		ENSName:      profile.ENSName,
 		StoreAssets: &storeAssetsJson{
 			Premium:    profile.StoreAssets.Premium,
 			BetaTester: profile.StoreAssets.BetaTester,

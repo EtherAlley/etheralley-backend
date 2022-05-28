@@ -24,6 +24,11 @@ func (p *httpPresenter) PresentTooManyRequests(w http.ResponseWriter, r *http.Re
 	p.presentJSON(w, r, http.StatusTooManyRequests, toErrJson("too many requests"))
 }
 
+func (p *httpPresenter) PresentForbiddenRequest(w http.ResponseWriter, r *http.Request, err error) {
+	p.logger.Info(r.Context()).Err(err).Msg("forbidden request")
+	p.presentJSON(w, r, http.StatusForbidden, toErrJson("forbidden request"))
+}
+
 func toErrJson(msg string) *errJson {
 	return &errJson{
 		Message: msg,

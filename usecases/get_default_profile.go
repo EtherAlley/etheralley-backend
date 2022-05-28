@@ -70,6 +70,7 @@ func (uc *getDefaultProfileUseCase) Do(ctx context.Context, input *GetDefaultPro
 			BetaTester: false,
 		},
 		Interactions: &[]entities.Interaction{},
+		Banned:       false,
 	}
 	var wg sync.WaitGroup
 	wg.Add(6)

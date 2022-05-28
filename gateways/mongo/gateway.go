@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"time"
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
@@ -41,6 +42,8 @@ func (gw *gateway) Init() {
 
 type profileBson struct {
 	Address           string                  `bson:"_id"`
+	Banned            bool                    `bson:"banned,omitempty"`
+	LastModified      *time.Time              `bson:"last_modified"`
 	DisplayConfig     *displayConfigBson      `bson:"display_config"`
 	NonFungibleTokens *[]nonFungibleTokenBson `bson:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenBson    `bson:"fungible_tokens"`
@@ -250,6 +253,8 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 
 	return &entities.Profile{
 		Address:           profileBson.Address,
+		Banned:            profileBson.Banned,
+		LastModified:      profileBson.LastModified,
 		DisplayConfig:     &config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,
@@ -373,8 +378,10 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 		config.Groups = &groups
 	}
 
+	lastModified := time.Now().UTC()
 	return &profileBson{
 		Address:           profile.Address,
+		LastModified:      &lastModified,
 		DisplayConfig:     &config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,
