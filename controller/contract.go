@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/usecases"
 )
 
-func (hc *HttpController) parseContract(next http.Handler) http.Handler {
+func (hc *controller) parseContract(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		query := r.URL.Query()
@@ -25,7 +25,7 @@ func (hc *HttpController) parseContract(next http.Handler) http.Handler {
 	})
 }
 
-func (hc *HttpController) getTokenRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) getTokenRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	query := r.URL.Query()
 
@@ -44,7 +44,7 @@ func (hc *HttpController) getTokenRoute(w http.ResponseWriter, r *http.Request) 
 	hc.presenter.PresentFungibleToken(w, r, token)
 }
 
-func (hc *HttpController) getNFTRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) getNFTRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	query := r.URL.Query()
 
@@ -64,7 +64,7 @@ func (hc *HttpController) getNFTRoute(w http.ResponseWriter, r *http.Request) {
 	hc.presenter.PresentNonFungibleToken(w, r, nft)
 }
 
-func (hc *HttpController) getStatisticRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) getStatisticRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	query := r.URL.Query()
 

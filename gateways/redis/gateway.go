@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"context"
 	"crypto/tls"
 	"strings"
 	"time"
@@ -28,7 +29,7 @@ func NewGateway(settings common.ISettings, logger common.ILogger) gateways.ICach
 	}
 }
 
-func (gw *gateway) Init() {
+func (gw *gateway) Init(ctx context.Context) error {
 	opt := &redis.Options{
 		Addr:      gw.settings.CacheAddr(),
 		Password:  gw.settings.CachePassword(),
@@ -42,6 +43,8 @@ func (gw *gateway) Init() {
 
 	gw.client = redis.NewClient(opt)
 	gw.limiter = redis_rate.NewLimiter(gw.client)
+
+	return nil
 }
 
 func getFullKey(keys ...string) string {

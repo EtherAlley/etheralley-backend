@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"context"
@@ -16,7 +16,7 @@ var RequestIDHeader = "X-Request-Id"
 // if one is not present in headers, generate it.
 //
 // see https://github.com/go-chi/chi/blob/master/middleware/request_id.go#L67
-func (hc *HttpController) requestId(next http.Handler) http.Handler {
+func (hc *controller) requestId(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		requestID := r.Header.Get(RequestIDHeader)

@@ -19,23 +19,25 @@ type tokenMetadata map[string]struct {
 }
 
 // json metadata is read into memory on app init
-func (gw *gateway) initTokenMetadata() {
+func (gw *gateway) initTokenMetadata() error {
 	for _, blockchain := range []common.Blockchain{common.ARBITRUM, common.ETHEREUM, common.POLYGON, common.OPTIMISM} {
 		file, err := ioutil.ReadFile(fmt.Sprintf("assets/tokens/%v.json", blockchain))
 
 		if err != nil {
-			panic(fmt.Errorf("could not read %v: %w", blockchain, err))
+			return fmt.Errorf("could not read %v: %w", blockchain, err)
 		}
 
 		metadata := &tokenMetadata{}
 		err = json.Unmarshal([]byte(file), metadata)
 
 		if err != nil {
-			panic(fmt.Errorf("could not unmarshal %v: %w", blockchain, err))
+			return fmt.Errorf("could not unmarshal %v: %w", blockchain, err)
 		}
 
 		(*gw.tokenMetadata)[blockchain] = *metadata
 	}
+
+	return nil
 }
 
 func (gw *gateway) GetFungibleMetadata(ctx context.Context, contract *entities.Contract) (*entities.FungibleMetadata, error) {

@@ -25,19 +25,18 @@ func NewGateway(settings common.ISettings, logger common.ILogger) gateways.IData
 	}
 }
 
-func (gw *gateway) Init() {
-	ctx := context.Background()
-
+func (gw *gateway) Init(ctx context.Context) error {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(gw.settings.DatabaseURI()).SetMaxConnecting(100))
 
 	if err != nil {
-		gw.logger.Error(ctx).Err(err).Msg("mongo connection error")
-		panic(err)
+		return err
 	}
 
 	db := client.Database(gw.settings.Database())
 
 	gw.profiles = db.Collection("profiles")
+
+	return nil
 }
 
 type profileBson struct {

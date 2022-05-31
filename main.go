@@ -9,32 +9,22 @@ import (
 	"time"
 
 	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/controllers"
-	httpControllers "github.com/etheralley/etheralley-core-api/controllers/http"
+	"github.com/etheralley/etheralley-core-api/controller"
 	"github.com/etheralley/etheralley-core-api/gateways"
 	"github.com/etheralley/etheralley-core-api/gateways/ethereum"
 	"github.com/etheralley/etheralley-core-api/gateways/mongo"
 	"github.com/etheralley/etheralley-core-api/gateways/offchain"
 	"github.com/etheralley/etheralley-core-api/gateways/redis"
 	"github.com/etheralley/etheralley-core-api/gateways/thegraph"
-	httpPresenters "github.com/etheralley/etheralley-core-api/presenters/http"
+	"github.com/etheralley/etheralley-core-api/presenter"
 	"github.com/etheralley/etheralley-core-api/usecases"
 	"go.uber.org/dig"
 )
 
-func awaitSigterm(logger common.ILogger) {
-	ctx := context.Background()
-	logger.Info(ctx).Msg("awaiting sigterm")
-
-	cancelChan := make(chan os.Signal, 1)
-	signal.Notify(cancelChan, syscall.SIGTERM, syscall.SIGINT)
-	sig := <-cancelChan
-
-	logger.Info(ctx).Msgf("caught sigterm %v", sig)
-}
-
 func main() {
+	// build the dependency container
 	container := dig.New()
+	container.Provide(context.Background)
 	container.Provide(common.NewSettings)
 	container.Provide(common.NewLogger)
 	container.Provide(common.NewHttpClient)
@@ -68,32 +58,53 @@ func main() {
 	container.Provide(usecases.NewGetAllCurrenciesUseCase)
 	container.Provide(usecases.NewGetStoreMetadata)
 	container.Provide(usecases.NewVerifyRateLimit)
-	container.Provide(httpPresenters.NewPresenter)
-	container.Provide(httpControllers.NewHttpController)
+	container.Provide(presenter.NewHttpPresenter)
+	container.Provide(controller.NewHttpController)
 
 	// seed the random number generator based on app start time
 	rand.Seed(time.Now().UnixNano())
 
-	// start controllers in concurrent go routines
-	err := container.Invoke(func(controller *httpControllers.HttpController, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, offchainGateway gateways.IOffchainGateway) {
-		// do any initialization here
-		cacheGateway.Init()
-		databaseGateway.Init()
-		offchainGateway.Init()
-
-		go controllers.StartController(controller)
-	})
-
-	if err != nil {
+	// start the http controller inside a go routine
+	if err := container.Invoke(startHttpController); err != nil {
 		panic(err)
 	}
 
-	// blocking call in main routine to await sigterm
-	err = container.Invoke(awaitSigterm)
+	// blocking call in main go routine to await sigterm
+	if err := container.Invoke(awaitSigterm); err != nil {
+		panic(err)
+	}
+}
 
-	if err != nil {
+func startHttpController(ctx context.Context, logger common.ILogger, controller controller.IHttpController, cacheGateway gateways.ICacheGateway, databaseGateway gateways.IDatabaseGateway, offchainGateway gateways.IOffchainGateway) {
+	// do any further initialization here
+	logger.Info(ctx).Msg("initializing gateways")
+
+	if err := cacheGateway.Init(ctx); err != nil {
 		panic(err)
 	}
 
-	// TODO: Shutdown gracefully below
+	if err := databaseGateway.Init(ctx); err != nil {
+		panic(err)
+	}
+
+	if err := offchainGateway.Init(ctx); err != nil {
+		panic(err)
+	}
+
+	go func() {
+		// start is intended to be a blocking call
+		// if start returns, one of our controllers is no longer active and thus we should force a panic
+		err := controller.Start(ctx)
+		panic(err)
+	}()
+}
+
+func awaitSigterm(ctx context.Context, logger common.ILogger) {
+	logger.Info(ctx).Msg("awaiting sigterm")
+
+	cancelChan := make(chan os.Signal, 1)
+	signal.Notify(cancelChan, syscall.SIGTERM, syscall.SIGINT)
+	sig := <-cancelChan
+
+	logger.Info(ctx).Msgf("caught sigterm %v", sig)
 }

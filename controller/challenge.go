@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/usecases"
 )
 
-func (hc *HttpController) getChallengeRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) getChallengeRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	address := ctx.Value(common.ContextKeyAddress).(string)
 

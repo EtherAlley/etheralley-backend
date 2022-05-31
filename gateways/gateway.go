@@ -9,14 +9,14 @@ import (
 )
 
 type IDatabaseGateway interface {
-	Init()
+	Init(context.Context) error
 
 	GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error)
 	SaveProfile(ctx context.Context, profile *entities.Profile) error
 }
 
 type ICacheGateway interface {
-	Init()
+	Init(context.Context) error
 
 	GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error)
 	SaveProfile(ctx context.Context, profile *entities.Profile) error
@@ -77,7 +77,7 @@ type IBlockchainIndexGateway interface {
 }
 
 type IOffchainGateway interface {
-	Init()
+	Init(context.Context) error
 
 	GetNonFungibleTokens(ctx context.Context, address string) (*[]entities.NonFungibleToken, error)
 	GetNonFungibleMetadata(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error)

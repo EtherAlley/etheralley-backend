@@ -24,7 +24,7 @@ The core rest api for the EtherAlley platform
    ```sh
     make docker-redis
    ```
-7. Add a file named `.env` in the root of the project with the following environment variables. Anything with `<REPLACE>` must be replaced with the keys acquired in the previouse steps. ETHEREUM_MAIN_URI, ETHEREUM_SECONDARY_URI and ALCHEMY_ETHEREUM_URI can all point to the same uri on local and things should still behave normally.
+7. Add a file named `.env` in the root of the project with the following environment variables. Anything with `<REPLACE>` must be replaced with the keys acquired in the previouse steps. `ETHEREUM_MAIN_URI`, `ETHEREUM_SECONDARY_URI` and `ALCHEMY_ETHEREUM_URI` can all point to the same uri on local and things should still behave normally.
 
    ```
    ENV=dev

@@ -14,14 +14,12 @@ import (
 type gateway struct {
 	settings cmn.ISettings
 	logger   cmn.ILogger
-	http     cmn.IHttpClient
 }
 
-func NewGateway(logger cmn.ILogger, settings cmn.ISettings, http cmn.IHttpClient) gateways.IBlockchainGateway {
+func NewGateway(logger cmn.ILogger, settings cmn.ISettings) gateways.IBlockchainGateway {
 	return &gateway{
 		settings,
 		logger,
-		http,
 	}
 }
 

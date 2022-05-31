@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/usecases"
 )
 
-func (hc *HttpController) getCurrencyRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) getCurrencyRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	query := r.URL.Query()
 

@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"net"
@@ -9,7 +9,7 @@ import (
 var xForwardedFor = http.CanonicalHeaderKey("X-Forwarded-For")
 
 // See https://github.com/go-chi/chi/blob/master/middleware/realip.go
-func (hc *HttpController) realIP(h http.Handler) http.Handler {
+func (hc *controller) realIP(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if ip := getIP(r); ip != "" {
 			r.RemoteAddr = ip

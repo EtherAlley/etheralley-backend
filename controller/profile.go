@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/usecases"
 )
 
-func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) getProfileByAddressRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	address := ctx.Value(common.ContextKeyAddress).(string)
 
@@ -30,7 +30,7 @@ func (hc *HttpController) getProfileByAddressRoute(w http.ResponseWriter, r *htt
 	hc.presenter.PresentProfile(w, r, profile)
 }
 
-func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) saveProfileRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	profile := &usecases.ProfileInput{}
@@ -55,7 +55,7 @@ func (hc *HttpController) saveProfileRoute(w http.ResponseWriter, r *http.Reques
 	hc.presenter.PresentSavedProfile(w, r)
 }
 
-func (hc *HttpController) recordProfileViewMiddleware(next http.Handler) http.Handler {
+func (hc *controller) recordProfileViewMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -76,7 +76,7 @@ func (hc *HttpController) recordProfileViewMiddleware(next http.Handler) http.Ha
 	})
 }
 
-func (hc *HttpController) getTopProfilesRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) getTopProfilesRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	profiles := hc.getTopProfiles.Do(ctx, &usecases.GetTopProfilesInput{})
@@ -84,7 +84,7 @@ func (hc *HttpController) getTopProfilesRoute(w http.ResponseWriter, r *http.Req
 	hc.presenter.PresentTopProfiles(w, r, profiles)
 }
 
-func (hc *HttpController) refreshProfileRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) refreshProfileRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	address := ctx.Value(common.ContextKeyAddress).(string)
 
