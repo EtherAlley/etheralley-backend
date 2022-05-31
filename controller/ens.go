@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (hc *HttpController) resolveAddressRoute(next http.Handler) http.Handler {
+func (hc *controller) resolveAddressRoute(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 

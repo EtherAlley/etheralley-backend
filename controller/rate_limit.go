@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/usecases"
 )
 
-func (hc *HttpController) rateLimit(next http.Handler) http.Handler {
+func (hc *controller) rateLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 

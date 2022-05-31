@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/usecases"
 )
 
-func (hc *HttpController) authenticate(next http.Handler) http.Handler {
+func (hc *controller) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		address := ctx.Value(common.ContextKeyAddress).(string)

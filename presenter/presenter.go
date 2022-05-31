@@ -1,4 +1,4 @@
-package http
+package presenter
 
 import (
 	"encoding/json"
@@ -8,40 +8,61 @@ import (
 
 	"github.com/etheralley/etheralley-core-api/common"
 	"github.com/etheralley/etheralley-core-api/entities"
-	"github.com/etheralley/etheralley-core-api/presenters"
 )
 
-type httpPresenter struct {
-	logger   common.ILogger
-	settings common.ISettings
-}
-
-func NewPresenter(logger common.ILogger, settings common.ISettings) presenters.IPresenter {
-	return &httpPresenter{
+func NewHttpPresenter(logger common.ILogger, settings common.ISettings) IHttpPresenter {
+	return &presenter{
 		logger,
 		settings,
 	}
 }
 
-func (p *httpPresenter) presentJSON(w http.ResponseWriter, r *http.Request, statusCode int, body interface{}) {
+type IHttpPresenter interface {
+	PresentBadRequest(http.ResponseWriter, *http.Request, error)
+	PresentUnathorized(http.ResponseWriter, *http.Request, error)
+	PresentNotFound(http.ResponseWriter, *http.Request, error)
+	PresentTooManyRequests(http.ResponseWriter, *http.Request, error)
+	PresentForbiddenRequest(http.ResponseWriter, *http.Request, error)
+	PresentHealth(http.ResponseWriter, *http.Request)
+	PresentChallenge(http.ResponseWriter, *http.Request, *entities.Challenge)
+	PresentFungibleToken(http.ResponseWriter, *http.Request, *entities.FungibleToken)
+	PresentNonFungibleToken(http.ResponseWriter, *http.Request, *entities.NonFungibleToken)
+	PresentStatistic(http.ResponseWriter, *http.Request, *entities.Statistic)
+	PresentInteraction(http.ResponseWriter, *http.Request, *entities.Interaction)
+	PresentProfile(http.ResponseWriter, *http.Request, *entities.Profile)
+	PresentSavedProfile(http.ResponseWriter, *http.Request)
+	PresentTopProfiles(http.ResponseWriter, *http.Request, *[]entities.Profile)
+	PresentStoreMetadata(http.ResponseWriter, *http.Request, *entities.StoreMetadata)
+	PresentListingMetadata(http.ResponseWriter, *http.Request, *entities.NonFungibleMetadata)
+	PresentListings(http.ResponseWriter, *http.Request, *[]entities.Listing)
+	PresentRefreshedProfile(w http.ResponseWriter, r *http.Request)
+	PresentCurrency(w http.ResponseWriter, r *http.Request, currency *entities.Currency)
+}
+
+type presenter struct {
+	logger   common.ILogger
+	settings common.ISettings
+}
+
+func (p *presenter) presentJSON(w http.ResponseWriter, r *http.Request, statusCode int, body interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	p.presentStatus(w, r, statusCode)
 	json.NewEncoder(w).Encode(body)
 }
 
-func (p *httpPresenter) presentText(w http.ResponseWriter, r *http.Request, statusCode int, text string) {
+func (p *presenter) presentText(w http.ResponseWriter, r *http.Request, statusCode int, text string) {
 	w.Header().Set("Content-Type", "text/plain")
 	p.presentStatus(w, r, statusCode)
 	w.Write([]byte(text))
 }
 
-func (p *httpPresenter) presentStatus(w http.ResponseWriter, r *http.Request, statusCode int) {
+func (p *presenter) presentStatus(w http.ResponseWriter, r *http.Request, statusCode int) {
 	p.logEvent(w, r, statusCode)
 	w.WriteHeader(statusCode)
 }
 
 // log details of the request/response
-func (p *httpPresenter) logEvent(w http.ResponseWriter, r *http.Request, statusCode int) {
+func (p *presenter) logEvent(w http.ResponseWriter, r *http.Request, statusCode int) {
 	ctx := r.Context()
 	t1 := ctx.Value(common.ContextKeyRequestStartTime).(time.Time)
 	p.logger.Info(ctx).Strs([]struct {

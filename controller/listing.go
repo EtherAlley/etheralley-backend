@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (hc *HttpController) getStoreMetadataRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) getStoreMetadataRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	metadata := hc.getStoreMetadata.Do(ctx)
@@ -16,7 +16,7 @@ func (hc *HttpController) getStoreMetadataRoute(w http.ResponseWriter, r *http.R
 	hc.presenter.PresentStoreMetadata(w, r, metadata)
 }
 
-func (hc *HttpController) getMetadataByIdRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) getMetadataByIdRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	metadata, err := hc.getListingMetadata.Do(ctx, &usecases.GetListingMetadataInput{
@@ -31,7 +31,7 @@ func (hc *HttpController) getMetadataByIdRoute(w http.ResponseWriter, r *http.Re
 	hc.presenter.PresentListingMetadata(w, r, metadata)
 }
 
-func (hc *HttpController) getListingsRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) getListingsRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	input := &usecases.GetListingsInput{}

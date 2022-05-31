@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"context"
@@ -6,40 +6,17 @@ import (
 	"net/http"
 
 	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/presenters"
+	"github.com/etheralley/etheralley-core-api/presenter"
 	"github.com/etheralley/etheralley-core-api/usecases"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 )
 
-type HttpController struct {
-	settings            common.ISettings
-	logger              common.ILogger
-	presenter           presenters.IPresenter
-	getProfile          usecases.IGetProfileUseCase
-	saveProfile         usecases.ISaveProfileUseCase
-	getChallenge        usecases.IGetChallengeUseCase
-	verifyChallenge     usecases.IVerifyChallengeUseCase
-	getNonFungibleToken usecases.IGetNonFungibleTokenUseCase
-	resolveAddress      usecases.IResolveAddressUseCase
-	getFungibleToken    usecases.IGetFungibleTokenUseCase
-	getStatistic        usecases.IGetStatisticUseCase
-	getInteraction      usecases.IGetInteractionUseCase
-	recordProfileView   usecases.IRecordProfileViewUseCase
-	getTopProfiles      usecases.IGetTopProfilesUseCase
-	getListingMetadata  usecases.IGetListingMetadataUseCase
-	getListings         usecases.IGetListingsUseCase
-	refreshProfile      usecases.IRefreshProfileUseCase
-	getCurrency         usecases.IGetCurrencyUseCase
-	getStoreMetadata    usecases.IGetStoreMetadataUseCase
-	verifyRateLimit     usecases.IVerifyRateLimitUseCase
-}
-
 func NewHttpController(
 	settings common.ISettings,
 	logger common.ILogger,
-	presenter presenters.IPresenter,
+	presenter presenter.IHttpPresenter,
 	getProfile usecases.IGetProfileUseCase,
 	saveProfile usecases.ISaveProfileUseCase,
 	getChallenge usecases.IGetChallengeUseCase,
@@ -57,8 +34,8 @@ func NewHttpController(
 	getCurrency usecases.IGetCurrencyUseCase,
 	getStoreMetadata usecases.IGetStoreMetadataUseCase,
 	verifyRateLimit usecases.IVerifyRateLimitUseCase,
-) *HttpController {
-	return &HttpController{
+) IHttpController {
+	return &controller{
 		settings,
 		logger,
 		presenter,
@@ -82,8 +59,35 @@ func NewHttpController(
 	}
 }
 
-func (hc *HttpController) Start() error {
-	ctx := context.Background()
+type IHttpController interface {
+	// start is a blocking call
+	Start(context.Context) error
+}
+
+type controller struct {
+	settings            common.ISettings
+	logger              common.ILogger
+	presenter           presenter.IHttpPresenter
+	getProfile          usecases.IGetProfileUseCase
+	saveProfile         usecases.ISaveProfileUseCase
+	getChallenge        usecases.IGetChallengeUseCase
+	verifyChallenge     usecases.IVerifyChallengeUseCase
+	getNonFungibleToken usecases.IGetNonFungibleTokenUseCase
+	resolveAddress      usecases.IResolveAddressUseCase
+	getFungibleToken    usecases.IGetFungibleTokenUseCase
+	getStatistic        usecases.IGetStatisticUseCase
+	getInteraction      usecases.IGetInteractionUseCase
+	recordProfileView   usecases.IRecordProfileViewUseCase
+	getTopProfiles      usecases.IGetTopProfilesUseCase
+	getListingMetadata  usecases.IGetListingMetadataUseCase
+	getListings         usecases.IGetListingsUseCase
+	refreshProfile      usecases.IRefreshProfileUseCase
+	getCurrency         usecases.IGetCurrencyUseCase
+	getStoreMetadata    usecases.IGetStoreMetadataUseCase
+	verifyRateLimit     usecases.IVerifyRateLimitUseCase
+}
+
+func (hc *controller) Start(ctx context.Context) error {
 
 	hc.logger.Info(ctx).Msg("starting http controller")
 
@@ -151,9 +155,4 @@ func (hc *HttpController) Start() error {
 	hc.logger.Error(ctx).Err(err).Msg("error in http controller")
 
 	return err
-}
-
-func (hc *HttpController) Exit() {
-	ctx := context.Background()
-	hc.logger.Error(ctx).Msg("detected exit in http controller")
 }

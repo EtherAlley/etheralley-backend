@@ -1,4 +1,4 @@
-package http
+package presenter
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/entities"
 )
 
-func (p *httpPresenter) PresentCurrency(w http.ResponseWriter, r *http.Request, currency *entities.Currency) {
+func (p *presenter) PresentCurrency(w http.ResponseWriter, r *http.Request, currency *entities.Currency) {
 	json := toCurrencyJson(currency)
 
 	p.presentJSON(w, r, http.StatusOK, json)

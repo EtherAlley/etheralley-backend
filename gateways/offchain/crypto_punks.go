@@ -18,21 +18,23 @@ type cryptoPunksMetadata map[string]struct {
 const filename = "assets/cryptopunks/metadata.json"
 
 // json metadata is read into memory on app init
-func (gw *gateway) initPunkMetadata() {
+func (gw *gateway) initPunkMetadata() error {
 	file, err := ioutil.ReadFile(filename)
 
 	if err != nil {
-		panic(fmt.Errorf("could not read %v: %w", filename, err))
+		return fmt.Errorf("could not read %v: %w", filename, err)
 	}
 
 	metadata := &cryptoPunksMetadata{}
 	err = json.Unmarshal([]byte(file), metadata)
 
 	if err != nil {
-		panic(fmt.Errorf("could not unmarshal %v: %w", filename, err))
+		return fmt.Errorf("could not unmarshal %v: %w", filename, err)
 	}
 
 	gw.cryptoPunkMetadata = metadata
+
+	return nil
 }
 
 func (gw *gateway) GetPunkMetadata(ctx context.Context, tokenId string) (*entities.NonFungibleMetadata, error) {

@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/etheralley/etheralley-core-api/usecases"
 )
 
-func (hc *HttpController) parseTransaction(next http.Handler) http.Handler {
+func (hc *controller) parseTransaction(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query()
 		ctx := r.Context()
@@ -23,7 +23,7 @@ func (hc *HttpController) parseTransaction(next http.Handler) http.Handler {
 	})
 }
 
-func (hc *HttpController) getInteractionRoute(w http.ResponseWriter, r *http.Request) {
+func (hc *controller) getInteractionRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	query := r.URL.Query()
 
