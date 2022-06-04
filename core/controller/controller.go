@@ -154,7 +154,7 @@ func (hc *controller) Start(ctx context.Context) error {
 
 	hc.logger.Info(ctx).Msgf("listening on port %v", port)
 
-	err := http.ListenAndServe(fmt.Sprintf(":%v", port), r)
+	err := http.ListenAndServe(fmt.Sprintf("localhost:%v", port), r)
 
 	hc.logger.Error(ctx).Err(err).Msg("error in http controller")
 
