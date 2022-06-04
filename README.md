@@ -2,9 +2,9 @@
 
 The core rest api for the EtherAlley platform
 
-[![build](https://github.com/EtherAlley/etheralley-core-api/actions/workflows/build.yml/badge.svg)](https://github.com/EtherAlley/etheralley-core-api/actions/workflows/build.yml)
+[![build](https://github.com/etheralley/etheralley-core-api/actions/workflows/build.yml/badge.svg)](https://github.com/etheralley/etheralley-core-api/actions/workflows/build.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-core-api)](https://goreportcard.com/report/github.com/etheralley/etheralley-core-api)
-[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-core-api.svg)](https://github.com/EtherAlley/etheralley-core-api/blob/main/LICENSE)
+[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-core-api.svg)](https://github.com/etheralley/etheralley-core-api/core/blob/main/LICENSE)
 
 ## Local Setup
 

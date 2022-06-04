@@ -12,9 +12,8 @@ services:
     ports:
       - "6379:6379"
   core-api:
-    build: .
+    build: .docker/DockerfileCore
+    env_file:
+      - .env/.env.core.docker
     ports:
       - "8080:8080"
-    environment:
-      - MONGO_HOST=host.docker.internal
-      - REDIS_HOST=host.docker.internal
