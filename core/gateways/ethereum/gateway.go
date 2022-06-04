@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	cmn "github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/core/gateways"
-	"github.com/etheralley/etheralley-core-api/core/settings"
+	cmn "github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/gateways"
+	"github.com/etheralley/etheralley-backend/core/settings"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 )

@@ -3,7 +3,7 @@ package presenter
 import (
 	"net/http"
 
-	"github.com/etheralley/etheralley-core-api/core/entities"
+	"github.com/etheralley/etheralley-backend/core/entities"
 )
 
 func (p *presenter) PresentCurrency(w http.ResponseWriter, r *http.Request, currency *entities.Currency) {

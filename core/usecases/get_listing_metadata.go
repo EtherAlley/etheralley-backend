@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/core/entities"
-	"github.com/etheralley/etheralley-core-api/core/settings"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/entities"
+	"github.com/etheralley/etheralley-backend/core/settings"
 )
 
 func NewGetListingMetadata(

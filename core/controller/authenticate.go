@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/core/usecases"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/usecases"
 )
 
 func (hc *controller) authenticate(next http.Handler) http.Handler {

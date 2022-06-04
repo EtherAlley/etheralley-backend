@@ -1,6 +1,6 @@
 package entities
 
-import "github.com/etheralley/etheralley-core-api/common"
+import "github.com/etheralley/etheralley-backend/common"
 
 type DisplayConfig struct {
 	Colors       *DisplayColors

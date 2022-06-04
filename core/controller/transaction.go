@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/core/usecases"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/usecases"
 )
 
 func (hc *controller) parseTransaction(next http.Handler) http.Handler {

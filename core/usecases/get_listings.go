@@ -3,10 +3,10 @@ package usecases
 import (
 	"context"
 
-	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/core/entities"
-	"github.com/etheralley/etheralley-core-api/core/gateways"
-	"github.com/etheralley/etheralley-core-api/core/settings"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/entities"
+	"github.com/etheralley/etheralley-backend/core/gateways"
+	"github.com/etheralley/etheralley-backend/core/settings"
 )
 
 func NewGetListings(

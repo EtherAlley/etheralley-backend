@@ -1,14 +1,14 @@
-# etheralley-core-api
+# etheralley-backend
 
-The core rest api for the EtherAlley platform
+The backend for the EtherAlley platform
 
-[![build](https://github.com/etheralley/etheralley-core-api/actions/workflows/build.yml/badge.svg)](https://github.com/etheralley/etheralley-core-api/actions/workflows/build.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-core-api)](https://goreportcard.com/report/github.com/etheralley/etheralley-core-api)
-[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-core-api.svg)](https://github.com/etheralley/etheralley-core-api/core/blob/main/LICENSE)
+[![build](https://github.com/etheralley/etheralley-backend/actions/workflows/build-core.yml/badge.svg)](https://github.com/etheralley/etheralley-backend/actions/workflows/build-core.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend)
+[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-backend.svg)](https://github.com/etheralley/etheralley-backend/core/blob/main/LICENSE)
 
 ## Repository Structure
 
-This repository leverages the new [go workspace](https://go.dev/doc/tutorial/workspaces) feature to operate as a monorepo. There is currently a single executable module called `core` and a single library module called `common`.
+This repository leverages the new [go workspace](https://go.dev/doc/tutorial/workspaces) feature to operate as a monorepo. There is currently a single executable module `core` and a single library module `common`.
 
 ## Local Setup
 

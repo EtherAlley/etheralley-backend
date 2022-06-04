@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/etheralley/etheralley-core-api/core/usecases"
+	"github.com/etheralley/etheralley-backend/core/usecases"
 )
 
 func (hc *controller) getCurrencyRoute(w http.ResponseWriter, r *http.Request) {

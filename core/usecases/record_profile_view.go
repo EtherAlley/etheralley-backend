@@ -3,8 +3,8 @@ package usecases
 import (
 	"context"
 
-	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/core/gateways"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/gateways"
 )
 
 func NewRecordProfileViewUseCase(logger common.ILogger, cacheGateway gateways.ICacheGateway) IRecordProfileViewUseCase {

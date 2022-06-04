@@ -1,9 +1,8 @@
-module github.com/etheralley/etheralley-core-api/core
+module github.com/etheralley/etheralley-backend/core
 
 go 1.18
 
 require (
-	github.com/etheralley/etheralley-core-api v0.0.0-20220531003003-fb278eb49063
 	github.com/ethereum/go-ethereum v1.10.16
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1

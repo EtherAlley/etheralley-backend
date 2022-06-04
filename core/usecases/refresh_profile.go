@@ -4,8 +4,8 @@ import (
 	"context"
 	"math/big"
 
-	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/core/gateways"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/gateways"
 )
 
 func NewRefreshProfileUseCase(logger common.ILogger, cacheGateway gateways.ICacheGateway, blockchainGateway gateways.IBlockchainGateway) IRefreshProfileUseCase {

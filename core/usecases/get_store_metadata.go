@@ -3,7 +3,7 @@ package usecases
 import (
 	"context"
 
-	"github.com/etheralley/etheralley-core-api/core/entities"
+	"github.com/etheralley/etheralley-backend/core/entities"
 )
 
 func NewGetStoreMetadata() IGetStoreMetadataUseCase {
