@@ -127,7 +127,7 @@ func (gw *gateway) GetERC1155URI(ctx context.Context, contract *entities.Contrac
 		return "", fmt.Errorf("erc1155 uri %w", err)
 	}
 
-	// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexadecimal form
+	// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexidecimal form
 	hexId := hex.EncodeToString(id.Bytes())
 	uri = strings.Replace(uri, "{id}", hexId, 1)
 
