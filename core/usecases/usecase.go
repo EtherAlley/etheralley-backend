@@ -1,7 +1,7 @@
 package usecases
 
 import (
-	"github.com/etheralley/etheralley-core-api/common"
+	"github.com/etheralley/etheralley-apis/common"
 )
 
 type ProfileInput struct {

@@ -1,6 +1,6 @@
 package entities
 
-import "github.com/etheralley/etheralley-core-api/common"
+import "github.com/etheralley/etheralley-apis/common"
 
 type Transaction struct {
 	Id         string

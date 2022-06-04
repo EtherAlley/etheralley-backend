@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sync"
 
-	cmn "github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/core/entities"
+	cmn "github.com/etheralley/etheralley-apis/common"
+	"github.com/etheralley/etheralley-apis/core/entities"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 )

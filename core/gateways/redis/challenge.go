@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/etheralley/etheralley-core-api/core/entities"
+	"github.com/etheralley/etheralley-apis/core/entities"
 )
 
 const ChallengeNamespace = "challenge"

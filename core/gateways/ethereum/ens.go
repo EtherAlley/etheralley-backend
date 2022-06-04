@@ -9,7 +9,7 @@ import (
 	"context"
 	"fmt"
 
-	cmn "github.com/etheralley/etheralley-core-api/common"
+	cmn "github.com/etheralley/etheralley-apis/common"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/wealdtech/go-ens/v3"

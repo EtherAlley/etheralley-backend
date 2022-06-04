@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/etheralley/etheralley-core-api/core/usecases"
+	"github.com/etheralley/etheralley-apis/core/usecases"
 )
 
 func (hc *controller) rateLimit(next http.Handler) http.Handler {

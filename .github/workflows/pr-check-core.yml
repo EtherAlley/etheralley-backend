@@ -1,4 +1,4 @@
-name: pr-check
+name: pr-check-core
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Build and push
+      - name: Build Core Docker
         uses: docker/build-push-action@v2
         with:
           context: .

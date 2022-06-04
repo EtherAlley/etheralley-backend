@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"math/big"
 
-	cmn "github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/core/entities"
-	"github.com/etheralley/etheralley-core-api/core/gateways/ethereum/contracts"
+	cmn "github.com/etheralley/etheralley-apis/common"
+	"github.com/etheralley/etheralley-apis/core/entities"
+	"github.com/etheralley/etheralley-apis/core/gateways/ethereum/contracts"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 )

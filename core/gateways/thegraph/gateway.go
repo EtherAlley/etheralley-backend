@@ -1,9 +1,9 @@
 package thegraph
 
 import (
-	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/core/gateways"
-	"github.com/etheralley/etheralley-core-api/core/settings"
+	"github.com/etheralley/etheralley-apis/common"
+	"github.com/etheralley/etheralley-apis/core/gateways"
+	"github.com/etheralley/etheralley-apis/core/settings"
 )
 
 type gateway struct {

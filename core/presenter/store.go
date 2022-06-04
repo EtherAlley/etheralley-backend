@@ -3,7 +3,7 @@ package presenter
 import (
 	"net/http"
 
-	"github.com/etheralley/etheralley-core-api/core/entities"
+	"github.com/etheralley/etheralley-apis/core/entities"
 )
 
 func (p *presenter) PresentStoreMetadata(w http.ResponseWriter, r *http.Request, metadata *entities.StoreMetadata) {

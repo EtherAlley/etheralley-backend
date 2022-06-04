@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/etheralley/etheralley-core-api/common"
-	"github.com/etheralley/etheralley-core-api/core/entities"
-	"github.com/etheralley/etheralley-core-api/core/gateways"
+	"github.com/etheralley/etheralley-apis/common"
+	"github.com/etheralley/etheralley-apis/core/entities"
+	"github.com/etheralley/etheralley-apis/core/gateways"
 )
 
 func NewGetInteractionUseCase(

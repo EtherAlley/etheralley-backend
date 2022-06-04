@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/etheralley/etheralley-core-api/core/usecases"
+	"github.com/etheralley/etheralley-apis/core/usecases"
 	"github.com/go-chi/chi/v5"
 )
 
