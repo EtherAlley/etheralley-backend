@@ -1,27 +1,23 @@
-build:
-	go build -o bin/main main.go
+test-common:
+	go test -v ./common/...
 
-test:
-	go test -v ./...
+test-core:
+	go test -v ./core/...
 
-run:
-	ENV=dev go run main.go
+build-core:
+	go build -o bin/core ./core/
 
-docker-build:
-	docker build --tag core-api .
+run-core:
+	ENV=dev go run core/main.go
 
-docker-run:
-	docker run -d -p 8080:8080 --env-file .env.docker --name core-api core-api
+docker-build-core:
+	docker build -f .docker/DockerfileCore  -t core-api .
 
-docker-mongo:
-	docker run -d -p 27017:27017 -e MONGO_INITDB_ROOT_PASSWORD=secret -e MONGO_INITDB_ROOT_USERNAME=mongoadmin --name mongo mongo
+docker-run-core:
+	docker rm -f core-api && docker run -d -p 8080:8080 --env-file .env/.env.core.docker --name core-api core-api
 
-docker-redis:
-	docker run -d -p 6379:6379 --name redis redis
+docker-run-mongo:
+	docker rm -f mongo && docker run -d -p 27017:27017 -e MONGO_INITDB_ROOT_PASSWORD=secret -e MONGO_INITDB_ROOT_USERNAME=mongoadmin --name mongo mongo
 
-docker-up:
-	docker-compose up -d
-
-docker-down:
-	docker-compose down
-
+docker-run-redis:
+	docker rm -f redis && docker run -d -p 6379:6379 --name redis redis

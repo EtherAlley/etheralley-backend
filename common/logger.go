@@ -26,11 +26,11 @@ type ILogEvent interface {
 }
 
 type logger struct {
-	settings ISettings
-	logger   zerolog.Logger
+	appSettings IAppSettings
+	logger      zerolog.Logger
 }
 
-func NewLogger(settings ISettings) ILogger {
+func NewLogger(settings IAppSettings) ILogger {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
 
 	var zLogger zerolog.Logger
@@ -42,8 +42,8 @@ func NewLogger(settings ISettings) ILogger {
 	}
 
 	return &logger{
-		settings: settings,
-		logger:   zLogger.With().Timestamp().Logger(),
+		appSettings: settings,
+		logger:      zLogger.With().Timestamp().Logger(),
 	}
 }
 
@@ -69,8 +69,8 @@ type logEvent struct {
 
 // add additional context to the event log
 func (l *logger) newEvent(ctx context.Context, event *zerolog.Event) ILogEvent {
-	event.Str("hostname", l.settings.Hostname())
-	event.Str("appname", l.settings.Appname())
+	event.Str("hostname", l.appSettings.Hostname())
+	event.Str("appname", l.appSettings.Appname())
 
 	requestId := ctx.Value(ContextKeyRequestId)
 	if requestId != nil {

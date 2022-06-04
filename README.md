@@ -2,9 +2,13 @@
 
 The core rest api for the EtherAlley platform
 
-[![build](https://github.com/EtherAlley/etheralley-core-api/actions/workflows/build.yml/badge.svg)](https://github.com/EtherAlley/etheralley-core-api/actions/workflows/build.yml)
+[![build](https://github.com/etheralley/etheralley-core-api/actions/workflows/build.yml/badge.svg)](https://github.com/etheralley/etheralley-core-api/actions/workflows/build.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-core-api)](https://goreportcard.com/report/github.com/etheralley/etheralley-core-api)
-[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-core-api.svg)](https://github.com/EtherAlley/etheralley-core-api/blob/main/LICENSE)
+[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-core-api.svg)](https://github.com/etheralley/etheralley-core-api/core/blob/main/LICENSE)
+
+## Repository Structure
+
+This repository leverages the new [go workspace](https://go.dev/doc/tutorial/workspaces) feature to operate as a monorepo. There is currently a single executable module called `core` and a single library module called `common`.
 
 ## Local Setup
 
@@ -18,13 +22,13 @@ The core rest api for the EtherAlley platform
 
 5. Start the Mongo database in a docker container
    ```sh
-    make docker-mongo
+    make docker-run-mongo
    ```
 6. Start the Redis cache in a docker container
    ```sh
-    make docker-redis
+    make docker-run-redis
    ```
-7. Add a file named `.env` in the root of the project with the following environment variables. Anything with `<REPLACE>` must be replaced with the keys acquired in the previouse steps. `ETHEREUM_MAIN_URI`, `ETHEREUM_SECONDARY_URI` and `ALCHEMY_ETHEREUM_URI` can all point to the same uri on local and things should still behave normally.
+7. Add a folder named `.env` in the root of the project with a file named `.env.core.dev` in the root of the project with the following environment variables. Anything with `<REPLACE>` must be replaced with the keys acquired in the previouse steps. `ETHEREUM_MAIN_URI`, `ETHEREUM_SECONDARY_URI` and `ALCHEMY_ETHEREUM_URI` can all point to the same uri on local and things should still behave normally.
 
    ```
    ENV=dev
@@ -32,6 +36,7 @@ The core rest api for the EtherAlley platform
    REDIS_ADDR=localhost:6379
    REDIS_DB=0
    REDIS_PASSWORD=
+   REDIS_USE_TLS=false
    MONGO_URI=mongodb://mongoadmin:secret@localhost:27017/
    MONGO_DB=etheralley
    ETHEREUM_MAIN_URI=https://eth-goerli.alchemyapi.io/v2/<REPLACE>
@@ -51,9 +56,9 @@ The core rest api for the EtherAlley platform
    CRYPTO_KITTIES_METADATA_URI=https://api.cryptokitties.co/kitties
    ```
 
-8. Start the web service
+8. Start the core web service
    ```sh
-    make run
+    make run-core
    ```
 
 ## License
