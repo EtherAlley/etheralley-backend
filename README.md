@@ -8,7 +8,7 @@ The core rest api for the EtherAlley platform
 
 ## Repository Structure
 
-This repository leverages the new [go workspace](https://go.dev/doc/tutorial/workspaces) feature to operate as a monorepo. There is currently a single executable package called `core` and a single library package called `common`.
+This repository leverages the new [go workspace](https://go.dev/doc/tutorial/workspaces) feature to operate as a monorepo. There is currently a single executable module called `core` and a single library module called `common`.
 
 ## Local Setup
 
@@ -56,7 +56,7 @@ This repository leverages the new [go workspace](https://go.dev/doc/tutorial/wor
    CRYPTO_KITTIES_METADATA_URI=https://api.cryptokitties.co/kitties
    ```
 
-8. Start the web service
+8. Start the core web service
    ```sh
     make run-core
    ```
