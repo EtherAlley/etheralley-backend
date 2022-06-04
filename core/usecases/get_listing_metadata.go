@@ -40,7 +40,7 @@ func (uc *getListingMetadata) Do(ctx context.Context, input *GetListingMetadataI
 		return nil, err
 	}
 
-	// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexadecimal form with no 0x prefix.
+	// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexidecimal form with no 0x prefix.
 	tokenId, err := strconv.ParseInt(input.TokenId, 16, 64)
 
 	if err != nil {
