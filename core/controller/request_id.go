@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 
-	"github.com/etheralley/etheralley-apis/common"
+	"github.com/etheralley/etheralley-backend/common"
 )
 
 var RequestIDHeader = "X-Request-Id"

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/etheralley/etheralley-apis/core/entities"
+	"github.com/etheralley/etheralley-backend/core/entities"
 )
 
 const ListingsNamespace = "listings"

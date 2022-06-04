@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/etheralley/etheralley-apis/core/entities"
+	"github.com/etheralley/etheralley-backend/core/entities"
 )
 
 type cryptoPunksMetadata map[string]struct {

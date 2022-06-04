@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	cmn "github.com/etheralley/etheralley-apis/common"
-	"github.com/etheralley/etheralley-apis/core/gateways"
+	cmn "github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/gateways"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"

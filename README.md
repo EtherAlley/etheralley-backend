@@ -1,10 +1,10 @@
-# etheralley-apis
+# etheralley-backend
 
 The apis for the EtherAlley platform
 
-[![build](https://github.com/etheralley/etheralley-apis/actions/workflows/build.yml/badge.svg)](https://github.com/etheralley/etheralley-apis/actions/workflows/build.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-apis)](https://goreportcard.com/report/github.com/etheralley/etheralley-apis)
-[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-apis.svg)](https://github.com/etheralley/etheralley-apis/core/blob/main/LICENSE)
+[![build](https://github.com/etheralley/etheralley-backend/actions/workflows/build-core.yml/badge.svg)](https://github.com/etheralley/etheralley-backend/actions/workflows/build-core.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend)
+[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-backend.svg)](https://github.com/etheralley/etheralley-backend/core/blob/main/LICENSE)
 
 ## Repository Structure
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
-	cmn "github.com/etheralley/etheralley-apis/common"
+	cmn "github.com/etheralley/etheralley-backend/common"
 	"github.com/ethereum/go-ethereum/common"
 )
 

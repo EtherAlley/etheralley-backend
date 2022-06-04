@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/etheralley/etheralley-apis/common"
-	"github.com/etheralley/etheralley-apis/core/entities"
-	"github.com/etheralley/etheralley-apis/core/settings"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/entities"
+	"github.com/etheralley/etheralley-backend/core/settings"
 )
 
 func NewHttpPresenter(logger common.ILogger, settings settings.ISettings) IHttpPresenter {

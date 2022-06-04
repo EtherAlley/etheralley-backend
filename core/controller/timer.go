@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/etheralley/etheralley-apis/common"
+	"github.com/etheralley/etheralley-backend/common"
 )
 
 // Record the start time of the request

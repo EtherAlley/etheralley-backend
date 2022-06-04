@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/etheralley/etheralley-apis/common"
-	"github.com/etheralley/etheralley-apis/core/entities"
-	"github.com/etheralley/etheralley-apis/core/gateways"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/entities"
+	"github.com/etheralley/etheralley-backend/core/gateways"
 )
 
 func NewGetStatistic(

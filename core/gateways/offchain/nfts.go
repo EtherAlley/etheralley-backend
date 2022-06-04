@@ -7,8 +7,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/etheralley/etheralley-apis/common"
-	"github.com/etheralley/etheralley-apis/core/entities"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/entities"
 )
 
 type responseJson struct {

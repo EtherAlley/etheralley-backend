@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/etheralley/etheralley-apis/core/entities"
+	"github.com/etheralley/etheralley-backend/core/entities"
 )
 
 const TokenNamespace = "fungible_token"

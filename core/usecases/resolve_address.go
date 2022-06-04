@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/etheralley/etheralley-apis/common"
-	"github.com/etheralley/etheralley-apis/core/gateways"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/gateways"
 )
 
 func NewResolveENSAddress(

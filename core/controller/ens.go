@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/etheralley/etheralley-apis/common"
-	"github.com/etheralley/etheralley-apis/core/usecases"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/usecases"
 	"github.com/go-chi/chi/v5"
 )
 

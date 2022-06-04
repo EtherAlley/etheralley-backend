@@ -3,8 +3,8 @@ package controller
 import (
 	"net/http"
 
-	"github.com/etheralley/etheralley-apis/common"
-	"github.com/etheralley/etheralley-apis/core/usecases"
+	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/core/usecases"
 )
 
 func (hc *controller) getChallengeRoute(w http.ResponseWriter, r *http.Request) {

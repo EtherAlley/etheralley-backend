@@ -1,4 +1,4 @@
-module github.com/etheralley/etheralley-apis/common
+module github.com/etheralley/etheralley-backend/common
 
 go 1.18
 
