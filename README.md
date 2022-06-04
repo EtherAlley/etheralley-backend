@@ -1,6 +1,6 @@
 # etheralley-backend
 
-The apis for the EtherAlley platform
+The backend for the EtherAlley platform
 
 [![build](https://github.com/etheralley/etheralley-backend/actions/workflows/build-core.yml/badge.svg)](https://github.com/etheralley/etheralley-backend/actions/workflows/build-core.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend)
