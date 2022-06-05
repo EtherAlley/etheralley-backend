@@ -3,8 +3,8 @@
 The backend for the EtherAlley platform
 
 [![Core Build](https://github.com/etheralley/etheralley-backend/actions/workflows/build-core.yml/badge.svg)](https://github.com/etheralley/etheralley-backend/actions/workflows/build-core.yml)
-[![Common Report Card](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/common)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/common)
-[![Core Report Card](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/core)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/core)
+[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend/common)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/common)
+[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend/core)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/core)
 [![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-backend.svg)](https://github.com/etheralley/etheralley-backend/core/blob/main/LICENSE)
 
 ## Repository Structure
