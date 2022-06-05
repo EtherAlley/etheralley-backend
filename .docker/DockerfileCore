@@ -23,7 +23,8 @@ WORKDIR /
 
 COPY --from=build /main /main
 
-COPY --from=build /app/assets /assets
+# bring the assets folder into the final build image
+COPY --from=build /app/core/gateways/offchain/assets /core/gateways/offchain/assets
 
 EXPOSE 8080
 

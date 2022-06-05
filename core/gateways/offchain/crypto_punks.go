@@ -15,7 +15,7 @@ type cryptoPunksMetadata map[string]struct {
 	Attributes []map[string]interface{} `json:"attributes"`
 }
 
-const filename = "assets/cryptopunks/metadata.json"
+const filename = "core/gateways/offchain/assets/cryptopunks/metadata.json"
 
 // json metadata is read into memory on app init
 func (gw *gateway) initPunkMetadata() error {
