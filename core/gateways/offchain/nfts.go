@@ -11,7 +11,7 @@ import (
 	"github.com/etheralley/etheralley-backend/core/entities"
 )
 
-type responseJson struct {
+type alchemyGetAllNFTsResponseJson struct {
 	OwnedNFTs []struct {
 		Contract struct {
 			Address string `json:"address"`
@@ -40,13 +40,13 @@ type responseMetadataJson struct {
 func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[]entities.NonFungibleToken, error) {
 	url := fmt.Sprintf("%v/getNFTs?owner=%v&filters[]=SPAM", gw.settings.AlchemyEthereumURI(), address)
 
-	resp, err := gw.httpClient.Do(ctx, "GET", url, &common.HttpOptions{})
+	resp, err := gw.httpClient.Do(ctx, "GET", url, nil, &common.HttpOptions{})
 
 	if err != nil {
 		return nil, fmt.Errorf("get all nfts %w", err)
 	}
 
-	respJson := &responseJson{}
+	respJson := &alchemyGetAllNFTsResponseJson{}
 	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(respJson)
 
@@ -138,7 +138,7 @@ type nftMetadataRespBody struct {
 func (gw *gateway) GetNonFungibleMetadata(ctx context.Context, uri string) (*entities.NonFungibleMetadata, error) {
 	uri = gw.replaceIPFSScheme(uri)
 
-	resp, err := gw.httpClient.Do(ctx, "GET", uri, nil)
+	resp, err := gw.httpClient.Do(ctx, "GET", uri, nil, nil)
 
 	if err != nil {
 		return nil, fmt.Errorf("metadata follow url %w", err)

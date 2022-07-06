@@ -3,11 +3,12 @@ package common
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 )
 
 type IHttpClient interface {
-	Do(ctx context.Context, method string, url string, options *HttpOptions) (*http.Response, error)
+	Do(ctx context.Context, method string, url string, body io.Reader, options *HttpOptions) (*http.Response, error)
 }
 
 type Header struct {
@@ -35,14 +36,14 @@ func NewHttpClient(logger ILogger) IHttpClient {
 	}
 }
 
-func (c *httpClient) Do(ctx context.Context, method string, url string, options *HttpOptions) (*http.Response, error) {
+func (c *httpClient) Do(ctx context.Context, method string, url string, body io.Reader, options *HttpOptions) (*http.Response, error) {
 	return FunctionRetrier(ctx, func() (*http.Response, error) {
-		return c.doInternal(ctx, method, url, options)
+		return c.doInternal(ctx, method, url, body, options)
 	})
 }
 
-func (c *httpClient) doInternal(ctx context.Context, method string, url string, options *HttpOptions) (*http.Response, error) {
-	req, err := http.NewRequestWithContext(ctx, method, url, nil)
+func (c *httpClient) doInternal(ctx context.Context, method string, url string, body io.Reader, options *HttpOptions) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, method, url, body)
 
 	if err != nil {
 		return nil, fmt.Errorf("http url %v", url)

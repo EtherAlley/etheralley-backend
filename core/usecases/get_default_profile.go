@@ -105,18 +105,36 @@ func (uc *getDefaultProfileUseCase) Do(ctx context.Context, input *GetDefaultPro
 	go func() {
 		defer wg.Done()
 
+		contracts, err := uc.offchainGateway.GetFungibleContracts(ctx, input.Address)
+
 		tokens := []GetFungibleTokenInput{}
-		for _, address := range uc.settings.DefaultTokenAddresses() {
-			tokens = append(tokens, GetFungibleTokenInput{
-				Address: input.Address,
-				Token: &FungibleTokenInput{
-					Contract: &ContractInput{
-						Blockchain: common.ETHEREUM,
-						Address:    address,
-						Interface:  common.ERC20,
+		if err != nil || len(*contracts) == 0 {
+			uc.logger.Info(ctx).Err(err).Msgf("using default tokens for address %v. found %v contracts", input.Address, len(*contracts))
+			for _, address := range uc.settings.DefaultTokenAddresses() {
+				tokens = append(tokens, GetFungibleTokenInput{
+					Address: input.Address,
+					Token: &FungibleTokenInput{
+						Contract: &ContractInput{
+							Blockchain: common.ETHEREUM,
+							Address:    address,
+							Interface:  common.ERC20,
+						},
 					},
-				},
-			})
+				})
+			}
+		} else {
+			for _, contract := range *contracts {
+				tokens = append(tokens, GetFungibleTokenInput{
+					Address: input.Address,
+					Token: &FungibleTokenInput{
+						Contract: &ContractInput{
+							Blockchain: contract.Blockchain,
+							Address:    contract.Address,
+							Interface:  contract.Interface,
+						},
+					},
+				})
+			}
 		}
 
 		profile.FungibleTokens = uc.getAllFungibleTokens.Do(ctx, &GetAllFungibleTokensInput{
