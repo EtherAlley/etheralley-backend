@@ -57,7 +57,7 @@ type GetDefaultProfileInput struct {
 }
 
 // Attempt to provide a pleasant default profile when none has been configured.
-// Fetch nfts and stats from the graph and fetch tokens from a fixed list.
+// Fetch nfts and tokens from alchemy and stats from the graph.
 // Fetch primary ens name for address if configured
 func (uc *getDefaultProfileUseCase) Do(ctx context.Context, input *GetDefaultProfileInput) (*entities.Profile, error) {
 	if err := common.ValidateStruct(input); err != nil {
@@ -99,28 +99,59 @@ func (uc *getDefaultProfileUseCase) Do(ctx context.Context, input *GetDefaultPro
 			return
 		}
 
-		profile.NonFungibleTokens = nfts
+		trimmedNFTs := *nfts
+		cutoff := len(trimmedNFTs)
+		if cutoff > int(common.DEFAULT_NFT_CUTOFF) {
+			cutoff = int(common.DEFAULT_NFT_CUTOFF)
+		}
+		trimmedNFTs = trimmedNFTs[:cutoff]
+
+		profile.NonFungibleTokens = &trimmedNFTs
 	}()
 
 	go func() {
 		defer wg.Done()
 
+		contracts, err := uc.offchainGateway.GetFungibleContracts(ctx, input.Address)
+
 		tokens := []GetFungibleTokenInput{}
-		for _, address := range uc.settings.DefaultTokenAddresses() {
-			tokens = append(tokens, GetFungibleTokenInput{
-				Address: input.Address,
-				Token: &FungibleTokenInput{
-					Contract: &ContractInput{
-						Blockchain: common.ETHEREUM,
-						Address:    address,
-						Interface:  common.ERC20,
+		if err != nil || len(*contracts) == 0 {
+			uc.logger.Debug(ctx).Err(err).Msgf("using default tokens for address %v. found %v contracts", input.Address, len(*contracts))
+			for _, address := range uc.settings.DefaultTokenAddresses() {
+				tokens = append(tokens, GetFungibleTokenInput{
+					Address: input.Address,
+					Token: &FungibleTokenInput{
+						Contract: &ContractInput{
+							Blockchain: common.ETHEREUM,
+							Address:    address,
+							Interface:  common.ERC20,
+						},
 					},
-				},
-			})
+				})
+			}
+		} else {
+			for _, contract := range *contracts {
+				tokens = append(tokens, GetFungibleTokenInput{
+					Address: input.Address,
+					Token: &FungibleTokenInput{
+						Contract: &ContractInput{
+							Blockchain: contract.Blockchain,
+							Address:    contract.Address,
+							Interface:  contract.Interface,
+						},
+					},
+				})
+			}
 		}
 
+		cutoff := len(tokens)
+		if cutoff > int(common.DEFAULT_TOKEN_CUTOFF) {
+			cutoff = int(common.DEFAULT_TOKEN_CUTOFF)
+		}
+		trimmedTokens := tokens[:cutoff]
+
 		profile.FungibleTokens = uc.getAllFungibleTokens.Do(ctx, &GetAllFungibleTokensInput{
-			Tokens: &tokens,
+			Tokens: &trimmedTokens,
 		})
 	}()
 

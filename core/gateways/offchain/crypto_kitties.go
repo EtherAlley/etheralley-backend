@@ -23,7 +23,7 @@ type kittieRespBody struct {
 func (gw *gateway) GetKittieMetadata(ctx context.Context, tokenId string) (*entities.NonFungibleMetadata, error) {
 	uri := fmt.Sprintf("%v/%v", gw.settings.CryptoKittiesMetadataURI(), tokenId)
 
-	resp, err := gw.httpClient.Do(ctx, "GET", uri, nil)
+	resp, err := gw.httpClient.Do(ctx, "GET", uri, nil, nil)
 
 	if err != nil {
 		return nil, fmt.Errorf("crypto kittie get metadata %w", err)

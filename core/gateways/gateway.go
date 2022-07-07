@@ -84,5 +84,7 @@ type IOffchainGateway interface {
 	GetPunkMetadata(ctx context.Context, tokenId string) (*entities.NonFungibleMetadata, error)
 	GetKittieMetadata(ctx context.Context, tokenId string) (*entities.NonFungibleMetadata, error)
 
+	// return a slice of contracts relating to erc20 tokens that the provided address has a non-zero balance for
+	GetFungibleContracts(ctx context.Context, address string) (*[]entities.Contract, error)
 	GetFungibleMetadata(ctx context.Context, contract *entities.Contract) (*entities.FungibleMetadata, error)
 }
