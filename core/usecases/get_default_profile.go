@@ -116,7 +116,7 @@ func (uc *getDefaultProfileUseCase) Do(ctx context.Context, input *GetDefaultPro
 
 		tokens := []GetFungibleTokenInput{}
 		if err != nil || len(*contracts) == 0 {
-			uc.logger.Info(ctx).Err(err).Msgf("using default tokens for address %v. found %v contracts", input.Address, len(*contracts))
+			uc.logger.Debug(ctx).Err(err).Msgf("using default tokens for address %v. found %v contracts", input.Address, len(*contracts))
 			for _, address := range uc.settings.DefaultTokenAddresses() {
 				tokens = append(tokens, GetFungibleTokenInput{
 					Address: input.Address,
