@@ -61,9 +61,9 @@ func (uc *saveProfileUseCase) Do(ctx context.Context, input *SaveProfileInput) e
 		return fmt.Errorf("failed to get premium balance %w", err)
 	}
 
-	if balances[0].Cmp(big.NewInt(0)) == 1 && badgeCount > common.PREMIUM_TOTAL_BADGE_COUNT {
+	if balances[0].Cmp(big.NewInt(0)) == 1 && badgeCount > int(common.PREMIUM_TOTAL_BADGE_COUNT) {
 		return fmt.Errorf("invalid total badge count for premium provided %v %v", balances[0], badgeCount)
-	} else if balances[0].Cmp(big.NewInt(0)) == 0 && badgeCount > common.REGULAR_TOTAL_BADGE_COUNT {
+	} else if balances[0].Cmp(big.NewInt(0)) == 0 && badgeCount > int(common.REGULAR_TOTAL_BADGE_COUNT) {
 		return fmt.Errorf("invalid total badge count for regular provided %v %v", balances[0], badgeCount)
 	}
 

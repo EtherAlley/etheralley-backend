@@ -129,13 +129,5 @@ func (gw *gateway) GetFungibleContracts(ctx context.Context, address string) (*[
 		})
 	}
 
-	// TODO: Taking the first 6 for now
-	// Reminder, making this number bigger than 6 has implications for the max badge limit
-	cutoff := len(contracts)
-	if cutoff > 6 {
-		cutoff = 6
-	}
-	trimmedContracts := contracts[:cutoff]
-
-	return &trimmedContracts, nil
+	return &contracts, nil
 }

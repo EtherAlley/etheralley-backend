@@ -57,7 +57,7 @@ type GetDefaultProfileInput struct {
 }
 
 // Attempt to provide a pleasant default profile when none has been configured.
-// Fetch nfts and stats from the graph and fetch tokens from a fixed list.
+// Fetch nfts and tokens from alchemy and stats from the graph.
 // Fetch primary ens name for address if configured
 func (uc *getDefaultProfileUseCase) Do(ctx context.Context, input *GetDefaultProfileInput) (*entities.Profile, error) {
 	if err := common.ValidateStruct(input); err != nil {
@@ -99,7 +99,14 @@ func (uc *getDefaultProfileUseCase) Do(ctx context.Context, input *GetDefaultPro
 			return
 		}
 
-		profile.NonFungibleTokens = nfts
+		trimmedNFTs := *nfts
+		cutoff := len(trimmedNFTs)
+		if cutoff > int(common.DEFAULT_NFT_CUTOFF) {
+			cutoff = int(common.DEFAULT_NFT_CUTOFF)
+		}
+		trimmedNFTs = trimmedNFTs[:cutoff]
+
+		profile.NonFungibleTokens = &trimmedNFTs
 	}()
 
 	go func() {
@@ -137,8 +144,14 @@ func (uc *getDefaultProfileUseCase) Do(ctx context.Context, input *GetDefaultPro
 			}
 		}
 
+		cutoff := len(tokens)
+		if cutoff > int(common.DEFAULT_TOKEN_CUTOFF) {
+			cutoff = int(common.DEFAULT_TOKEN_CUTOFF)
+		}
+		trimmedTokens := tokens[:cutoff]
+
 		profile.FungibleTokens = uc.getAllFungibleTokens.Do(ctx, &GetAllFungibleTokensInput{
-			Tokens: &tokens,
+			Tokens: &trimmedTokens,
 		})
 	}()
 

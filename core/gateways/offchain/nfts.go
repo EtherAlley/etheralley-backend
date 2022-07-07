@@ -115,15 +115,7 @@ func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[
 		nfts = append(nfts, nft)
 	}
 
-	// TODO: Taking the first 12 for now
-	// Reminder, making this number bigger than 12 has implications for the max badge limit
-	cutoff := len(nfts)
-	if cutoff > 12 {
-		cutoff = 12
-	}
-	trimmedNFTs := nfts[:cutoff]
-
-	return &trimmedNFTs, nil
+	return &nfts, nil
 }
 
 type nftMetadataRespBody struct {
