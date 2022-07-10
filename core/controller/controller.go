@@ -124,7 +124,7 @@ func (hc *controller) Start(ctx context.Context) error {
 		r.Route("/{address}", func(r chi.Router) {
 			r.Use(hc.resolveAddressRoute)
 			r.With(hc.recordProfileViewMiddleware).Get("/", hc.getProfileByAddressRoute)
-			r.Put("/", hc.saveProfileRoute)
+			r.With(hc.authenticate).Put("/", hc.saveProfileRoute)
 			r.Get("/refresh", hc.refreshProfileRoute)
 		})
 	})
