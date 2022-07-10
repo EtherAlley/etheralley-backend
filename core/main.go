@@ -60,6 +60,7 @@ func main() {
 	container.Provide(usecases.NewGetAllCurrenciesUseCase)
 	container.Provide(usecases.NewGetStoreMetadata)
 	container.Provide(usecases.NewVerifyRateLimit)
+	container.Provide(usecases.NewGetSpotlightProfileUseCase)
 	container.Provide(presenter.NewHttpPresenter)
 	container.Provide(controller.NewHttpController)
 

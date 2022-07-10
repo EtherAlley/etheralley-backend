@@ -33,6 +33,7 @@ type ISettings interface {
 	TheGraphURI() string
 	TheGraphHostedURI() string
 	DefaultTokenAddresses() []string
+	SpotlightProfileAddress() string
 }
 
 type settings struct {
@@ -57,6 +58,7 @@ type settings struct {
 	theGraphURI              string
 	theGraphHostedURI        string
 	defaultTokenAddresses    string
+	spotlightProfileAddress  string
 }
 
 func NewSettings() ISettings {
@@ -82,6 +84,7 @@ func NewSettings() ISettings {
 		theGraphURI:              os.Getenv("THE_GRAPH_URI"),
 		theGraphHostedURI:        os.Getenv("THE_GRAPH_HOSTED_URI"),
 		defaultTokenAddresses:    os.Getenv("DEFAULT_TOKEN_ADDRESSES"),
+		spotlightProfileAddress:  os.Getenv("SPOTLIGHT_PROFILE_ADDRESS"),
 	}
 }
 
@@ -179,4 +182,8 @@ func (s *settings) TheGraphHostedURI() string {
 
 func (s *settings) DefaultTokenAddresses() []string {
 	return strings.Split(s.defaultTokenAddresses, ",")
+}
+
+func (s *settings) SpotlightProfileAddress() string {
+	return s.spotlightProfileAddress
 }

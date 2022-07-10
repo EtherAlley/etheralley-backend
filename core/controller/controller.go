@@ -36,6 +36,7 @@ func NewHttpController(
 	getCurrency usecases.IGetCurrencyUseCase,
 	getStoreMetadata usecases.IGetStoreMetadataUseCase,
 	verifyRateLimit usecases.IVerifyRateLimitUseCase,
+	getSpotlightProfile usecases.IGetSpotlightProfileUseCase,
 ) IHttpController {
 	return &controller{
 		appSettings,
@@ -59,6 +60,7 @@ func NewHttpController(
 		getCurrency,
 		getStoreMetadata,
 		verifyRateLimit,
+		getSpotlightProfile,
 	}
 }
 
@@ -89,6 +91,7 @@ type controller struct {
 	getCurrency         usecases.IGetCurrencyUseCase
 	getStoreMetadata    usecases.IGetStoreMetadataUseCase
 	verifyRateLimit     usecases.IVerifyRateLimitUseCase
+	getSpotlightProfile usecases.IGetSpotlightProfileUseCase
 }
 
 func (hc *controller) Start(ctx context.Context) error {
@@ -116,6 +119,7 @@ func (hc *controller) Start(ctx context.Context) error {
 
 	r.Route("/profiles", func(r chi.Router) {
 		r.Get("/top", hc.getTopProfilesRoute)
+		r.Get("/spotlight", hc.getSpotlightProfileRoute)
 
 		r.Route("/{address}", func(r chi.Router) {
 			r.Use(hc.resolveAddressRoute)
