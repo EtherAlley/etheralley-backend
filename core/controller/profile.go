@@ -84,6 +84,18 @@ func (hc *controller) getTopProfilesRoute(w http.ResponseWriter, r *http.Request
 	hc.presenter.PresentTopProfiles(w, r, profiles)
 }
 
+func (hc *controller) getSpotlightProfileRoute(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	profile, err := hc.getSpotlightProfile.Do(ctx, &usecases.GetSpotlightProfileInput{})
+
+	if err != nil {
+		hc.presenter.PresentBadRequest(w, r, err)
+	}
+
+	hc.presenter.PresentProfile(w, r, profile)
+}
+
 func (hc *controller) refreshProfileRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	address := ctx.Value(common.ContextKeyAddress).(string)
