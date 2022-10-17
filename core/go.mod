@@ -3,6 +3,7 @@ module github.com/etheralley/etheralley-backend/core
 go 1.18
 
 require (
+	github.com/etheralley/etheralley-backend/common v0.0.0-20220710182430-2249342b8bc9
 	github.com/ethereum/go-ethereum v1.10.16
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1
@@ -45,6 +46,7 @@ require (
 	github.com/rs/zerolog v1.26.1 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
+	github.com/stretchr/testify v1.7.1 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.4.0 // indirect
 	github.com/wealdtech/go-multicodec v1.4.0 // indirect
