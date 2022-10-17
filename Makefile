@@ -29,7 +29,7 @@ docker-run-core:
 	docker rm -f core-api && docker run -d -p 8080:8080 --env-file .env/.env.core.docker --name core-api core-api
 
 docker-run-daos:
-	docker rm -f daos-api && docker run -d -p 8080:8080 --env-file .env/.env.daos.docker --name daos-api daos-api
+	docker rm -f daos-api && docker run -d -p 8081:8081 --env-file .env/.env.daos.docker --name daos-api daos-api
 
 docker-run-mongo:
 	docker rm -f mongo && docker run -d -p 27017:27017 -e MONGO_INITDB_ROOT_PASSWORD=secret -e MONGO_INITDB_ROOT_USERNAME=mongoadmin --name mongo mongo
