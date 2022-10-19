@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/etheralley/etheralley-backend/common"
-	"github.com/etheralley/etheralley-backend/daos/controller"
-	"github.com/etheralley/etheralley-backend/daos/settings"
+	"github.com/etheralley/etheralley-backend/daos-api/controller"
+	"github.com/etheralley/etheralley-backend/daos-api/settings"
 	"go.uber.org/dig"
 )
 
