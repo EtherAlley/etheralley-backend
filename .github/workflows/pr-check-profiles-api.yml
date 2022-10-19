@@ -1,4 +1,4 @@
-name: pr-check-profiles
+name: pr-check-profiles-api
 
 on:
   push:
