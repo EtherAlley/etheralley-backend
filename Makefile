@@ -1,32 +1,32 @@
 test-common:
 	go test -v ./common/...
 
-test-core:
-	go test -v ./core/...
+test-profiles-api:
+	go test -v ./profiles-api/...
 
 test-daos:
 	go test -v ./daos/...
 
-build-core:
-	go build -o bin/core ./core/
+build-profiles-api:
+	go build -o bin/profiles-api ./profiles-api/
 
 build-daos:
 	go build -o bin/daos ./daos/
 
-run-core:
-	ENV=dev go run core/main.go
+run-profiles-api:
+	ENV=dev go run profiles-api/main.go
 
 run-daos:
 	ENV=dev go run daos/main.go
 
-docker-build-core:
-	docker build -f .docker/DockerfileCore  -t core-api .
+docker-build-profiles-api:
+	docker build -f .docker/DockerfileProfilesApi  -t profiles-api .
 
 docker-build-daos:
 	docker build -f .docker/DockerfileDaos  -t daos-api .
 
-docker-run-core:
-	docker rm -f core-api && docker run -d -p 8080:8080 --env-file .env/.env.core.docker --name core-api core-api
+docker-run-profiles-api:
+	docker rm -f profiles-api && docker run -d -p 8080:8080 --env-file .env/.env.profiles-api.docker --name profiles-api profiles-api
 
 docker-run-daos:
 	docker rm -f daos-api && docker run -d -p 8081:8081 --env-file .env/.env.daos.docker --name daos-api daos-api

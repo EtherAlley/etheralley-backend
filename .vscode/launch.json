@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Core",
+      "name": "Launch Profiles API",
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceRoot}/core",
+      "program": "${workspaceRoot}/profiles-api",
       "cwd": "${workspaceRoot}",
       "env": {
         "ENV": "dev"
