@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1
+
+##
+## Build
+##
+FROM golang:1.18 AS build
+
+WORKDIR /app
+
+COPY . ./
+
+RUN go mod download
+
+RUN go build -o /main ./profiles-api/
+
+
+##
+## Deploy
+##
+FROM gcr.io/distroless/base
+
+WORKDIR /
+
+COPY --from=build /main /main
+
+# bring the assets folder into the final build image
+COPY --from=build /app/profiles-api/gateways/offchain/assets /profiles-api/gateways/offchain/assets
+
+EXPOSE 8080
+
+USER nonroot:nonroot
+
+ENTRYPOINT ["/main"]

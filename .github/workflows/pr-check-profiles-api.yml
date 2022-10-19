@@ -1,0 +1,41 @@
+name: pr-check-profiles
+
+on:
+  push:
+    branches:
+      - "*"
+      - "!master"
+  pull_request:
+    branches:
+      - "*"
+      - "!master"
+
+jobs:
+  pr-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+
+      - name: Build Profiles API
+        run: go build -v ./profiles-api/...
+
+      - name: Test Common
+        run: go test -v ./common/...
+
+      - name: Test Profiles API
+        run: go test -v ./profiles-api/...
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Profiles API Docker
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./.docker/DockerfileProfilesApi
+          push: false

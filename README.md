@@ -2,14 +2,14 @@
 
 The backend for the EtherAlley platform
 
-[![Core Build](https://github.com/etheralley/etheralley-backend/actions/workflows/build-core.yml/badge.svg)](https://github.com/etheralley/etheralley-backend/actions/workflows/build-core.yml)
+[![Profiles API Build](https://github.com/etheralley/etheralley-backend/actions/workflows/build-profiles-api.yml/badge.svg)](https://github.com/etheralley/etheralley-backend/actions/workflows/build-profiles-api.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend/common)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/common)
-[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend/core)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/core)
-[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-backend.svg)](https://github.com/etheralley/etheralley-backend/core/blob/main/LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend/profiles-api-api)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/profiles-api-api)
+[![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-backend.svg)](https://github.com/etheralley/etheralley-backend/profiles-api-api/blob/main/LICENSE)
 
 ## Repository Structure
 
-This repository leverages the new [go workspace](https://go.dev/doc/tutorial/workspaces) feature to operate as a monorepo. There is currently a single executable module `core` and a single library module `common`.
+This repository leverages the new [go workspace](https://go.dev/doc/tutorial/workspaces) feature to operate as a monorepo. There is currently a single executable module `profiles-api` and a single library module `common`.
 
 ## Local Setup
 
@@ -29,7 +29,7 @@ This repository leverages the new [go workspace](https://go.dev/doc/tutorial/wor
    ```sh
     make docker-run-redis
    ```
-7. Add a folder named `.env` in the root of the project with a file named `.env.core.dev` in the root of the project with the following environment variables. Anything with `<REPLACE>` must be replaced with the keys acquired in the previouse steps. `ETHEREUM_MAIN_URI`, `ETHEREUM_SECONDARY_URI` and `ALCHEMY_ETHEREUM_URI` can all point to the same uri on local and things should still behave normally.
+7. Add a folder named `.env` in the root of the project with a file named `.env.profiles-api.dev` in the root of the project with the following environment variables. Anything with `<REPLACE>` must be replaced with the keys acquired in the previouse steps. `ETHEREUM_MAIN_URI`, `ETHEREUM_SECONDARY_URI` and `ALCHEMY_ETHEREUM_URI` can all point to the same uri on local and things should still behave normally.
 
    ```
    ENV=dev
@@ -57,9 +57,9 @@ This repository leverages the new [go workspace](https://go.dev/doc/tutorial/wor
    CRYPTO_KITTIES_METADATA_URI=https://api.cryptokitties.co/kitties
    ```
 
-8. Start the core web service
+8. Start the profiles-api web service
    ```sh
-    make run-core
+    make run-profiles-api
    ```
 
 ## License
