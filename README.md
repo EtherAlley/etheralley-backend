@@ -4,7 +4,7 @@ The backend for the EtherAlley platform
 
 [![Profiles API Build](https://github.com/etheralley/etheralley-backend/actions/workflows/build-profiles-api.yml/badge.svg)](https://github.com/etheralley/etheralley-backend/actions/workflows/build-profiles-api.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend/common)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/common)
-[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend/profiles-api-api)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/profiles-api-api)
+[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend/profiles-api)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/profiles-api)
 [![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-backend.svg)](https://github.com/etheralley/etheralley-backend/profiles-api-api/blob/main/LICENSE)
 
 ## Repository Structure
