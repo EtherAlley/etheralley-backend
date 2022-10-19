@@ -1,4 +1,4 @@
-module github.com/etheralley/etheralley-backend/daos
+module github.com/etheralley/etheralley-backend/daos-api
 
 go 1.18
 

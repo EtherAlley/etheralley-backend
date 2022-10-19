@@ -5,11 +5,16 @@ The backend for the EtherAlley platform
 [![Profiles API Build](https://github.com/etheralley/etheralley-backend/actions/workflows/build-profiles-api.yml/badge.svg)](https://github.com/etheralley/etheralley-backend/actions/workflows/build-profiles-api.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend/common)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/common)
 [![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend/profiles-api)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/profiles-api)
+[![Go Report Card](https://goreportcard.com/badge/github.com/etheralley/etheralley-backend/daos-api)](https://goreportcard.com/report/github.com/etheralley/etheralley-backend/daos-api)
 [![GPL-3.0 License](https://img.shields.io/github/license/EtherAlley/etheralley-backend.svg)](https://github.com/etheralley/etheralley-backend/profiles-api-api/blob/main/LICENSE)
 
 ## Repository Structure
 
-This repository leverages the new [go workspace](https://go.dev/doc/tutorial/workspaces) feature to operate as a monorepo. There is currently a single executable module `profiles-api` and a single library module `common`.
+This repository leverages the new [go workspace](https://go.dev/doc/tutorial/workspaces) feature to operate as a monorepo. There is currently two executable modules and a single library module.
+
+- `profiles-api` is a rest api encapsulating the profiles domain
+- `daos-api` is a rest api encapsulating the daos domain
+- `common` is a library for command and shareable code
 
 ## Local Setup
 

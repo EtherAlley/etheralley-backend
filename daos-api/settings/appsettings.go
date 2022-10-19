@@ -11,7 +11,7 @@ func NewAppSettings() common.IAppSettings {
 	env := os.Getenv("ENV")
 
 	if env == "dev" {
-		err := godotenv.Load(".env/.env.daos.dev")
+		err := godotenv.Load(".env/.env.daos-api.dev")
 		if err != nil {
 			panic(err)
 		}
