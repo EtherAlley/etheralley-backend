@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Profiles API",
+      "name": "Launch profiles-api",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -15,7 +15,7 @@
       "showLog": true
     },
     {
-      "name": "Launch Daos",
+      "name": "Launch daos-api",
       "type": "go",
       "request": "launch",
       "mode": "debug",
