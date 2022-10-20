@@ -12,9 +12,9 @@ The backend for the EtherAlley platform
 
 This repository leverages the new [go workspace](https://go.dev/doc/tutorial/workspaces) feature to operate as a monorepo. There is currently two executable modules and a single library module.
 
-- `profiles-api` is a rest api encapsulating the profiles domain
-- `daos-api` is a rest api encapsulating the daos domain
-- `common` is a library for command and shareable code
+- `profiles-api` is an http api encapsulating the profiles domain
+- `daos-api` is an http api encapsulating the daos domain
+- `common` is a library for common and shareable code across executables
 
 ## Local Setup
 
