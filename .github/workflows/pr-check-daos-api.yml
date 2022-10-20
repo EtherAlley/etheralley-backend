@@ -1,4 +1,4 @@
-name: pr-check-profiles-api
+name: pr-check-daos-api
 
 on:
   push:
@@ -22,16 +22,16 @@ jobs:
           go-version: 1.18
 
       - name: Go fmt
-        run: if [ "$(gofmt -s -l ./profiles-api | wc -l)" -gt 0 ]; then exit 1; fi
+        run: if [ "$(gofmt -s -l ./daos-api | wc -l)" -gt 0 ]; then exit 1; fi
 
       - name: Go vet
-        run: go vet ./profiles-api/...
+        run: go vet ./daos-api/...
 
       - name: Go build
-        run: go build -v ./profiles-api/...
+        run: go build -v ./daos-api/...
 
       - name: Go test
-        run: go test -v ./profiles-api/...
+        run: go test -v ./daos-api/...
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -40,5 +40,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./.docker/DockerfileProfilesApi
+          file: ./.docker/DockerfileDaosApi
           push: false

@@ -1,4 +1,4 @@
-name: build-profiles-api
+name: build-daos-api
 
 on:
   push:
@@ -24,6 +24,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./.docker/DockerfileProfilesApi
+          file: ./.docker/DockerfileDaosApi
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/etheralley-profiles-api:${{ github.run_number }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/etheralley-daos-api:${{ github.run_number }}
