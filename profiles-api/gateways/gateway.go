@@ -42,9 +42,6 @@ type ICacheGateway interface {
 	GetTopViewedProfiles(ctx context.Context) (*[]entities.Profile, error)
 	SaveTopViewedProfiles(ctx context.Context, profiles *[]entities.Profile) error
 
-	GetStoreListings(ctx context.Context, tokenIds *[]string) (*[]entities.Listing, error)
-	SaveStoreListings(ctx context.Context, listings *[]entities.Listing) error
-
 	VerifyRateLimit(ctx context.Context, ipAddress string) error
 }
 
@@ -67,7 +64,6 @@ type IBlockchainGateway interface {
 
 	GetTransactionData(ctx context.Context, tx *entities.Transaction) (*entities.TransactionData, error)
 
-	GetStoreListingInfo(ctx context.Context, ids *[]string) (*[]entities.ListingInfo, error)
 	GetStoreBalanceBatch(ctx context.Context, address string, ids *[]string) ([]*big.Int, error)
 }
 

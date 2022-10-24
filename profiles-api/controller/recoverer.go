@@ -12,7 +12,7 @@ func (hc *controller) recoverer(next http.Handler) http.Handler {
 		defer func() {
 			if rvr := recover(); rvr != nil && rvr != http.ErrAbortHandler {
 
-				err := fmt.Errorf("Caught panic in recoverer: %+v", rvr)
+				err := fmt.Errorf("caught panic in recoverer: %+v", rvr)
 
 				hc.logger.Error(r.Context()).Err(err).Send()
 

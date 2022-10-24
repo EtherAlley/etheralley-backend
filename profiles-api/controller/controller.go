@@ -30,11 +30,8 @@ func NewHttpController(
 	getInteraction usecases.IGetInteractionUseCase,
 	recordProfileView usecases.IRecordProfileViewUseCase,
 	getTopProfiles usecases.IGetTopProfilesUseCase,
-	getListingMetadata usecases.IGetListingMetadataUseCase,
-	getListings usecases.IGetListingsUseCase,
 	refreshProfile usecases.IRefreshProfileUseCase,
 	getCurrency usecases.IGetCurrencyUseCase,
-	getStoreMetadata usecases.IGetStoreMetadataUseCase,
 	verifyRateLimit usecases.IVerifyRateLimitUseCase,
 	getSpotlightProfile usecases.IGetSpotlightProfileUseCase,
 ) IHttpController {
@@ -54,11 +51,8 @@ func NewHttpController(
 		getInteraction,
 		recordProfileView,
 		getTopProfiles,
-		getListingMetadata,
-		getListings,
 		refreshProfile,
 		getCurrency,
-		getStoreMetadata,
 		verifyRateLimit,
 		getSpotlightProfile,
 	}
@@ -85,11 +79,8 @@ type controller struct {
 	getInteraction      usecases.IGetInteractionUseCase
 	recordProfileView   usecases.IRecordProfileViewUseCase
 	getTopProfiles      usecases.IGetTopProfilesUseCase
-	getListingMetadata  usecases.IGetListingMetadataUseCase
-	getListings         usecases.IGetListingsUseCase
 	refreshProfile      usecases.IRefreshProfileUseCase
 	getCurrency         usecases.IGetCurrencyUseCase
-	getStoreMetadata    usecases.IGetStoreMetadataUseCase
 	verifyRateLimit     usecases.IVerifyRateLimitUseCase
 	getSpotlightProfile usecases.IGetSpotlightProfileUseCase
 }
@@ -146,12 +137,6 @@ func (hc *controller) Start(ctx context.Context) error {
 	r.Route("/transactions", func(r chi.Router) {
 		r.Use(hc.parseTransaction)
 		r.Get("/interaction", hc.getInteractionRoute)
-	})
-
-	r.Route("/listings", func(r chi.Router) {
-		r.Post("/", hc.getListingsRoute)
-		r.Get("/metadata", hc.getStoreMetadataRoute)
-		r.Get("/metadata/{tokenid}", hc.getMetadataByIdRoute)
 	})
 
 	port := hc.appSettings.Port()
