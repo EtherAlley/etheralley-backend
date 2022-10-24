@@ -16,7 +16,6 @@ type ISettings interface {
 	Database() string
 	StoreBlockchain() string
 	StoreAddress() string
-	StoreImageURI() string
 	// This ethereum uri should be used for most workflows.
 	EthereumMainURI() string
 	// This ethereum secondary uri is intended to offload traffic from the main uri and avoid rate limiting for critical paths.
@@ -45,7 +44,6 @@ type settings struct {
 	mongoDB                  string
 	storeBlockchain          string
 	storeAddress             string
-	storeImageURI            string
 	ethereumMainURI          string
 	ethereumSecondaryURI     string
 	polygonMainURI           string
@@ -71,7 +69,6 @@ func NewSettings() ISettings {
 		mongoDB:                  os.Getenv("MONGO_DB"),
 		storeBlockchain:          os.Getenv("STORE_BLOCKCHAIN"),
 		storeAddress:             os.Getenv("STORE_ADDRESS"),
-		storeImageURI:            os.Getenv("STORE_IMAGE_URI"),
 		ethereumMainURI:          os.Getenv("ETHEREUM_MAIN_URI"),
 		ethereumSecondaryURI:     os.Getenv("ETHEREUM_SECONDARY_URI"),
 		polygonMainURI:           os.Getenv("POLYGON_MAIN_URI"),
@@ -130,10 +127,6 @@ func (s *settings) StoreBlockchain() string {
 
 func (s *settings) StoreAddress() string {
 	return s.storeAddress
-}
-
-func (s *settings) StoreImageURI() string {
-	return s.storeImageURI
 }
 
 func (s *settings) EthereumMainURI() string {

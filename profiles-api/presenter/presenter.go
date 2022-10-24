@@ -33,9 +33,6 @@ type IHttpPresenter interface {
 	PresentProfile(http.ResponseWriter, *http.Request, *entities.Profile)
 	PresentSavedProfile(http.ResponseWriter, *http.Request)
 	PresentTopProfiles(http.ResponseWriter, *http.Request, *[]entities.Profile)
-	PresentStoreMetadata(http.ResponseWriter, *http.Request, *entities.StoreMetadata)
-	PresentListingMetadata(http.ResponseWriter, *http.Request, *entities.NonFungibleMetadata)
-	PresentListings(http.ResponseWriter, *http.Request, *[]entities.Listing)
 	PresentRefreshedProfile(w http.ResponseWriter, r *http.Request)
 	PresentCurrency(w http.ResponseWriter, r *http.Request, currency *entities.Currency)
 }
@@ -290,42 +287,6 @@ func toDisplayConfigJson(displayConfig *entities.DisplayConfig) *displayConfigJs
 	return config
 }
 
-func toStoreMetadataJson(metadata *entities.StoreMetadata) *storeMetadataJson {
-	return &storeMetadataJson{
-		Name:                 metadata.Name,
-		Description:          metadata.Description,
-		Image:                metadata.Image,
-		ExternalLink:         metadata.ExternalLink,
-		SellerFeeBasisPoints: metadata.SellerFeeBasisPoints,
-		FeeRecipient:         metadata.FeeRecipient,
-	}
-}
-
-func toListingsJson(listings *[]entities.Listing) *[]listingJson {
-	listingJson := []listingJson{}
-
-	for _, listing := range *listings {
-		listingJson = append(listingJson, *toListingJson(&listing))
-	}
-
-	return &listingJson
-}
-
-func toListingJson(listing *entities.Listing) *listingJson {
-	return &listingJson{
-		Contract: toContractJson(listing.Contract),
-		TokenId:  listing.TokenId,
-		Info: &listingInfoJson{
-			Purchasable:  listing.Info.Purchasable,
-			Transferable: listing.Info.Transferable,
-			Price:        listing.Info.Price,
-			SupplyLimit:  listing.Info.SupplyLimit,
-			BalanceLimit: listing.Info.BalanceLimit,
-		},
-		Metadata: toNonFungibleMetadataJson(listing.Metadata),
-	}
-}
-
 type challengeJson struct {
 	Message string `json:"message"`
 }
@@ -450,28 +411,4 @@ type displayItemJson struct {
 	Id    string           `json:"id"`
 	Index uint64           `json:"index"`
 	Type  common.BadgeType `json:"type"`
-}
-
-type storeMetadataJson struct {
-	Name                 string `json:"name"`
-	Description          string `json:"description"`
-	Image                string `json:"image"`
-	ExternalLink         string `json:"external_link"`
-	SellerFeeBasisPoints uint   `json:"seller_fee_basis_points"`
-	FeeRecipient         string `json:"fee_recipient"`
-}
-
-type listingJson struct {
-	Contract *contractJson            `json:"contract"`
-	TokenId  string                   `json:"token_id"`
-	Info     *listingInfoJson         `json:"info"`
-	Metadata *nonFungibleMetadataJson `json:"metadata"`
-}
-
-type listingInfoJson struct {
-	Purchasable  bool   `json:"purchasable"`
-	Transferable bool   `json:"transferable"`
-	Price        string `json:"price"`
-	BalanceLimit string `json:"balance_limit"`
-	SupplyLimit  string `json:"supply_limit"`
 }
