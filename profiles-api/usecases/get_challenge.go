@@ -32,9 +32,15 @@ func (uc *getChallengeUseCase) Do(ctx context.Context, input *GetChallengeInput)
 		return nil, err
 	}
 
-	challenge := entities.NewChallenge(input.Address)
+	challenge, err := uc.cacheGateway.GetChallengeByAddress(ctx, input.Address)
 
-	err := uc.cacheGateway.SaveChallenge(ctx, challenge)
+	if err == nil {
+		return challenge, nil
+	}
+
+	challenge = entities.NewChallenge(input.Address)
+
+	err = uc.cacheGateway.SaveChallenge(ctx, challenge)
 
 	return challenge, err
 }
