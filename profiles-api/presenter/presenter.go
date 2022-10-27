@@ -78,6 +78,7 @@ func (p *presenter) logEvent(w http.ResponseWriter, r *http.Request, statusCode 
 func toChallengeJson(challenge *entities.Challenge) *challengeJson {
 	return &challengeJson{
 		Message: challenge.Message,
+		Expires: challenge.Expires.Unix(),
 	}
 }
 
@@ -289,6 +290,7 @@ func toDisplayConfigJson(displayConfig *entities.DisplayConfig) *displayConfigJs
 
 type challengeJson struct {
 	Message string `json:"message"`
+	Expires int64  `json:"expires"`
 }
 
 type profileJson struct {

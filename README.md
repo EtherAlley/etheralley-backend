@@ -55,7 +55,6 @@ This repository leverages the new [go workspace](https://go.dev/doc/tutorial/wor
    THE_GRAPH_HOSTED_URI=https://api.thegraph.com/subgraphs/name
    STORE_BLOCKCHAIN=polygon
    STORE_ADDRESS=0x15EC5d87f2A810466aCbd761f38c35ae36523FE7
-   STORE_IMAGE_URI=http://localhost:3000
    DEFAULT_TOKEN_ADDRESSES=0x1f9840a85d5af5bf1d1762f925bdaddc4201f984
    IPFS_URI=https://gateway.ipfs.io/ipfs/
    ENS_METADATA_URI=https://metadata.ens.domains/goerli

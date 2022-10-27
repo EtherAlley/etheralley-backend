@@ -52,6 +52,12 @@ func getFullKey(keys ...string) string {
 	return strings.Join(keys, "_")
 }
 
+type challengeJson struct {
+	Address string    `json:"address"`
+	Message string    `json:"message"`
+	Expires time.Time `json:"expires"`
+}
+
 type profileJson struct {
 	Address           string                  `json:"address"`
 	Banned            bool                    `json:"banned"`
@@ -173,6 +179,14 @@ type displayItemJson struct {
 	Id    string           `json:"id"`
 	Index uint64           `json:"index"`
 	Type  common.BadgeType `json:"type"`
+}
+
+func fromChallengeJson(challengeJson *challengeJson) *entities.Challenge {
+	return &entities.Challenge{
+		Address: challengeJson.Address,
+		Message: challengeJson.Message,
+		Expires: challengeJson.Expires,
+	}
 }
 
 func fromProfileJson(profileJson *profileJson) *entities.Profile {
@@ -343,6 +357,14 @@ func fromFungibleMetadataJson(metadata *fungibleMetadataJson) *entities.Fungible
 		Name:     metadata.Name,
 		Symbol:   metadata.Symbol,
 		Decimals: metadata.Decimals,
+	}
+}
+
+func toChallengeJson(challenge *entities.Challenge) *challengeJson {
+	return &challengeJson{
+		Address: challenge.Address,
+		Message: challenge.Message,
+		Expires: challenge.Expires,
 	}
 }
 
