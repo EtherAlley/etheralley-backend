@@ -16,7 +16,7 @@ func (p *presenter) PresentSavedProfile(w http.ResponseWriter, r *http.Request) 
 	p.presentStatus(w, r, http.StatusCreated)
 }
 
-func (p *presenter) PresentTopProfiles(w http.ResponseWriter, r *http.Request, profiles *[]entities.Profile) {
+func (p *presenter) PresentProfiles(w http.ResponseWriter, r *http.Request, profiles *[]entities.Profile) {
 	json := []profileJson{}
 
 	for _, profile := range *profiles {

@@ -18,9 +18,11 @@ type IDatabaseGateway interface {
 type ICacheGateway interface {
 	Init(context.Context) error
 
-	GetProfileByAddress(ctx context.Context, address string) (*entities.Profile, error)
-	SaveProfile(ctx context.Context, profile *entities.Profile) error
-	DeleteProfile(ctx context.Context, address string) error
+	GetProfileByAddress(ctx context.Context, key string, address string) (*entities.Profile, error)
+	SaveProfile(ctx context.Context, key string, profile *entities.Profile) error
+	DeleteProfile(ctx context.Context, key string, address string) error
+	GetProfiles(ctx context.Context, key string) (*[]entities.Profile, error)
+	SaveProfiles(ctx context.Context, key string, profiles *[]entities.Profile) error
 
 	GetChallengeByAddress(ctx context.Context, address string) (*entities.Challenge, error)
 	SaveChallenge(ctx context.Context, challenge *entities.Challenge) error
@@ -39,8 +41,6 @@ type ICacheGateway interface {
 
 	RecordAddressView(ctx context.Context, address string, ipAddress string) error
 	GetTopViewedAddresses(ctx context.Context) (*[]string, error)
-	GetTopViewedProfiles(ctx context.Context) (*[]entities.Profile, error)
-	SaveTopViewedProfiles(ctx context.Context, profiles *[]entities.Profile) error
 
 	VerifyRateLimit(ctx context.Context, ipAddress string) error
 }

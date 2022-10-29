@@ -73,7 +73,7 @@ func (uc *getProfileUseCase) Do(ctx context.Context, input *GetProfileInput) (*e
 
 	uc.logger.Debug(ctx).Msgf("getting profile %v", input.Address)
 
-	profile, err := uc.cacheGateway.GetProfileByAddress(ctx, input.Address)
+	profile, err := uc.cacheGateway.GetProfileByAddress(ctx, "regular", input.Address)
 
 	if err == nil {
 		uc.logger.Debug(ctx).Msgf("cache hit %v", input.Address)
@@ -96,7 +96,7 @@ func (uc *getProfileUseCase) Do(ctx context.Context, input *GetProfileInput) (*e
 			return nil, err
 		}
 
-		uc.cacheGateway.SaveProfile(ctx, profile)
+		uc.cacheGateway.SaveProfile(ctx, "regular", profile)
 
 		return profile, nil
 	}
@@ -244,7 +244,7 @@ func (uc *getProfileUseCase) Do(ctx context.Context, input *GetProfileInput) (*e
 
 	wg.Wait()
 
-	uc.cacheGateway.SaveProfile(ctx, profile)
+	uc.cacheGateway.SaveProfile(ctx, "regular", profile)
 
 	return profile, nil
 }

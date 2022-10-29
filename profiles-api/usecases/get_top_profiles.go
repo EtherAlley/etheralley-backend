@@ -35,7 +35,7 @@ type GetTopProfilesInput struct {
 }
 
 func (uc *getTopProfilesUseCase) Do(ctx context.Context, input *GetTopProfilesInput) *[]entities.Profile {
-	if profiles, err := uc.cacheGateway.GetTopViewedProfiles(ctx); err == nil {
+	if profiles, err := uc.cacheGateway.GetProfiles(ctx, "top"); err == nil {
 		return profiles
 	}
 
@@ -82,7 +82,7 @@ func (uc *getTopProfilesUseCase) Do(ctx context.Context, input *GetTopProfilesIn
 		}
 	}
 
-	uc.cacheGateway.SaveTopViewedProfiles(ctx, &trimmedProfiles)
+	uc.cacheGateway.SaveProfiles(ctx, "top", &trimmedProfiles)
 
 	return &trimmedProfiles
 }
