@@ -137,11 +137,13 @@ func (uc *getProfileUseCase) Do(ctx context.Context, input *GetProfileInput) (*e
 					},
 				},
 			})
-			if err == nil {
-				profile.ProfilePicture = picture
-			} else {
+
+			if err != nil {
 				uc.logger.Info(ctx).Err(err).Msgf("err getting profile picture: contract address %v token id %v chain %v", profile.ProfilePicture.Contract.Address, profile.ProfilePicture.Contract, profile.ProfilePicture.Contract.Blockchain)
+				return
 			}
+
+			profile.ProfilePicture = picture
 		}
 	}()
 

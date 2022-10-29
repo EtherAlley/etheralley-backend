@@ -9,7 +9,7 @@ type Profile struct {
 	ENSName           string
 	StoreAssets       *StoreAssets
 	DisplayConfig     *DisplayConfig    // DisplayConfig can be nil if this is a default profile
-	ProfilePicture    *NonFungibleToken // can be nil if this is a default profile
+	ProfilePicture    *NonFungibleToken // ProfilePicture can be nil if this is a default profile with no NFTs or they have simply removed their profile picture
 	NonFungibleTokens *[]NonFungibleToken
 	FungibleTokens    *[]FungibleToken
 	Statistics        *[]Statistic
