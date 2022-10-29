@@ -91,7 +91,6 @@ type currencyBson struct {
 type displayConfigBson struct {
 	Colors       *displayColorsBson       `bson:"colors"`
 	Info         *displayInfoBson         `bson:"info"`
-	Picture      *displayPictureBson      `bson:"picture"`
 	Achievements *displayAchievementsBson `bson:"achievements"`
 	Groups       *[]displayGroupBson      `bson:"groups"`
 }
@@ -109,10 +108,6 @@ type displayInfoBson struct {
 	Title         string `bson:"title"`
 	Description   string `bson:"description"`
 	TwitterHandle string `bson:"twitter_handle"`
-}
-
-type displayPictureBson struct {
-	Item *displayItemBson `bson:"item,omitempty"` // Item can be nil
 }
 
 type displayAchievementsBson struct {
@@ -207,20 +202,11 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 			Description:   profileBson.DisplayConfig.Info.Description,
 			TwitterHandle: profileBson.DisplayConfig.Info.TwitterHandle,
 		},
-		Picture: &entities.DisplayPicture{},
 		Achievements: &entities.DisplayAchievements{
 			Text:  profileBson.DisplayConfig.Achievements.Text,
 			Items: &[]entities.DisplayAchievement{},
 		},
 		Groups: &[]entities.DisplayGroup{},
-	}
-
-	if profileBson.DisplayConfig.Picture.Item != nil {
-		config.Picture.Item = &entities.DisplayItem{
-			Id:    profileBson.DisplayConfig.Picture.Item.Id,
-			Index: profileBson.DisplayConfig.Picture.Item.Index,
-			Type:  profileBson.DisplayConfig.Picture.Item.Type,
-		}
 	}
 
 	for _, achievement := range *profileBson.DisplayConfig.Achievements.Items {
@@ -347,20 +333,11 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 			Description:   profile.DisplayConfig.Info.Description,
 			TwitterHandle: profile.DisplayConfig.Info.TwitterHandle,
 		},
-		Picture: &displayPictureBson{},
 		Achievements: &displayAchievementsBson{
 			Text:  profile.DisplayConfig.Achievements.Text,
 			Items: &[]displayAchievementBson{},
 		},
 		Groups: &[]displayGroupBson{},
-	}
-
-	if profile.DisplayConfig.Picture.Item != nil {
-		config.Picture.Item = &displayItemBson{
-			Id:    profile.DisplayConfig.Picture.Item.Id,
-			Index: profile.DisplayConfig.Picture.Item.Index,
-			Type:  profile.DisplayConfig.Picture.Item.Type,
-		}
 	}
 
 	for _, achievement := range *profile.DisplayConfig.Achievements.Items {

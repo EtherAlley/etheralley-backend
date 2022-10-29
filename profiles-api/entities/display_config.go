@@ -5,7 +5,6 @@ import "github.com/etheralley/etheralley-backend/common"
 type DisplayConfig struct {
 	Colors       *DisplayColors
 	Info         *DisplayInfo
-	Picture      *DisplayPicture
 	Achievements *DisplayAchievements
 	Groups       *[]DisplayGroup
 }
@@ -23,10 +22,6 @@ type DisplayInfo struct {
 	Title         string
 	Description   string
 	TwitterHandle string
-}
-
-type DisplayPicture struct {
-	Item *DisplayItem
 }
 
 type DisplayAchievements struct {
