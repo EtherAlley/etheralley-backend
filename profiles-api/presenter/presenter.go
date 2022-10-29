@@ -83,6 +83,10 @@ func toChallengeJson(challenge *entities.Challenge) *challengeJson {
 }
 
 func toProfileJson(profile *entities.Profile) *profileJson {
+	var profilePicutre *nonFungibleTokenJson
+	if profile.ProfilePicture != nil {
+		profilePicutre = toNonFungibleJson(profile.ProfilePicture)
+	}
 	return &profileJson{
 		Address:      profile.Address,
 		LastModified: profile.LastModified,
@@ -92,6 +96,7 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 			BetaTester: profile.StoreAssets.BetaTester,
 		},
 		DisplayConfig:     toDisplayConfigJson(profile.DisplayConfig),
+		ProfilePicture:    profilePicutre,
 		NonFungibleTokens: toNonFungibleTokensJson(profile.NonFungibleTokens),
 		FungibleTokens:    toFungibleTokensJson(profile.FungibleTokens),
 		Statistics:        toStatisticsJson(profile.Statistics),
@@ -299,6 +304,7 @@ type profileJson struct {
 	ENSName           string                  `json:"ens_name"`
 	StoreAssets       *storeAssetsJson        `json:"store_assets"`
 	DisplayConfig     *displayConfigJson      `json:"display_config,omitempty"`
+	ProfilePicture    *nonFungibleTokenJson   `json:"profile_picture,omitempty"`
 	NonFungibleTokens *[]nonFungibleTokenJson `json:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`
 	Statistics        *[]statisticJson        `json:"statistics"`

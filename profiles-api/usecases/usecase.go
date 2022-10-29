@@ -7,6 +7,7 @@ import (
 type ProfileInput struct {
 	Address           string                   `json:"-" validate:"required,eth_addr"`
 	DisplayConfig     *DisplayConfigInput      `json:"display_config" validate:"required,dive"`
+	ProfilePicture    *NonFungibleTokenInput   `json:"profile_picture" validate:"omitempty,dive"`
 	NonFungibleTokens *[]NonFungibleTokenInput `json:"non_fungible_tokens" validate:"required,dive"`
 	FungibleTokens    *[]FungibleTokenInput    `json:"fungible_tokens" validate:"required,dive"`
 	Statistics        *[]StatisticInput        `json:"statistics" validate:"required,dive"`

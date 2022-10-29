@@ -45,6 +45,7 @@ type profileBson struct {
 	Banned            bool                    `bson:"banned,omitempty"`
 	LastModified      *time.Time              `bson:"last_modified"`
 	DisplayConfig     *displayConfigBson      `bson:"display_config"`
+	ProfilePicture    *nonFungibleTokenBson   `bson:"profile_picture"`
 	NonFungibleTokens *[]nonFungibleTokenBson `bson:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenBson    `bson:"fungible_tokens"`
 	Statistics        *[]statisticBson        `bson:"statistics"`
@@ -251,10 +252,23 @@ func fromProfileBson(profileBson *profileBson) *entities.Profile {
 		config.Groups = &groups
 	}
 
+	var profilePicture *entities.NonFungibleToken
+	if profileBson.ProfilePicture != nil {
+		profilePicture = &entities.NonFungibleToken{
+			TokenId: profileBson.ProfilePicture.TokenId,
+			Contract: &entities.Contract{
+				Blockchain: profileBson.ProfilePicture.Contract.Blockchain,
+				Address:    profileBson.ProfilePicture.Contract.Address,
+				Interface:  profileBson.ProfilePicture.Contract.Interface,
+			},
+		}
+	}
+
 	return &entities.Profile{
 		Address:           profileBson.Address,
 		Banned:            profileBson.Banned,
 		LastModified:      profileBson.LastModified,
+		ProfilePicture:    profilePicture,
 		DisplayConfig:     &config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,
@@ -378,10 +392,23 @@ func toProfileBson(profile *entities.Profile) *profileBson {
 		config.Groups = &groups
 	}
 
+	var profilePicture *nonFungibleTokenBson
+	if profile.ProfilePicture != nil {
+		profilePicture = &nonFungibleTokenBson{
+			TokenId: profile.ProfilePicture.TokenId,
+			Contract: &contractBson{
+				Blockchain: profile.ProfilePicture.Contract.Blockchain,
+				Address:    profile.ProfilePicture.Contract.Address,
+				Interface:  profile.ProfilePicture.Contract.Interface,
+			},
+		}
+	}
+
 	lastModified := time.Now().UTC()
 	return &profileBson{
 		Address:           profile.Address,
 		LastModified:      &lastModified,
+		ProfilePicture:    profilePicture,
 		DisplayConfig:     &config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,

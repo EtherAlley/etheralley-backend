@@ -65,6 +65,7 @@ type profileJson struct {
 	ENSName           string                  `json:"ens_name"`
 	DisplayConfig     *displayConfigJson      `json:"display_config,omitempty"`
 	StoreAssets       *storeAssetsJson        `json:"store_assets"`
+	ProfilePicture    *nonFungibleTokenJson   `json:"profile_picture"`
 	NonFungibleTokens *[]nonFungibleTokenJson `json:"non_fungible_tokens"`
 	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`
 	Statistics        *[]statisticJson        `json:"statistics"`
@@ -325,6 +326,25 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 		}
 	}
 
+	var profilePicture *entities.NonFungibleToken
+	if profileJson.ProfilePicture != nil {
+		profilePicture = &entities.NonFungibleToken{
+			TokenId: profileJson.ProfilePicture.TokenId,
+			Contract: &entities.Contract{
+				Blockchain: profileJson.ProfilePicture.Contract.Blockchain,
+				Address:    profileJson.ProfilePicture.Contract.Address,
+				Interface:  profileJson.ProfilePicture.Contract.Interface,
+			},
+			Balance: profileJson.ProfilePicture.Balance,
+			Metadata: &entities.NonFungibleMetadata{
+				Name:        profileJson.ProfilePicture.Metadata.Name,
+				Description: profileJson.ProfilePicture.Metadata.Description,
+				Image:       profileJson.ProfilePicture.Metadata.Image,
+				Attributes:  profileJson.ProfilePicture.Metadata.Attributes,
+			},
+		}
+	}
+
 	return &entities.Profile{
 		Address:      profileJson.Address,
 		Banned:       profileJson.Banned,
@@ -334,6 +354,7 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 			Premium:    profileJson.StoreAssets.Premium,
 			BetaTester: profileJson.StoreAssets.BetaTester,
 		},
+		ProfilePicture:    profilePicture,
 		DisplayConfig:     config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,
@@ -504,6 +525,25 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 		}
 	}
 
+	var profilePicture *nonFungibleTokenJson
+	if profile.ProfilePicture != nil {
+		profilePicture = &nonFungibleTokenJson{
+			TokenId: profile.ProfilePicture.TokenId,
+			Contract: &contractJson{
+				Blockchain: profile.ProfilePicture.Contract.Blockchain,
+				Address:    profile.ProfilePicture.Contract.Address,
+				Interface:  profile.ProfilePicture.Contract.Interface,
+			},
+			Balance: profile.ProfilePicture.Balance,
+			Metadata: &nonFungibleMetadataJson{
+				Name:        profile.ProfilePicture.Metadata.Name,
+				Description: profile.ProfilePicture.Metadata.Description,
+				Image:       profile.ProfilePicture.Metadata.Image,
+				Attributes:  profile.ProfilePicture.Metadata.Attributes,
+			},
+		}
+	}
+
 	return &profileJson{
 		Address:      profile.Address,
 		Banned:       profile.Banned,
@@ -513,6 +553,7 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 			Premium:    profile.StoreAssets.Premium,
 			BetaTester: profile.StoreAssets.BetaTester,
 		},
+		ProfilePicture:    profilePicture,
 		DisplayConfig:     config,
 		NonFungibleTokens: &nfts,
 		FungibleTokens:    &tokens,

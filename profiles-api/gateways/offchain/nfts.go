@@ -38,7 +38,7 @@ type responseMetadataJson struct {
 // See https://docs.alchemy.com/alchemy/enhanced-apis/nft-api/getnfts
 // TODO: Polygon is also supported if we want to fetch from both in the future
 func (gw *gateway) GetNonFungibleTokens(ctx context.Context, address string) (*[]entities.NonFungibleToken, error) {
-	url := fmt.Sprintf("%v/getNFTs?owner=%v&filters[]=SPAM", gw.settings.AlchemyEthereumURI(), address)
+	url := fmt.Sprintf("%v/getNFTs?owner=%v&filters[]=SPAM&pageSize=25", gw.settings.AlchemyEthereumURI(), address)
 
 	resp, err := gw.httpClient.Do(ctx, "GET", url, nil, &common.HttpOptions{})
 
