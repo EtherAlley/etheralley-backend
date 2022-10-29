@@ -2,11 +2,9 @@ package redis
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
-	"github.com/etheralley/etheralley-backend/profiles-api/entities"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -77,49 +75,4 @@ func (gw *gateway) GetTopViewedAddresses(ctx context.Context) (*[]string, error)
 	}
 
 	return &topAddresses, nil
-}
-
-func (gw *gateway) GetTopViewedProfiles(ctx context.Context) (*[]entities.Profile, error) {
-	profilesString, err := gw.client.Get(ctx, TopProfilesResults).Result()
-
-	if err != nil {
-		return nil, fmt.Errorf("get top viewed profiles %w", err)
-	}
-
-	results := &[]profileJson{}
-	err = json.Unmarshal([]byte(profilesString), results)
-
-	if err != nil {
-		return nil, fmt.Errorf("decode top viewed profiles %w", err)
-	}
-
-	profiles := []entities.Profile{}
-
-	for _, result := range *results {
-		profiles = append(profiles, *fromProfileJson(&result))
-	}
-
-	return &profiles, nil
-}
-
-func (gw *gateway) SaveTopViewedProfiles(ctx context.Context, profiles *[]entities.Profile) error {
-	profilesJson := []profileJson{}
-
-	for _, profile := range *profiles {
-		profilesJson = append(profilesJson, *toProfileJson(&profile))
-	}
-
-	bytes, err := json.Marshal(&profilesJson)
-
-	if err != nil {
-		return fmt.Errorf("encode top viewed profiles %w", err)
-	}
-
-	err = gw.client.Set(ctx, TopProfilesResults, bytes, time.Hour).Err()
-
-	if err != nil {
-		return fmt.Errorf("set top viewed profiles %w", err)
-	}
-
-	return nil
 }

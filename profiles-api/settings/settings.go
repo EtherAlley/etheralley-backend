@@ -32,56 +32,56 @@ type ISettings interface {
 	TheGraphURI() string
 	TheGraphHostedURI() string
 	DefaultTokenAddresses() []string
-	SpotlightProfileAddress() string
+	SpotlightProfileAddresses() []string
 }
 
 type settings struct {
-	redisAddr                string
-	redisDB                  string
-	redisPassword            string
-	redisUseTLS              string
-	mongoURI                 string
-	mongoDB                  string
-	storeBlockchain          string
-	storeAddress             string
-	ethereumMainURI          string
-	ethereumSecondaryURI     string
-	polygonMainURI           string
-	arbitrumMainURI          string
-	optimismMainURI          string
-	alchemyEthereumURI       string
-	ensMetadataURI           string
-	cryptoKittiesMetadataURI string
-	ipfsURI                  string
-	theGraphURI              string
-	theGraphHostedURI        string
-	defaultTokenAddresses    string
-	spotlightProfileAddress  string
+	redisAddr                 string
+	redisDB                   string
+	redisPassword             string
+	redisUseTLS               string
+	mongoURI                  string
+	mongoDB                   string
+	storeBlockchain           string
+	storeAddress              string
+	ethereumMainURI           string
+	ethereumSecondaryURI      string
+	polygonMainURI            string
+	arbitrumMainURI           string
+	optimismMainURI           string
+	alchemyEthereumURI        string
+	ensMetadataURI            string
+	cryptoKittiesMetadataURI  string
+	ipfsURI                   string
+	theGraphURI               string
+	theGraphHostedURI         string
+	defaultTokenAddresses     string
+	spotlightProfileAddresses string
 }
 
 func NewSettings() ISettings {
 	return &settings{
-		redisAddr:                os.Getenv("REDIS_ADDR"),
-		redisPassword:            os.Getenv("REDIS_PASSWORD"),
-		redisDB:                  os.Getenv("REDIS_DB"),
-		redisUseTLS:              os.Getenv("REDIS_USE_TLS"),
-		mongoURI:                 os.Getenv("MONGO_URI"),
-		mongoDB:                  os.Getenv("MONGO_DB"),
-		storeBlockchain:          os.Getenv("STORE_BLOCKCHAIN"),
-		storeAddress:             os.Getenv("STORE_ADDRESS"),
-		ethereumMainURI:          os.Getenv("ETHEREUM_MAIN_URI"),
-		ethereumSecondaryURI:     os.Getenv("ETHEREUM_SECONDARY_URI"),
-		polygonMainURI:           os.Getenv("POLYGON_MAIN_URI"),
-		arbitrumMainURI:          os.Getenv("ARBITRUM_MAIN_URI"),
-		optimismMainURI:          os.Getenv("OPTIMISM_MAIN_URI"),
-		alchemyEthereumURI:       os.Getenv("ALCHEMY_ETHEREUM_URI"),
-		ensMetadataURI:           os.Getenv("ENS_METADATA_URI"),
-		cryptoKittiesMetadataURI: os.Getenv("CRYPTO_KITTIES_METADATA_URI"),
-		ipfsURI:                  os.Getenv("IPFS_URI"),
-		theGraphURI:              os.Getenv("THE_GRAPH_URI"),
-		theGraphHostedURI:        os.Getenv("THE_GRAPH_HOSTED_URI"),
-		defaultTokenAddresses:    os.Getenv("DEFAULT_TOKEN_ADDRESSES"),
-		spotlightProfileAddress:  os.Getenv("SPOTLIGHT_PROFILE_ADDRESS"),
+		redisAddr:                 os.Getenv("REDIS_ADDR"),
+		redisPassword:             os.Getenv("REDIS_PASSWORD"),
+		redisDB:                   os.Getenv("REDIS_DB"),
+		redisUseTLS:               os.Getenv("REDIS_USE_TLS"),
+		mongoURI:                  os.Getenv("MONGO_URI"),
+		mongoDB:                   os.Getenv("MONGO_DB"),
+		storeBlockchain:           os.Getenv("STORE_BLOCKCHAIN"),
+		storeAddress:              os.Getenv("STORE_ADDRESS"),
+		ethereumMainURI:           os.Getenv("ETHEREUM_MAIN_URI"),
+		ethereumSecondaryURI:      os.Getenv("ETHEREUM_SECONDARY_URI"),
+		polygonMainURI:            os.Getenv("POLYGON_MAIN_URI"),
+		arbitrumMainURI:           os.Getenv("ARBITRUM_MAIN_URI"),
+		optimismMainURI:           os.Getenv("OPTIMISM_MAIN_URI"),
+		alchemyEthereumURI:        os.Getenv("ALCHEMY_ETHEREUM_URI"),
+		ensMetadataURI:            os.Getenv("ENS_METADATA_URI"),
+		cryptoKittiesMetadataURI:  os.Getenv("CRYPTO_KITTIES_METADATA_URI"),
+		ipfsURI:                   os.Getenv("IPFS_URI"),
+		theGraphURI:               os.Getenv("THE_GRAPH_URI"),
+		theGraphHostedURI:         os.Getenv("THE_GRAPH_HOSTED_URI"),
+		defaultTokenAddresses:     os.Getenv("DEFAULT_TOKEN_ADDRESSES"),
+		spotlightProfileAddresses: os.Getenv("SPOTLIGHT_PROFILE_ADDRESSES"),
 	}
 }
 
@@ -177,6 +177,6 @@ func (s *settings) DefaultTokenAddresses() []string {
 	return strings.Split(s.defaultTokenAddresses, ",")
 }
 
-func (s *settings) SpotlightProfileAddress() string {
-	return s.spotlightProfileAddress
+func (s *settings) SpotlightProfileAddresses() []string {
+	return strings.Split(s.spotlightProfileAddresses, ",")
 }

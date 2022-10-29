@@ -32,7 +32,7 @@ type IHttpPresenter interface {
 	PresentInteraction(http.ResponseWriter, *http.Request, *entities.Interaction)
 	PresentProfile(http.ResponseWriter, *http.Request, *entities.Profile)
 	PresentSavedProfile(http.ResponseWriter, *http.Request)
-	PresentTopProfiles(http.ResponseWriter, *http.Request, *[]entities.Profile)
+	PresentProfiles(http.ResponseWriter, *http.Request, *[]entities.Profile)
 	PresentRefreshedProfile(w http.ResponseWriter, r *http.Request)
 	PresentCurrency(w http.ResponseWriter, r *http.Request, currency *entities.Currency)
 }
@@ -83,10 +83,6 @@ func toChallengeJson(challenge *entities.Challenge) *challengeJson {
 }
 
 func toProfileJson(profile *entities.Profile) *profileJson {
-	var profilePicutre *nonFungibleTokenJson
-	if profile.ProfilePicture != nil {
-		profilePicutre = toNonFungibleJson(profile.ProfilePicture)
-	}
 	return &profileJson{
 		Address:      profile.Address,
 		LastModified: profile.LastModified,
@@ -96,7 +92,7 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 			BetaTester: profile.StoreAssets.BetaTester,
 		},
 		DisplayConfig:     toDisplayConfigJson(profile.DisplayConfig),
-		ProfilePicture:    profilePicutre,
+		ProfilePicture:    toNonFungibleJson(profile.ProfilePicture),
 		NonFungibleTokens: toNonFungibleTokensJson(profile.NonFungibleTokens),
 		FungibleTokens:    toFungibleTokensJson(profile.FungibleTokens),
 		Statistics:        toStatisticsJson(profile.Statistics),
@@ -106,6 +102,10 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 }
 
 func toNonFungibleTokensJson(nfts *[]entities.NonFungibleToken) *[]nonFungibleTokenJson {
+	if nfts == nil {
+		return nil
+	}
+
 	nftsJson := []nonFungibleTokenJson{}
 
 	for _, nft := range *nfts {
@@ -116,6 +116,10 @@ func toNonFungibleTokensJson(nfts *[]entities.NonFungibleToken) *[]nonFungibleTo
 }
 
 func toFungibleTokensJson(tokens *[]entities.FungibleToken) *[]fungibleTokenJson {
+	if tokens == nil {
+		return nil
+	}
+
 	tokensJson := []fungibleTokenJson{}
 
 	for _, token := range *tokens {
@@ -126,6 +130,10 @@ func toFungibleTokensJson(tokens *[]entities.FungibleToken) *[]fungibleTokenJson
 }
 
 func toStatisticsJson(stats *[]entities.Statistic) *[]statisticJson {
+	if stats == nil {
+		return nil
+	}
+
 	statsJson := []statisticJson{}
 
 	for _, stat := range *stats {
@@ -136,6 +144,10 @@ func toStatisticsJson(stats *[]entities.Statistic) *[]statisticJson {
 }
 
 func toInteractionsJson(interactions *[]entities.Interaction) *[]interactionJson {
+	if interactions == nil {
+		return nil
+	}
+
 	interactionsJson := []interactionJson{}
 
 	for _, interaction := range *interactions {
@@ -146,6 +158,10 @@ func toInteractionsJson(interactions *[]entities.Interaction) *[]interactionJson
 }
 
 func toCurrenciesJson(currencies *[]entities.Currency) *[]currencyJson {
+	if currencies == nil {
+		return nil
+	}
+
 	currenciesJson := []currencyJson{}
 
 	for _, currency := range *currencies {
@@ -168,6 +184,10 @@ func toFungibleJson(token *entities.FungibleToken) *fungibleTokenJson {
 }
 
 func toNonFungibleJson(nft *entities.NonFungibleToken) *nonFungibleTokenJson {
+	if nft == nil {
+		return nil
+	}
+
 	return &nonFungibleTokenJson{
 		Contract: toContractJson(nft.Contract),
 		TokenId:  nft.TokenId,
@@ -296,11 +316,11 @@ type profileJson struct {
 	StoreAssets       *storeAssetsJson        `json:"store_assets"`
 	DisplayConfig     *displayConfigJson      `json:"display_config,omitempty"`
 	ProfilePicture    *nonFungibleTokenJson   `json:"profile_picture,omitempty"`
-	NonFungibleTokens *[]nonFungibleTokenJson `json:"non_fungible_tokens"`
-	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens"`
-	Statistics        *[]statisticJson        `json:"statistics"`
-	Interactions      *[]interactionJson      `json:"interactions"`
-	Currencies        *[]currencyJson         `json:"currencies"`
+	NonFungibleTokens *[]nonFungibleTokenJson `json:"non_fungible_tokens,omitempty"`
+	FungibleTokens    *[]fungibleTokenJson    `json:"fungible_tokens,omitempty"`
+	Statistics        *[]statisticJson        `json:"statistics,omitempty"`
+	Interactions      *[]interactionJson      `json:"interactions,omitempty"`
+	Currencies        *[]currencyJson         `json:"currencies,omitempty"`
 }
 
 type contractJson struct {

@@ -33,7 +33,7 @@ func NewHttpController(
 	refreshProfile usecases.IRefreshProfileUseCase,
 	getCurrency usecases.IGetCurrencyUseCase,
 	verifyRateLimit usecases.IVerifyRateLimitUseCase,
-	getSpotlightProfile usecases.IGetSpotlightProfileUseCase,
+	getSpotlightProfiles usecases.IGetSpotlightProfilesUseCase,
 ) IHttpController {
 	return &controller{
 		appSettings,
@@ -54,7 +54,7 @@ func NewHttpController(
 		refreshProfile,
 		getCurrency,
 		verifyRateLimit,
-		getSpotlightProfile,
+		getSpotlightProfiles,
 	}
 }
 
@@ -64,25 +64,25 @@ type IHttpController interface {
 }
 
 type controller struct {
-	appSettings         common.IAppSettings
-	logger              common.ILogger
-	settings            settings.ISettings
-	presenter           presenter.IHttpPresenter
-	getProfile          usecases.IGetProfileUseCase
-	saveProfile         usecases.ISaveProfileUseCase
-	getChallenge        usecases.IGetChallengeUseCase
-	verifyChallenge     usecases.IVerifyChallengeUseCase
-	getNonFungibleToken usecases.IGetNonFungibleTokenUseCase
-	resolveAddress      usecases.IResolveAddressUseCase
-	getFungibleToken    usecases.IGetFungibleTokenUseCase
-	getStatistic        usecases.IGetStatisticUseCase
-	getInteraction      usecases.IGetInteractionUseCase
-	recordProfileView   usecases.IRecordProfileViewUseCase
-	getTopProfiles      usecases.IGetTopProfilesUseCase
-	refreshProfile      usecases.IRefreshProfileUseCase
-	getCurrency         usecases.IGetCurrencyUseCase
-	verifyRateLimit     usecases.IVerifyRateLimitUseCase
-	getSpotlightProfile usecases.IGetSpotlightProfileUseCase
+	appSettings          common.IAppSettings
+	logger               common.ILogger
+	settings             settings.ISettings
+	presenter            presenter.IHttpPresenter
+	getProfile           usecases.IGetProfileUseCase
+	saveProfile          usecases.ISaveProfileUseCase
+	getChallenge         usecases.IGetChallengeUseCase
+	verifyChallenge      usecases.IVerifyChallengeUseCase
+	getNonFungibleToken  usecases.IGetNonFungibleTokenUseCase
+	resolveAddress       usecases.IResolveAddressUseCase
+	getFungibleToken     usecases.IGetFungibleTokenUseCase
+	getStatistic         usecases.IGetStatisticUseCase
+	getInteraction       usecases.IGetInteractionUseCase
+	recordProfileView    usecases.IRecordProfileViewUseCase
+	getTopProfiles       usecases.IGetTopProfilesUseCase
+	refreshProfile       usecases.IRefreshProfileUseCase
+	getCurrency          usecases.IGetCurrencyUseCase
+	verifyRateLimit      usecases.IVerifyRateLimitUseCase
+	getSpotlightProfiles usecases.IGetSpotlightProfilesUseCase
 }
 
 func (hc *controller) Start(ctx context.Context) error {

@@ -39,7 +39,7 @@ func (uc *refreshProfileUseCase) Do(ctx context.Context, input *RefreshProfileIn
 		return err
 	}
 
-	profile, err := uc.cacheGateway.GetProfileByAddress(ctx, input.Address)
+	profile, err := uc.cacheGateway.GetProfileByAddress(ctx, "regular", input.Address)
 
 	if err != nil {
 		uc.logger.Debug(ctx).Err(err).Msgf("skipping profile refresh %v", input.Address)
@@ -55,5 +55,5 @@ func (uc *refreshProfileUseCase) Do(ctx context.Context, input *RefreshProfileIn
 	profile.StoreAssets.Premium = balances[0].Cmp(big.NewInt(0)) == 1
 	profile.StoreAssets.BetaTester = balances[1].Cmp(big.NewInt(0)) == 1
 
-	return uc.cacheGateway.SaveProfile(ctx, profile)
+	return uc.cacheGateway.SaveProfile(ctx, "regular", profile)
 }

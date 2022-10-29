@@ -186,61 +186,79 @@ func fromChallengeJson(challengeJson *challengeJson) *entities.Challenge {
 }
 
 func fromProfileJson(profileJson *profileJson) *entities.Profile {
+	return &entities.Profile{
+		Address:      profileJson.Address,
+		Banned:       profileJson.Banned,
+		LastModified: profileJson.LastModified,
+		ENSName:      profileJson.ENSName,
+		StoreAssets: &entities.StoreAssets{
+			Premium:    profileJson.StoreAssets.Premium,
+			BetaTester: profileJson.StoreAssets.BetaTester,
+		},
+		ProfilePicture:    fromNonFungibleTokenJson(profileJson.ProfilePicture),
+		DisplayConfig:     fromDisplayConfigJson(profileJson.DisplayConfig),
+		NonFungibleTokens: fromNonFungibleTokensJson(profileJson.NonFungibleTokens),
+		FungibleTokens:    fromFungibleTokensJson(profileJson.FungibleTokens),
+		Statistics:        fromStatsJson(profileJson.Statistics),
+		Interactions:      fromInteractionsJson(profileJson.Interactions),
+		Currencies:        fromCurrenciesJson(profileJson.Currencies),
+	}
+}
+
+func fromNonFungibleTokensJson(nftsJson *[]nonFungibleTokenJson) *[]entities.NonFungibleToken {
+	if nftsJson == nil {
+		return nil
+	}
+
 	nfts := []entities.NonFungibleToken{}
-	for _, nft := range *profileJson.NonFungibleTokens {
-		var metadata *entities.NonFungibleMetadata
-		if nft.Metadata != nil {
-			metadata = &entities.NonFungibleMetadata{
-				Name:        nft.Metadata.Name,
-				Description: nft.Metadata.Description,
-				Image:       nft.Metadata.Image,
-				Attributes:  nft.Metadata.Attributes,
-			}
-		}
-		nfts = append(nfts, entities.NonFungibleToken{
-			TokenId: nft.TokenId,
-			Contract: &entities.Contract{
-				Blockchain: nft.Contract.Blockchain,
-				Address:    nft.Contract.Address,
-				Interface:  nft.Contract.Interface,
-			},
-			Balance:  nft.Balance,
-			Metadata: metadata,
-		})
+	for _, nftJson := range *nftsJson {
+		nfts = append(nfts, *fromNonFungibleTokenJson(&nftJson))
+	}
+
+	return &nfts
+}
+
+func fromFungibleTokensJson(tokensJson *[]fungibleTokenJson) *[]entities.FungibleToken {
+	if tokensJson == nil {
+		return nil
 	}
 
 	tokens := []entities.FungibleToken{}
-	for _, token := range *profileJson.FungibleTokens {
+	for _, token := range *tokensJson {
 		tokens = append(tokens, entities.FungibleToken{
-			Contract: &entities.Contract{
-				Blockchain: token.Contract.Blockchain,
-				Address:    token.Contract.Address,
-				Interface:  token.Contract.Interface,
-			},
-			Balance: token.Balance,
-			Metadata: &entities.FungibleMetadata{
-				Name:     token.Metadata.Name,
-				Symbol:   token.Metadata.Symbol,
-				Decimals: token.Metadata.Decimals,
-			},
+			Contract: fromContractJson(token.Contract),
+			Balance:  token.Balance,
+			Metadata: fromFungibleMetadataJson(token.Metadata),
 		})
+	}
+
+	return &tokens
+}
+
+func fromStatsJson(statsJson *[]statisticJson) *[]entities.Statistic {
+	if statsJson == nil {
+		return nil
 	}
 
 	stats := []entities.Statistic{}
-	for _, stat := range *profileJson.Statistics {
+	for _, stat := range *statsJson {
 		stats = append(stats, entities.Statistic{
-			Type: stat.Type,
-			Contract: &entities.Contract{
-				Blockchain: stat.Contract.Blockchain,
-				Address:    stat.Contract.Address,
-				Interface:  stat.Contract.Interface,
-			},
-			Data: stat.Data,
+			Type:     stat.Type,
+			Contract: fromContractJson(stat.Contract),
+			Data:     stat.Data,
 		})
 	}
 
+	return &stats
+}
+
+func fromInteractionsJson(interactionsJson *[]interactionJson) *[]entities.Interaction {
+	if interactionsJson == nil {
+		return nil
+	}
+
 	interactions := []entities.Interaction{}
-	for _, interaction := range *profileJson.Interactions {
+	for _, interaction := range *interactionsJson {
 		interactions = append(interactions, entities.Interaction{
 			Type: interaction.Type,
 			Transaction: &entities.Transaction{
@@ -251,106 +269,109 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 		})
 	}
 
+	return &interactions
+}
+
+func fromCurrenciesJson(currenciesJson *[]currencyJson) *[]entities.Currency {
+	if currenciesJson == nil {
+		return nil
+	}
+
 	currencies := []entities.Currency{}
-	for _, currency := range *profileJson.Currencies {
+	for _, currency := range *currenciesJson {
 		currencies = append(currencies, entities.Currency{
 			Blockchain: currency.Blockchain,
 			Balance:    currency.Balance,
 		})
 	}
 
-	var config *entities.DisplayConfig
-	if profileJson.DisplayConfig != nil {
-		config = &entities.DisplayConfig{
-			Colors: &entities.DisplayColors{
-				Primary:       profileJson.DisplayConfig.Colors.Primary,
-				Secondary:     profileJson.DisplayConfig.Colors.Secondary,
-				PrimaryText:   profileJson.DisplayConfig.Colors.PrimaryText,
-				SecondaryText: profileJson.DisplayConfig.Colors.SecondaryText,
-				Shadow:        profileJson.DisplayConfig.Colors.Shadow,
-				Accent:        profileJson.DisplayConfig.Colors.Accent,
-			},
-			Info: &entities.DisplayInfo{
-				Title:         profileJson.DisplayConfig.Info.Title,
-				Description:   profileJson.DisplayConfig.Info.Description,
-				TwitterHandle: profileJson.DisplayConfig.Info.TwitterHandle,
-			},
-			Achievements: &entities.DisplayAchievements{
-				Text:  profileJson.DisplayConfig.Achievements.Text,
-				Items: &[]entities.DisplayAchievement{},
-			},
-			Groups: &[]entities.DisplayGroup{},
-		}
+	return &currencies
+}
 
-		for _, achievement := range *profileJson.DisplayConfig.Achievements.Items {
-			items := append(*config.Achievements.Items, entities.DisplayAchievement{
-				Id:    achievement.Id,
-				Index: achievement.Index,
-				Type:  achievement.Type,
-			})
-			config.Achievements.Items = &items
-		}
-
-		for _, groupJson := range *profileJson.DisplayConfig.Groups {
-			group := entities.DisplayGroup{
-				Id:    groupJson.Id,
-				Text:  groupJson.Text,
-				Items: &[]entities.DisplayItem{},
-			}
-
-			for _, item := range *groupJson.Items {
-				items := append(*group.Items, entities.DisplayItem{
-					Id:    item.Id,
-					Index: item.Index,
-					Type:  item.Type,
-				})
-				group.Items = &items
-			}
-
-			groups := append(*config.Groups, group)
-			config.Groups = &groups
-		}
+func fromDisplayConfigJson(configJson *displayConfigJson) *entities.DisplayConfig {
+	if configJson == nil {
+		return nil
 	}
 
-	var profilePicture *entities.NonFungibleToken
-	if profileJson.ProfilePicture != nil {
-		profilePicture = &entities.NonFungibleToken{
-			TokenId: profileJson.ProfilePicture.TokenId,
-			Contract: &entities.Contract{
-				Blockchain: profileJson.ProfilePicture.Contract.Blockchain,
-				Address:    profileJson.ProfilePicture.Contract.Address,
-				Interface:  profileJson.ProfilePicture.Contract.Interface,
-			},
-			Balance: profileJson.ProfilePicture.Balance,
-			Metadata: &entities.NonFungibleMetadata{
-				Name:        profileJson.ProfilePicture.Metadata.Name,
-				Description: profileJson.ProfilePicture.Metadata.Description,
-				Image:       profileJson.ProfilePicture.Metadata.Image,
-				Attributes:  profileJson.ProfilePicture.Metadata.Attributes,
-			},
-		}
-	}
-
-	return &entities.Profile{
-		Address:      profileJson.Address,
-		Banned:       profileJson.Banned,
-		LastModified: profileJson.LastModified,
-		ENSName:      profileJson.ENSName,
-		StoreAssets: &entities.StoreAssets{
-			Premium:    profileJson.StoreAssets.Premium,
-			BetaTester: profileJson.StoreAssets.BetaTester,
+	config := &entities.DisplayConfig{
+		Colors: &entities.DisplayColors{
+			Primary:       configJson.Colors.Primary,
+			Secondary:     configJson.Colors.Secondary,
+			PrimaryText:   configJson.Colors.PrimaryText,
+			SecondaryText: configJson.Colors.SecondaryText,
+			Shadow:        configJson.Colors.Shadow,
+			Accent:        configJson.Colors.Accent,
 		},
-		ProfilePicture:    profilePicture,
-		DisplayConfig:     config,
-		NonFungibleTokens: &nfts,
-		FungibleTokens:    &tokens,
-		Statistics:        &stats,
-		Interactions:      &interactions,
-		Currencies:        &currencies,
+		Info: &entities.DisplayInfo{
+			Title:         configJson.Info.Title,
+			Description:   configJson.Info.Description,
+			TwitterHandle: configJson.Info.TwitterHandle,
+		},
+		Achievements: &entities.DisplayAchievements{
+			Text:  configJson.Achievements.Text,
+			Items: &[]entities.DisplayAchievement{},
+		},
+		Groups: &[]entities.DisplayGroup{},
+	}
+
+	for _, achievement := range *configJson.Achievements.Items {
+		items := append(*config.Achievements.Items, entities.DisplayAchievement{
+			Id:    achievement.Id,
+			Index: achievement.Index,
+			Type:  achievement.Type,
+		})
+		config.Achievements.Items = &items
+	}
+
+	for _, groupJson := range *configJson.Groups {
+		group := entities.DisplayGroup{
+			Id:    groupJson.Id,
+			Text:  groupJson.Text,
+			Items: &[]entities.DisplayItem{},
+		}
+
+		for _, item := range *groupJson.Items {
+			items := append(*group.Items, entities.DisplayItem{
+				Id:    item.Id,
+				Index: item.Index,
+				Type:  item.Type,
+			})
+			group.Items = &items
+		}
+
+		groups := append(*config.Groups, group)
+		config.Groups = &groups
+	}
+
+	return config
+}
+
+func fromNonFungibleTokenJson(nft *nonFungibleTokenJson) *entities.NonFungibleToken {
+	if nft == nil {
+		return nil
+	}
+
+	return &entities.NonFungibleToken{
+		TokenId:  nft.TokenId,
+		Contract: fromContractJson(nft.Contract),
+		Balance:  nft.Balance,
+		Metadata: fromNonFungibleMetadataJson(nft.Metadata),
+	}
+}
+
+func fromContractJson(contract *contractJson) *entities.Contract {
+	return &entities.Contract{
+		Blockchain: contract.Blockchain,
+		Address:    contract.Address,
+		Interface:  contract.Interface,
 	}
 }
 
 func fromNonFungibleMetadataJson(metadata *nonFungibleMetadataJson) *entities.NonFungibleMetadata {
+	if metadata == nil {
+		return nil
+	}
+
 	return &entities.NonFungibleMetadata{
 		Name:        metadata.Name,
 		Description: metadata.Description,
@@ -376,151 +397,6 @@ func toChallengeJson(challenge *entities.Challenge) *challengeJson {
 }
 
 func toProfileJson(profile *entities.Profile) *profileJson {
-	nfts := []nonFungibleTokenJson{}
-	for _, nft := range *profile.NonFungibleTokens {
-		var metadata *nonFungibleMetadataJson
-		if nft.Metadata != nil {
-			metadata = &nonFungibleMetadataJson{
-				Name:        nft.Metadata.Name,
-				Description: nft.Metadata.Description,
-				Image:       nft.Metadata.Image,
-				Attributes:  nft.Metadata.Attributes,
-			}
-		}
-		nfts = append(nfts, nonFungibleTokenJson{
-			TokenId: nft.TokenId,
-			Contract: &contractJson{
-				Blockchain: nft.Contract.Blockchain,
-				Address:    nft.Contract.Address,
-				Interface:  nft.Contract.Interface,
-			},
-			Balance:  nft.Balance,
-			Metadata: metadata,
-		})
-	}
-
-	tokens := []fungibleTokenJson{}
-	for _, token := range *profile.FungibleTokens {
-		tokens = append(tokens, fungibleTokenJson{
-			Contract: &contractJson{
-				Blockchain: token.Contract.Blockchain,
-				Address:    token.Contract.Address,
-				Interface:  token.Contract.Interface,
-			},
-			Balance: token.Balance,
-			Metadata: &fungibleMetadataJson{
-				Name:     token.Metadata.Name,
-				Symbol:   token.Metadata.Symbol,
-				Decimals: token.Metadata.Decimals,
-			},
-		})
-	}
-
-	stats := []statisticJson{}
-	for _, stat := range *profile.Statistics {
-		stats = append(stats, statisticJson{
-			Type: stat.Type,
-			Contract: &contractJson{
-				Blockchain: stat.Contract.Blockchain,
-				Address:    stat.Contract.Address,
-				Interface:  stat.Contract.Interface,
-			},
-			Data: stat.Data,
-		})
-	}
-
-	interactions := []interactionJson{}
-	for _, interaction := range *profile.Interactions {
-		interactions = append(interactions, interactionJson{
-			Type: interaction.Type,
-			Transaction: &transactionJson{
-				Blockchain: interaction.Transaction.Blockchain,
-				Id:         interaction.Transaction.Id,
-			},
-			Timestamp: interaction.Timestamp,
-		})
-	}
-
-	currencies := []currencyJson{}
-	for _, currency := range *profile.Currencies {
-		currencies = append(currencies, currencyJson{
-			Blockchain: currency.Blockchain,
-			Balance:    currency.Balance,
-		})
-	}
-
-	var config *displayConfigJson
-	if profile.DisplayConfig != nil {
-		config = &displayConfigJson{
-			Colors: &displayColorsJson{
-				Primary:       profile.DisplayConfig.Colors.Primary,
-				Secondary:     profile.DisplayConfig.Colors.Secondary,
-				PrimaryText:   profile.DisplayConfig.Colors.PrimaryText,
-				SecondaryText: profile.DisplayConfig.Colors.SecondaryText,
-				Shadow:        profile.DisplayConfig.Colors.Shadow,
-				Accent:        profile.DisplayConfig.Colors.Accent,
-			},
-			Info: &displayInfoJson{
-				Title:         profile.DisplayConfig.Info.Title,
-				Description:   profile.DisplayConfig.Info.Description,
-				TwitterHandle: profile.DisplayConfig.Info.TwitterHandle,
-			},
-			Achievements: &displayAchievementsJson{
-				Text:  profile.DisplayConfig.Achievements.Text,
-				Items: &[]displayAchievementJson{},
-			},
-			Groups: &[]displayGroupJson{},
-		}
-
-		for _, achievement := range *profile.DisplayConfig.Achievements.Items {
-			items := append(*config.Achievements.Items, displayAchievementJson{
-				Id:    achievement.Id,
-				Index: achievement.Index,
-				Type:  achievement.Type,
-			})
-			config.Achievements.Items = &items
-		}
-
-		for _, group := range *profile.DisplayConfig.Groups {
-			groupJson := displayGroupJson{
-				Id:    group.Id,
-				Text:  group.Text,
-				Items: &[]displayItemJson{},
-			}
-
-			for _, item := range *group.Items {
-				items := append(*groupJson.Items, displayItemJson{
-					Id:    item.Id,
-					Index: item.Index,
-					Type:  item.Type,
-				})
-				groupJson.Items = &items
-			}
-
-			groups := append(*config.Groups, groupJson)
-			config.Groups = &groups
-		}
-	}
-
-	var profilePicture *nonFungibleTokenJson
-	if profile.ProfilePicture != nil {
-		profilePicture = &nonFungibleTokenJson{
-			TokenId: profile.ProfilePicture.TokenId,
-			Contract: &contractJson{
-				Blockchain: profile.ProfilePicture.Contract.Blockchain,
-				Address:    profile.ProfilePicture.Contract.Address,
-				Interface:  profile.ProfilePicture.Contract.Interface,
-			},
-			Balance: profile.ProfilePicture.Balance,
-			Metadata: &nonFungibleMetadataJson{
-				Name:        profile.ProfilePicture.Metadata.Name,
-				Description: profile.ProfilePicture.Metadata.Description,
-				Image:       profile.ProfilePicture.Metadata.Image,
-				Attributes:  profile.ProfilePicture.Metadata.Attributes,
-			},
-		}
-	}
-
 	return &profileJson{
 		Address:      profile.Address,
 		Banned:       profile.Banned,
@@ -530,17 +406,183 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 			Premium:    profile.StoreAssets.Premium,
 			BetaTester: profile.StoreAssets.BetaTester,
 		},
-		ProfilePicture:    profilePicture,
-		DisplayConfig:     config,
-		NonFungibleTokens: &nfts,
-		FungibleTokens:    &tokens,
-		Statistics:        &stats,
-		Interactions:      &interactions,
-		Currencies:        &currencies,
+		ProfilePicture:    toNonFungibleTokenJson(profile.ProfilePicture),
+		DisplayConfig:     toDisplayConfigJson(profile.DisplayConfig),
+		NonFungibleTokens: toNonFungibleTokensJson(profile.NonFungibleTokens),
+		FungibleTokens:    toFungibleTokensJson(profile.FungibleTokens),
+		Statistics:        toStatsJson(profile.Statistics),
+		Interactions:      toInteractionsJson(profile.Interactions),
+		Currencies:        toCurrenciesJson(profile.Currencies),
+	}
+}
+
+func toNonFungibleTokensJson(nfts *[]entities.NonFungibleToken) *[]nonFungibleTokenJson {
+	if nfts == nil {
+		return nil
+	}
+
+	nftsJson := []nonFungibleTokenJson{}
+	for _, nft := range *nfts {
+		nftsJson = append(nftsJson, *toNonFungibleTokenJson(&nft))
+	}
+
+	return &nftsJson
+}
+
+func toFungibleTokensJson(tokens *[]entities.FungibleToken) *[]fungibleTokenJson {
+	if tokens == nil {
+		return nil
+	}
+
+	tokensJson := []fungibleTokenJson{}
+	for _, token := range *tokens {
+		tokensJson = append(tokensJson, fungibleTokenJson{
+			Contract: toContractJosn(token.Contract),
+			Balance:  token.Balance,
+			Metadata: toFungibleMetadataJson(token.Metadata),
+		})
+	}
+
+	return &tokensJson
+}
+
+func toStatsJson(stats *[]entities.Statistic) *[]statisticJson {
+	if stats == nil {
+		return nil
+	}
+
+	statsJson := []statisticJson{}
+	for _, stat := range *stats {
+		statsJson = append(statsJson, statisticJson{
+			Type:     stat.Type,
+			Contract: toContractJosn(stat.Contract),
+			Data:     stat.Data,
+		})
+	}
+
+	return &statsJson
+}
+
+func toInteractionsJson(interactions *[]entities.Interaction) *[]interactionJson {
+	if interactions == nil {
+		return nil
+	}
+
+	interactionsJson := []interactionJson{}
+	for _, interaction := range *interactions {
+		interactionsJson = append(interactionsJson, interactionJson{
+			Type: interaction.Type,
+			Transaction: &transactionJson{
+				Blockchain: interaction.Transaction.Blockchain,
+				Id:         interaction.Transaction.Id,
+			},
+			Timestamp: interaction.Timestamp,
+		})
+	}
+
+	return &interactionsJson
+}
+
+func toCurrenciesJson(currencies *[]entities.Currency) *[]currencyJson {
+	if currencies == nil {
+		return nil
+	}
+
+	currenciesJson := []currencyJson{}
+	for _, currency := range *currencies {
+		currenciesJson = append(currenciesJson, currencyJson{
+			Blockchain: currency.Blockchain,
+			Balance:    currency.Balance,
+		})
+	}
+
+	return &currenciesJson
+}
+
+func toDisplayConfigJson(config *entities.DisplayConfig) *displayConfigJson {
+	if config == nil {
+		return nil
+	}
+
+	configJson := &displayConfigJson{
+		Colors: &displayColorsJson{
+			Primary:       config.Colors.Primary,
+			Secondary:     config.Colors.Secondary,
+			PrimaryText:   config.Colors.PrimaryText,
+			SecondaryText: config.Colors.SecondaryText,
+			Shadow:        config.Colors.Shadow,
+			Accent:        config.Colors.Accent,
+		},
+		Info: &displayInfoJson{
+			Title:         config.Info.Title,
+			Description:   config.Info.Description,
+			TwitterHandle: config.Info.TwitterHandle,
+		},
+		Achievements: &displayAchievementsJson{
+			Text:  config.Achievements.Text,
+			Items: &[]displayAchievementJson{},
+		},
+		Groups: &[]displayGroupJson{},
+	}
+
+	for _, achievement := range *config.Achievements.Items {
+		items := append(*configJson.Achievements.Items, displayAchievementJson{
+			Id:    achievement.Id,
+			Index: achievement.Index,
+			Type:  achievement.Type,
+		})
+		configJson.Achievements.Items = &items
+	}
+
+	for _, group := range *config.Groups {
+		groupJson := displayGroupJson{
+			Id:    group.Id,
+			Text:  group.Text,
+			Items: &[]displayItemJson{},
+		}
+
+		for _, item := range *group.Items {
+			items := append(*groupJson.Items, displayItemJson{
+				Id:    item.Id,
+				Index: item.Index,
+				Type:  item.Type,
+			})
+			groupJson.Items = &items
+		}
+
+		groups := append(*configJson.Groups, groupJson)
+		configJson.Groups = &groups
+	}
+
+	return configJson
+}
+
+func toNonFungibleTokenJson(nft *entities.NonFungibleToken) *nonFungibleTokenJson {
+	if nft == nil {
+		return nil
+	}
+
+	return &nonFungibleTokenJson{
+		TokenId:  nft.TokenId,
+		Contract: toContractJosn(nft.Contract),
+		Balance:  nft.Balance,
+		Metadata: toNonFungibleMetadataJson(nft.Metadata),
+	}
+}
+
+func toContractJosn(contract *entities.Contract) *contractJson {
+	return &contractJson{
+		Blockchain: contract.Blockchain,
+		Address:    contract.Address,
+		Interface:  contract.Interface,
 	}
 }
 
 func toNonFungibleMetadataJson(metadata *entities.NonFungibleMetadata) *nonFungibleMetadataJson {
+	if metadata == nil {
+		return nil
+	}
+
 	return &nonFungibleMetadataJson{
 		Name:        metadata.Name,
 		Description: metadata.Description,

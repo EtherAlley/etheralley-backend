@@ -81,19 +81,15 @@ func (hc *controller) getTopProfilesRoute(w http.ResponseWriter, r *http.Request
 
 	profiles := hc.getTopProfiles.Do(ctx, &usecases.GetTopProfilesInput{})
 
-	hc.presenter.PresentTopProfiles(w, r, profiles)
+	hc.presenter.PresentProfiles(w, r, profiles)
 }
 
 func (hc *controller) getSpotlightProfileRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	profile, err := hc.getSpotlightProfile.Do(ctx, &usecases.GetSpotlightProfileInput{})
+	profiles := hc.getSpotlightProfiles.Do(ctx, &usecases.GetSpotlightProfilesInput{})
 
-	if err != nil {
-		hc.presenter.PresentBadRequest(w, r, err)
-	}
-
-	hc.presenter.PresentProfile(w, r, profile)
+	hc.presenter.PresentProfiles(w, r, profiles)
 }
 
 func (hc *controller) refreshProfileRoute(w http.ResponseWriter, r *http.Request) {
