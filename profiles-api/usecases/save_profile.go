@@ -208,20 +208,11 @@ func toDisplayConfig(input *DisplayConfigInput) *entities.DisplayConfig {
 			Description:   input.Info.Description,
 			TwitterHandle: input.Info.TwitterHandle,
 		},
-		Picture: &entities.DisplayPicture{},
 		Achievements: &entities.DisplayAchievements{
 			Text:  input.Achievements.Text,
 			Items: &[]entities.DisplayAchievement{},
 		},
 		Groups: &[]entities.DisplayGroup{},
-	}
-
-	if input.Picture.Item != nil {
-		config.Picture.Item = &entities.DisplayItem{
-			Id:    input.Picture.Item.Id,
-			Index: input.Picture.Item.Index,
-			Type:  input.Picture.Item.Type,
-		}
 	}
 
 	for _, achievement := range *input.Achievements.Items {

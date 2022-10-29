@@ -246,20 +246,11 @@ func toDisplayConfigJson(displayConfig *entities.DisplayConfig) *displayConfigJs
 			Description:   displayConfig.Info.Description,
 			TwitterHandle: displayConfig.Info.TwitterHandle,
 		},
-		Picture: &displayPictureJson{},
 		Achievements: &displayAchievementsJson{
 			Text:  displayConfig.Achievements.Text,
 			Items: &[]displayAchievementJson{},
 		},
 		Groups: &[]displayGroupJson{},
-	}
-
-	if displayConfig.Picture.Item != nil {
-		config.Picture.Item = &displayItemJson{
-			Id:    displayConfig.Picture.Item.Id,
-			Index: displayConfig.Picture.Item.Index,
-			Type:  displayConfig.Picture.Item.Type,
-		}
 	}
 
 	for _, achievement := range *displayConfig.Achievements.Items {
@@ -374,7 +365,6 @@ type storeAssetsJson struct {
 type displayConfigJson struct {
 	Colors       *displayColorsJson       `json:"colors"`
 	Info         *displayInfoJson         `json:"info"`
-	Picture      *displayPictureJson      `json:"picture"`
 	Achievements *displayAchievementsJson `json:"achievements"`
 	Groups       *[]displayGroupJson      `json:"groups"`
 }
@@ -392,10 +382,6 @@ type displayInfoJson struct {
 	Title         string `json:"title"`
 	Description   string `json:"description"`
 	TwitterHandle string `json:"twitter_handle"`
-}
-
-type displayPictureJson struct {
-	Item *displayItemJson `json:"item"` // Item can be nil
 }
 
 type displayAchievementsJson struct {

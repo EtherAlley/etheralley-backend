@@ -135,7 +135,6 @@ type storeAssetsJson struct {
 type displayConfigJson struct {
 	Colors       *displayColorsJson       `json:"colors"`
 	Info         *displayInfoJson         `json:"info"`
-	Picture      *displayPictureJson      `json:"picture"`
 	Achievements *displayAchievementsJson `json:"achievements"`
 	Groups       *[]displayGroupJson      `json:"groups"`
 }
@@ -153,10 +152,6 @@ type displayInfoJson struct {
 	Title         string `json:"title"`
 	Description   string `json:"description"`
 	TwitterHandle string `json:"twitter_handle"`
-}
-
-type displayPictureJson struct {
-	Item *displayItemJson `json:"item,omitempty"` // Item can be nil
 }
 
 type displayAchievementsJson struct {
@@ -280,20 +275,11 @@ func fromProfileJson(profileJson *profileJson) *entities.Profile {
 				Description:   profileJson.DisplayConfig.Info.Description,
 				TwitterHandle: profileJson.DisplayConfig.Info.TwitterHandle,
 			},
-			Picture: &entities.DisplayPicture{},
 			Achievements: &entities.DisplayAchievements{
 				Text:  profileJson.DisplayConfig.Achievements.Text,
 				Items: &[]entities.DisplayAchievement{},
 			},
 			Groups: &[]entities.DisplayGroup{},
-		}
-
-		if profileJson.DisplayConfig.Picture.Item != nil {
-			config.Picture.Item = &entities.DisplayItem{
-				Id:    profileJson.DisplayConfig.Picture.Item.Id,
-				Index: profileJson.DisplayConfig.Picture.Item.Index,
-				Type:  profileJson.DisplayConfig.Picture.Item.Type,
-			}
 		}
 
 		for _, achievement := range *profileJson.DisplayConfig.Achievements.Items {
@@ -479,20 +465,11 @@ func toProfileJson(profile *entities.Profile) *profileJson {
 				Description:   profile.DisplayConfig.Info.Description,
 				TwitterHandle: profile.DisplayConfig.Info.TwitterHandle,
 			},
-			Picture: &displayPictureJson{},
 			Achievements: &displayAchievementsJson{
 				Text:  profile.DisplayConfig.Achievements.Text,
 				Items: &[]displayAchievementJson{},
 			},
 			Groups: &[]displayGroupJson{},
-		}
-
-		if profile.DisplayConfig.Picture.Item != nil {
-			config.Picture.Item = &displayItemJson{
-				Id:    profile.DisplayConfig.Picture.Item.Id,
-				Index: profile.DisplayConfig.Picture.Item.Index,
-				Type:  profile.DisplayConfig.Picture.Item.Type,
-			}
 		}
 
 		for _, achievement := range *profile.DisplayConfig.Achievements.Items {
