@@ -55,6 +55,10 @@ func (uc *saveProfileUseCase) Do(ctx context.Context, input *SaveProfileInput) e
 
 	// validate total badge count
 	badgeCount := len(*input.Profile.FungibleTokens) + len(*input.Profile.NonFungibleTokens) + len(*input.Profile.Statistics) + len(*input.Profile.Currencies)
+	if input.Profile.ProfilePicture != nil {
+		badgeCount++
+	}
+
 	balances, err := uc.blockchainGateway.GetStoreBalanceBatch(ctx, input.Profile.Address, &[]string{common.STORE_PREMIUM})
 
 	if err != nil {
@@ -85,8 +89,14 @@ func (uc *saveProfileUseCase) Do(ctx context.Context, input *SaveProfileInput) e
 		return fmt.Errorf("failed to validate interactions %w", err)
 	}
 
+	var profilePicture *entities.NonFungibleToken
+	if input.Profile.ProfilePicture != nil {
+		profilePicture = toNonFungibleToken(input.Profile.ProfilePicture)
+	}
+
 	profile := &entities.Profile{
 		Address:           input.Profile.Address,
+		ProfilePicture:    profilePicture,
 		Interactions:      interactions,
 		NonFungibleTokens: toNonFungibleTokens(input.Profile.NonFungibleTokens),
 		FungibleTokens:    toFungibleTokens(input.Profile.FungibleTokens),
@@ -126,17 +136,22 @@ func toInteractionInputs(profile *ProfileInput) *[]GetInteractionInput {
 
 func toNonFungibleTokens(nftInputs *[]NonFungibleTokenInput) *[]entities.NonFungibleToken {
 	nfts := []entities.NonFungibleToken{}
-	for _, nft := range *nftInputs {
-		nfts = append(nfts, entities.NonFungibleToken{
-			TokenId: nft.TokenId,
-			Contract: &entities.Contract{
-				Blockchain: nft.Contract.Blockchain,
-				Address:    nft.Contract.Address,
-				Interface:  nft.Contract.Interface,
-			},
-		})
+	for _, nftInput := range *nftInputs {
+		nft := toNonFungibleToken(&nftInput)
+		nfts = append(nfts, *nft)
 	}
 	return &nfts
+}
+
+func toNonFungibleToken(nft *NonFungibleTokenInput) *entities.NonFungibleToken {
+	return &entities.NonFungibleToken{
+		TokenId: nft.TokenId,
+		Contract: &entities.Contract{
+			Blockchain: nft.Contract.Blockchain,
+			Address:    nft.Contract.Address,
+			Interface:  nft.Contract.Interface,
+		},
+	}
 }
 
 func toFungibleTokens(tokenInputs *[]FungibleTokenInput) *[]entities.FungibleToken {

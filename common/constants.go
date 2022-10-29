@@ -68,9 +68,9 @@ const (
 
 const (
 	// This number should never be lower than the total count returned by default profile, so that new users can always save their initial profile
-	REGULAR_TOTAL_BADGE_COUNT uint = 25
+	REGULAR_TOTAL_BADGE_COUNT uint = 26
 	PREMIUM_TOTAL_BADGE_COUNT uint = 50
 	// Reminder: making these numbers bigger has implications for the max badge limit above. When a new user tries to save their default profile for the first time they may fail due to being above the badge limit
 	DEFAULT_TOKEN_CUTOFF uint = 6
-	DEFAULT_NFT_CUTOFF   uint = 12
+	DEFAULT_NFT_CUTOFF   uint = 13
 )

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/etheralley/etheralley-backend/profiles-api/entities"
 )
@@ -19,7 +19,7 @@ const filename = "profiles-api/gateways/offchain/assets/cryptopunks/metadata.jso
 
 // json metadata is read into memory on app init
 func (gw *gateway) initPunkMetadata() error {
-	file, err := ioutil.ReadFile(filename)
+	file, err := os.ReadFile(filename)
 
 	if err != nil {
 		return fmt.Errorf("could not read %v: %w", filename, err)

@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 
@@ -23,7 +23,7 @@ type tokenMetadata map[string]struct {
 // json metadata is read into memory on app init
 func (gw *gateway) initTokenMetadata() error {
 	for _, blockchain := range []common.Blockchain{common.ARBITRUM, common.ETHEREUM, common.POLYGON, common.OPTIMISM} {
-		file, err := ioutil.ReadFile(fmt.Sprintf("profiles-api/gateways/offchain/assets/tokens/%v.json", blockchain))
+		file, err := os.ReadFile(fmt.Sprintf("profiles-api/gateways/offchain/assets/tokens/%v.json", blockchain))
 
 		if err != nil {
 			return fmt.Errorf("could not read %v: %w", blockchain, err)

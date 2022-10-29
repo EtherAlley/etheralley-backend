@@ -91,7 +91,7 @@ func (uc *getDefaultProfileUseCase) Do(ctx context.Context, input *GetDefaultPro
 	go func() {
 		defer wg.Done()
 
-		nfts, err := uc.offchainGateway.GetNonFungibleTokens(ctx, input.Address)
+		nftsResp, err := uc.offchainGateway.GetNonFungibleTokens(ctx, input.Address)
 
 		if err != nil {
 			uc.logger.Warn(ctx).Err(err).Msgf("err fetching default nfts for address %v", input.Address)
@@ -99,14 +99,21 @@ func (uc *getDefaultProfileUseCase) Do(ctx context.Context, input *GetDefaultPro
 			return
 		}
 
-		trimmedNFTs := *nfts
-		cutoff := len(trimmedNFTs)
-		if cutoff > int(common.DEFAULT_NFT_CUTOFF) {
-			cutoff = int(common.DEFAULT_NFT_CUTOFF)
-		}
-		trimmedNFTs = trimmedNFTs[:cutoff]
+		nfts := *nftsResp
 
-		profile.NonFungibleTokens = &trimmedNFTs
+		// take the first nft for the profile picture
+		if len(nfts) > 0 {
+			profile.ProfilePicture = &nfts[0]
+		}
+
+		// take any remaining nfts for the display
+		if len(nfts) > 1 {
+			trimmedNFTs := nfts[1:common.DEFAULT_NFT_CUTOFF]
+			profile.NonFungibleTokens = &trimmedNFTs
+		} else {
+			profile.NonFungibleTokens = &[]entities.NonFungibleToken{}
+		}
+
 	}()
 
 	go func() {
