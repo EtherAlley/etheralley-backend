@@ -12,19 +12,19 @@ import (
 func NewGetTopProfilesUseCase(
 	logger common.ILogger,
 	cacheGateway gateways.ICacheGateway,
-	getProfile IGetProfileUseCase,
+	getLightProfile IGetLightProfileUseCase,
 ) IGetTopProfilesUseCase {
 	return &getTopProfilesUseCase{
 		logger,
 		cacheGateway,
-		getProfile,
+		getLightProfile,
 	}
 }
 
 type getTopProfilesUseCase struct {
-	logger       common.ILogger
-	cacheGateway gateways.ICacheGateway
-	getProfile   IGetProfileUseCase
+	logger          common.ILogger
+	cacheGateway    gateways.ICacheGateway
+	getLightProfile IGetLightProfileUseCase
 }
 
 type IGetTopProfilesUseCase interface {
@@ -54,7 +54,7 @@ func (uc *getTopProfilesUseCase) Do(ctx context.Context, input *GetTopProfilesIn
 		go func(i int, address string) {
 			defer wg.Done()
 
-			profile, err := uc.getProfile.Do(ctx, &GetProfileInput{
+			profile, err := uc.getLightProfile.Do(ctx, &GetLightProfileInput{
 				Address: address,
 			})
 

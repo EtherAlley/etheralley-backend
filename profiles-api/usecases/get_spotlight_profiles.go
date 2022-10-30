@@ -13,22 +13,22 @@ import (
 func NewGetSpotlightProfilesUseCase(
 	logger common.ILogger,
 	settings settings.ISettings,
-	getProfile IGetProfileUseCase,
+	getLightProfile IGetLightProfileUseCase,
 	cacheGateway gateways.ICacheGateway,
 ) IGetSpotlightProfilesUseCase {
 	return &getSpotlightProfilesUseCase{
 		logger,
 		settings,
-		getProfile,
+		getLightProfile,
 		cacheGateway,
 	}
 }
 
 type getSpotlightProfilesUseCase struct {
-	logger       common.ILogger
-	settings     settings.ISettings
-	getProfile   IGetProfileUseCase
-	cacheGateway gateways.ICacheGateway
+	logger          common.ILogger
+	settings        settings.ISettings
+	getLightProfile IGetLightProfileUseCase
+	cacheGateway    gateways.ICacheGateway
 }
 
 type IGetSpotlightProfilesUseCase interface {
@@ -55,7 +55,7 @@ func (uc *getSpotlightProfilesUseCase) Do(ctx context.Context, input *GetSpotlig
 		go func(i int, address string) {
 			defer wg.Done()
 
-			profile, err := uc.getProfile.Do(ctx, &GetProfileInput{
+			profile, err := uc.getLightProfile.Do(ctx, &GetLightProfileInput{
 				Address: address,
 			})
 

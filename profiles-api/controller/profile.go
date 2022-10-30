@@ -6,16 +6,24 @@ import (
 	"net/http"
 
 	"github.com/etheralley/etheralley-backend/common"
+	"github.com/etheralley/etheralley-backend/profiles-api/entities"
 	"github.com/etheralley/etheralley-backend/profiles-api/usecases"
 )
 
 func (hc *controller) getProfileByAddressRoute(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	address := ctx.Value(common.ContextKeyAddress).(string)
+	hydration := r.URL.Query().Get("hydration")
 
-	profile, err := hc.getProfile.Do(ctx, &usecases.GetProfileInput{
-		Address: address,
-	})
+	var profile *entities.Profile
+	var err error
+	if hydration == common.LIGHT {
+		profile, err = hc.getLightProfile.Do(ctx, &usecases.GetLightProfileInput{Address: address})
+	} else {
+		profile, err = hc.getProfile.Do(ctx, &usecases.GetProfileInput{
+			Address: address,
+		})
+	}
 
 	if err != nil {
 		hc.presenter.PresentBadRequest(w, r, err)
