@@ -1,5 +1,12 @@
 package common
 
+type ProfileHydrationType = string
+
+const (
+	LIGHT = "light"
+	FULL  = "full"
+)
+
 type Blockchain = string
 
 const (

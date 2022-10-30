@@ -73,7 +73,7 @@ func (uc *getProfileUseCase) Do(ctx context.Context, input *GetProfileInput) (*e
 
 	uc.logger.Debug(ctx).Msgf("getting profile %v", input.Address)
 
-	profile, err := uc.cacheGateway.GetProfileByAddress(ctx, "regular", input.Address)
+	profile, err := uc.cacheGateway.GetProfileByAddress(ctx, common.FULL, input.Address)
 
 	if err == nil {
 		uc.logger.Debug(ctx).Msgf("cache hit %v", input.Address)
@@ -96,7 +96,7 @@ func (uc *getProfileUseCase) Do(ctx context.Context, input *GetProfileInput) (*e
 			return nil, err
 		}
 
-		uc.cacheGateway.SaveProfile(ctx, "regular", profile)
+		uc.cacheGateway.SaveProfile(ctx, common.FULL, profile)
 
 		return profile, nil
 	}
@@ -125,26 +125,28 @@ func (uc *getProfileUseCase) Do(ctx context.Context, input *GetProfileInput) (*e
 	go func() {
 		defer wg.Done()
 
-		if profile.ProfilePicture != nil {
-			picture, err := uc.getNonFungibleToken.Do(ctx, &GetNonFungibleTokenInput{
-				Address: profile.Address,
-				NonFungibleToken: &NonFungibleTokenInput{
-					TokenId: profile.ProfilePicture.TokenId,
-					Contract: &ContractInput{
-						Blockchain: profile.ProfilePicture.Contract.Blockchain,
-						Interface:  profile.ProfilePicture.Contract.Interface,
-						Address:    profile.ProfilePicture.Contract.Address,
-					},
-				},
-			})
-
-			if err != nil {
-				uc.logger.Info(ctx).Err(err).Msgf("err getting profile picture: contract address %v token id %v chain %v", profile.ProfilePicture.Contract.Address, profile.ProfilePicture.Contract, profile.ProfilePicture.Contract.Blockchain)
-				return
-			}
-
-			profile.ProfilePicture = picture
+		if profile.ProfilePicture == nil {
+			return
 		}
+
+		picture, err := uc.getNonFungibleToken.Do(ctx, &GetNonFungibleTokenInput{
+			Address: profile.Address,
+			NonFungibleToken: &NonFungibleTokenInput{
+				TokenId: profile.ProfilePicture.TokenId,
+				Contract: &ContractInput{
+					Blockchain: profile.ProfilePicture.Contract.Blockchain,
+					Interface:  profile.ProfilePicture.Contract.Interface,
+					Address:    profile.ProfilePicture.Contract.Address,
+				},
+			},
+		})
+
+		if err != nil {
+			uc.logger.Info(ctx).Err(err).Msgf("err getting profile picture: contract address %v token id %v chain %v", profile.ProfilePicture.Contract.Address, profile.ProfilePicture.Contract, profile.ProfilePicture.Contract.Blockchain)
+			return
+		}
+
+		profile.ProfilePicture = picture
 	}()
 
 	go func() {
@@ -244,7 +246,7 @@ func (uc *getProfileUseCase) Do(ctx context.Context, input *GetProfileInput) (*e
 
 	wg.Wait()
 
-	uc.cacheGateway.SaveProfile(ctx, "regular", profile)
+	uc.cacheGateway.SaveProfile(ctx, common.FULL, profile)
 
 	return profile, nil
 }

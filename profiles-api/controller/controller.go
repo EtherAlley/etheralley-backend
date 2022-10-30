@@ -34,6 +34,7 @@ func NewHttpController(
 	getCurrency usecases.IGetCurrencyUseCase,
 	verifyRateLimit usecases.IVerifyRateLimitUseCase,
 	getSpotlightProfiles usecases.IGetSpotlightProfilesUseCase,
+	getLightProfile usecases.IGetLightProfileUseCase,
 ) IHttpController {
 	return &controller{
 		appSettings,
@@ -55,6 +56,7 @@ func NewHttpController(
 		getCurrency,
 		verifyRateLimit,
 		getSpotlightProfiles,
+		getLightProfile,
 	}
 }
 
@@ -83,6 +85,7 @@ type controller struct {
 	getCurrency          usecases.IGetCurrencyUseCase
 	verifyRateLimit      usecases.IVerifyRateLimitUseCase
 	getSpotlightProfiles usecases.IGetSpotlightProfilesUseCase
+	getLightProfile      usecases.IGetLightProfileUseCase
 }
 
 func (hc *controller) Start(ctx context.Context) error {

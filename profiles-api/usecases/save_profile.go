@@ -112,7 +112,7 @@ func (uc *saveProfileUseCase) Do(ctx context.Context, input *SaveProfileInput) e
 	}
 
 	// users will expect to see there saved changes the next time they visit their profile
-	uc.cacheGateway.DeleteProfile(ctx, "regular", input.Profile.Address)
+	uc.cacheGateway.DeleteProfile(ctx, common.FULL, input.Profile.Address)
 
 	return nil
 }
