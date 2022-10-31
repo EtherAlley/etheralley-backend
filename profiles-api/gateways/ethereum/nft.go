@@ -127,9 +127,13 @@ func (gw *gateway) GetERC1155URI(ctx context.Context, contract *entities.Contrac
 		return "", fmt.Errorf("erc1155 uri %w", err)
 	}
 
-	// TODO: I think we should be padding zeros to th left hereo until 64 characters long.
-	// See https://eips.ethereum.org/EIPS/eip-1155: token ids are passed in hexidecimal form
+	// See https://eips.ethereum.org/EIPS/eip-1155
+	// token ids are passed in hexidecimal form and should be padded with zeros until 64 chars long
 	hexId := hex.EncodeToString(id.Bytes())
+	idLength := len([]rune(hexId))
+	for i := 0; i < 64-idLength; i++ {
+		hexId = "0" + hexId
+	}
 	uri = strings.Replace(uri, "{id}", hexId, 1)
 
 	return uri, nil
